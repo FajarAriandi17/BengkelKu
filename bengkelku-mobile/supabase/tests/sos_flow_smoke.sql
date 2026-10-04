@@ -38,9 +38,12 @@ select set_config('request.jwt.claim.sub','00000000-0000-0000-0000-00000000000b'
 select public.sos_start_route(:'rid');
 select public.sos_record_tracking(:'rid',-6.2005,106.8005);
 select public.sos_mark_arrived(:'rid') as arr \gset
+-- Kode TIDAK dikembalikan ke mekanik (0019); pengendara membacanya lalu mekanik memasukkannya.
+select (:'arr'::jsonb ? 'arrival_code') = false as code_hidden_from_mechanic;
 select set_config('request.jwt.claim.sub','00000000-0000-0000-0000-00000000000a',false);
-select public.sos_confirm_arrival(:'rid', (:'arr'::jsonb->>'arrival_code'));
+select public.sos_rider_arrival_code(:'rid') as code \gset
 select set_config('request.jwt.claim.sub','00000000-0000-0000-0000-00000000000b',false);
+select public.sos_verify_arrival_code(:'rid', :'code') as verified;
 select public.quote_create(null, :'rid', '[{"name":"Ganti aki","type":"sparepart","price":185000}]'::jsonb, 'aki GS', '{}') as q \gset
 select (:'q'::jsonb->>'id') as qid \gset
 select set_config('request.jwt.claim.sub','00000000-0000-0000-0000-00000000000a',false);
