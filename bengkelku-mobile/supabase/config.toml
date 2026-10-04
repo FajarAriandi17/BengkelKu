@@ -1,0 +1,44 @@
+# Supabase config (project lokal) — BengkelKu
+# Satu project dipakai bersama oleh bengkelku-mobile & bengkelku-admin-web.
+project_id = "bengkelku"
+
+[api]
+enabled = true
+port = 54321
+schemas = ["public", "storage", "graphql_public"]
+extra_search_path = ["public", "extensions"]
+max_rows = 1000
+
+[db]
+port = 54322
+shadow_port = 54320
+major_version = 15
+
+[studio]
+enabled = true
+port = 54323
+
+[storage]
+enabled = true
+# Batas global; bucket spesifik juga diset 2 MB di migrasi 0007.
+file_size_limit = "2MiB"
+
+[auth]
+enabled = true
+site_url = "bengkelku://auth-callback"
+additional_redirect_urls = ["bengkelku://auth-callback"]
+jwt_expiry = 3600
+enable_signup = true
+
+[auth.external.google]
+enabled = true
+client_id = "env(GOOGLE_CLIENT_ID)"
+secret = "env(GOOGLE_CLIENT_SECRET)"
+
+[auth.external.apple]
+enabled = true
+client_id = "env(APPLE_CLIENT_ID)"
+secret = "env(APPLE_SECRET)"
+
+[edge_runtime]
+enabled = true

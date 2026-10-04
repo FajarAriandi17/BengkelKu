@@ -1,0 +1,22 @@
+include: package:flutter_lints/flutter.yaml
+
+analyzer:
+  errors:
+    # perlakukan hal berbahaya sebagai error
+    avoid_print: error
+    use_build_context_synchronously: error
+  exclude:
+    - "**/*.g.dart"
+    - "**/*.freezed.dart"
+    - build/**
+    - android/**
+
+linter:
+  rules:
+    - prefer_const_constructors
+    - prefer_const_declarations
+    - prefer_final_locals
+    - require_trailing_commas
+    - avoid_redundant_argument_values
+    - sort_child_properties_last
+    - unawaited_futures

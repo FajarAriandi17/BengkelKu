@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>BengkelKu: update v1.3 (chat, darurat, penawaran)</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--stage:#E9EDF7;--panel:#fff;--panel2:#F3F5FB;--ink:#0F172A;--ink2:#566078;--line:#E0E5F0;--blue:#1F4FD8;--blueText:#1F4FD8;--blueSoft:#E4EBFF;
+--okText:#15803D;--okSoft:#DCFCE7;--warnText:#B45309;--warnSoft:#FEF0C7;--badText:#B91C1C;--badSoft:#FEE2E2;--okC:#16A34A;--warnC:#F59E0B;--badC:#DC2626;--bezel:#0F172A;
+--map:#E9EEF8;--road:#fff;--park:#CFEBD8;--easeOut:cubic-bezier(.22,1,.36,1);--spring:cubic-bezier(.34,1.56,.64,1);
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme=light]){--stage:#070B16;--panel:#121A30;--panel2:#0D1427;--ink:#E8ECF8;--ink2:#9AA6BF;--line:#25304D;--blue:#3A66F2;--blueText:#8FADFF;--blueSoft:#18265A;--okText:#4ADE80;--okSoft:#10341F;--warnText:#FBBF24;--warnSoft:#3A2C0B;--badText:#F87171;--badSoft:#3F1515;--bezel:#25304D;--map:#16203A;--road:#25304D;--park:#143326}}
+:root[data-theme=dark]{--stage:#070B16;--panel:#121A30;--panel2:#0D1427;--ink:#E8ECF8;--ink2:#9AA6BF;--line:#25304D;--blue:#3A66F2;--blueText:#8FADFF;--blueSoft:#18265A;--okText:#4ADE80;--okSoft:#10341F;--warnText:#FBBF24;--warnSoft:#3A2C0B;--badText:#F87171;--badSoft:#3F1515;--bezel:#25304D;--map:#16203A;--road:#25304D;--park:#143326}
+*{box-sizing:border-box}html{scroll-padding-top:calc(env(safe-area-inset-top,0px) + 60px)}
+body{margin:0;background:var(--stage);color:var(--ink);font:500 14px/1.45 "Plus Jakarta Sans",system-ui,sans-serif}
+button{font:inherit;cursor:pointer}:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:9;background:color-mix(in srgb,var(--stage) 90%,transparent);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+.top div{max-width:1240px;margin:auto;padding:10px 20px;display:flex;gap:10px;align-items:center;flex-wrap:wrap}.top b{margin-right:auto;font-weight:800}
+.pill{border:1px solid var(--line);background:var(--panel);color:var(--ink);border-radius:99px;padding:7px 14px;font-weight:700;font-size:12.5px}
+.pill.on{background:var(--blue);color:#fff;border-color:var(--blue)}
+main{max-width:1240px;margin:auto;padding:26px 20px 70px}h1{font-size:28px;line-height:1.15;font-weight:800;letter-spacing:-.02em;margin:0 0 8px}
+.lead{color:var(--ink2);max-width:700px;margin:0 0 28px}
+.grid{display:flex;flex-wrap:wrap;gap:34px 30px}.fr{width:min(340px,100%)}
+.fr code{background:var(--blueSoft);color:var(--blueText);font-weight:700;font-size:12px;padding:2px 8px;border-radius:8px}
+.fr h2{font-size:16px;font-weight:800;margin:6px 0 2px}.fr p{margin:0 0 10px;color:var(--ink2);font-size:12.5px}
+.ph{height:640px;border:7px solid var(--bezel);border-radius:36px;background:var(--panel2);overflow:hidden;display:flex;flex-direction:column;position:relative}
+.bar{display:flex;align-items:center;gap:10px;padding:14px 16px 10px;background:var(--panel);border-bottom:1px solid var(--line)}
+.bar h3{margin:0;font-size:15px;font-weight:800;line-height:1.2}.bar small{display:block;font-weight:600;color:var(--okText);font-size:11.5px}
+.ib{width:36px;height:36px;border-radius:12px;border:1px solid var(--line);display:grid;place-items:center;color:var(--ink);flex:none;background:var(--panel)}
+.av{width:38px;height:38px;border-radius:50%;background:var(--blueSoft);color:var(--blueText);display:grid;place-items:center;font-weight:800;flex:none}
+.body{flex:1;padding:14px 16px;display:flex;flex-direction:column;gap:10px;overflow:hidden}.foot{padding:12px 16px 18px;background:var(--panel);border-top:1px solid var(--line);display:flex;flex-direction:column;gap:8px}
+.btn{height:50px;border-radius:16px;border:0;font-weight:700;font-size:15px;width:100%;background:var(--blue);color:#fff;transition:transform .15s var(--easeOut)}.btn:active{transform:scale(.97)}
+.btn.out{background:var(--panel);color:var(--ink);border:1.5px solid var(--line)}.btn.sm{height:42px;font-size:13.5px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:12px}
+.note{border-radius:14px;padding:10px 12px;font-size:12px;font-weight:600;background:var(--blueSoft);color:var(--blueText)}.note.w{background:var(--warnSoft);color:var(--warnText)}
+.bd{display:inline-flex;gap:4px;align-items:center;padding:3px 9px;border-radius:99px;font-size:11.5px;font-weight:700;background:var(--okSoft);color:var(--okText)}.bd.w{background:var(--warnSoft);color:var(--warnText)}
+.r{display:flex;justify-content:space-between;gap:10px;font-size:13px;padding:3px 0}.r.t{font-weight:800;font-size:15px;color:var(--blueText);border-top:1px solid var(--line);margin-top:6px;padding-top:9px}
+.m{color:var(--ink2)}.sm{font-size:12.5px}
+/* chat */
+.b{max-width:80%;padding:9px 12px;border-radius:16px;font-size:13.5px;background:var(--panel);border:1px solid var(--line);border-bottom-left-radius:5px}
+.b.me{align-self:flex-end;background:var(--blue);color:#fff;border:0;border-radius:16px 16px 5px 16px}.b i{display:block;font-size:10.5px;opacity:.75;text-align:right;font-style:normal;margin-top:2px}
+.sys{align-self:center;font-size:11.5px;font-weight:600;color:var(--ink2);background:var(--panel);border:1px solid var(--line);border-radius:99px;padding:4px 12px}
+.dots{align-self:flex-start;display:flex;gap:4px;padding:11px 14px;background:var(--panel);border:1px solid var(--line);border-radius:16px 16px 16px 5px}
+.dots s{width:7px;height:7px;border-radius:50%;background:var(--ink2);animation:hop 1.2s infinite}.dots s:nth-child(2){animation-delay:.15s}.dots s:nth-child(3){animation-delay:.3s}
+@keyframes hop{0%,60%,100%{transform:none;opacity:.5}30%{transform:translateY(-5px);opacity:1}}
+.qr{display:flex;gap:6px;overflow:hidden}.qr span{white-space:nowrap;border:1.5px solid var(--line);border-radius:99px;padding:6px 12px;font-size:12px;font-weight:700;color:var(--blueText);background:var(--panel)}
+.cmp{display:flex;gap:8px;align-items:center}.cmp div{flex:1;height:44px;border-radius:14px;border:1.5px solid var(--line);padding:11px 14px;color:var(--ink2);background:var(--panel2)}
+.play .body>*{animation:in .5s var(--easeOut) both;animation-delay:calc(var(--i,0)*90ms)}
+@keyframes in{from{opacity:0;transform:translateY(12px) scale(.98)}to{opacity:1;transform:none}}
+.play .qrc{animation:in .4s var(--spring) both;animation-delay:2.4s}
+/* chips */
+.chips{display:flex;flex-wrap:wrap;gap:8px}.chips span{border:1.5px solid var(--line);background:var(--panel);border-radius:99px;padding:7px 13px;font-weight:700;font-size:12.5px}.chips .on{background:var(--blue);color:#fff;border-color:var(--blue);animation:pop .3s var(--spring)}
+@keyframes pop{from{transform:scale(.92)}to{transform:none}}
+/* peta */
+.map{position:relative;flex:1;background:var(--map);overflow:hidden}.map svg{position:absolute;inset:0;width:100%;height:100%}
+.pin{position:absolute;width:30px;height:30px;margin:-30px 0 0 -15px;background:var(--badC);border-radius:50% 50% 50% 0;transform:rotate(-45deg);box-shadow:0 6px 14px rgba(15,23,42,.25)}.pin:after{content:"";position:absolute;inset:9px;background:#fff;border-radius:50%}
+.play .pin{animation:drop .7s var(--spring) both}@keyframes drop{from{transform:translateY(-120px) rotate(-45deg);opacity:0}to{transform:rotate(-45deg)}}
+.acc{position:absolute;border-radius:50%;background:color-mix(in srgb,var(--blue) 14%,transparent);border:1.5px solid var(--blue);width:90px;height:90px;margin:-45px 0 0 -45px;animation:acc 2.6s ease-in-out infinite}
+@keyframes acc{50%{transform:scale(.7)}}
+/* radar */
+.radar{position:relative;width:240px;height:240px;margin:26px auto 6px;display:grid;place-items:center}
+.radar i{position:absolute;inset:0;border-radius:50%;border:2px solid var(--blue);opacity:0;animation:rp 2.6s var(--easeOut) infinite}.radar i:nth-child(2){animation-delay:.87s}.radar i:nth-child(3){animation-delay:1.74s}
+@keyframes rp{from{transform:scale(.3);opacity:.7}to{transform:scale(1);opacity:0}}
+.core{width:84px;height:84px;border-radius:50%;background:var(--blue);display:grid;place-items:center;color:#fff;z-index:1}
+.dot{position:absolute;width:14px;height:14px;border-radius:50%;background:var(--okC);box-shadow:0 0 0 4px color-mix(in srgb,var(--okC) 25%,transparent);animation:dp .5s var(--spring) both}
+@keyframes dp{from{transform:scale(0)}}
+.wave{display:flex;gap:6px}.wave s{flex:1;height:6px;border-radius:9px;background:var(--line)}.wave s:nth-child(1){background:var(--blue)}
+.wave s:nth-child(2){background:linear-gradient(90deg,var(--blue) 50%,var(--line) 50%);background-size:200% 100%;animation:fill 4s linear infinite}@keyframes fill{from{background-position:100% 0}to{background-position:0 0}}
+/* tracking */
+.mk{position:absolute;left:0;top:0;width:34px;height:34px;margin:-17px;border-radius:50%;background:var(--blue);display:grid;place-items:center;color:#fff;offset-path:path("M40 250 C 90 210, 120 190, 150 160 S 210 100, 255 70");animation:go 9s linear infinite alternate;box-shadow:0 6px 14px rgba(15,23,42,.3)}
+@keyframes go{from{offset-distance:0%}to{offset-distance:78%}}
+.eta{position:absolute;top:12px;left:12px;background:var(--panel);border-radius:99px;padding:7px 14px;font-weight:800;box-shadow:0 8px 22px rgba(15,23,42,.18)}
+.code{display:flex;gap:6px}.code b{width:36px;height:42px;border-radius:12px;background:var(--blueSoft);color:var(--blueText);display:grid;place-items:center;font-size:20px;font-weight:800}
+.play .code b{animation:pop .4s var(--spring) both}.play .code b:nth-child(2){animation-delay:.08s}.play .code b:nth-child(3){animation-delay:.16s}.play .code b:nth-child(4){animation-delay:.24s}
+/* tawaran */
+.ring{position:relative;width:110px;height:110px;margin:6px auto;display:grid;place-items:center}.ring svg{position:absolute;inset:0;transform:rotate(-90deg)}
+.ring .a{stroke-dasharray:276.5;animation:cd 60s linear forwards}@keyframes cd{to{stroke-dashoffset:276.5;stroke:var(--badC)}}
+.ring b{font-size:30px;font-weight:800;font-variant-numeric:tabular-nums}
+.earn{background:var(--okSoft);color:var(--okText);border-radius:16px;padding:12px;text-align:center;font-weight:800;font-size:22px}
+.pulse{animation:bt 1.6s ease-in-out infinite}@keyframes bt{50%{transform:scale(1.03)}}
+.sos{border:0;border-radius:99px;background:var(--warnC);color:#1b1200;font-weight:800;padding:10px 16px;animation:bt 2.4s ease-in-out infinite}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}.mk{offset-distance:55%}}
+</style>
+</head>
+<body>
+<div class="top"><div><b>BengkelKu v1.3: prototype UI dan animasi</b>
+<button class="pill on" id="rp">Putar ulang animasi</button>
+<button class="pill" data-t="light" aria-pressed="false">Terang</button><button class="pill" data-t="dark" aria-pressed="false">Gelap</button></div></div>
+<main>
+<h1>Chat, bantuan motor mogok, dan penawaran biaya</h1>
+<p class="lead">Enam layar utama dari <code>docs/PRD_UPDATE_v1.3.md</code>. Token warna, huruf, dan kurva gerak sama dengan <code>DESIGN_HANDOFF.md</code>. Semua data adalah contoh. Peta dan rute hanya ilustrasi; implementasi memakai Google Maps SDK.</p>
+<div class="grid" id="g"></div>
+</main>
+<script>
+const I={back:'<path d="M15 18l-6-6 6-6"/>',send:'<path d="M22 2L11 13M22 2l-7 20-4-9-9-4z"/>',img:'<rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="9" cy="9" r="2"/><path d="M21 15l-5-5L5 21"/>',gps:'<circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/><circle cx="12" cy="12" r="8"/>',bike:'<circle cx="5.5" cy="17.5" r="3.5"/><circle cx="18.5" cy="17.5" r="3.5"/><path d="M15 6h2l-3 7H8l-2.5 4.5M12 17.5h6.5"/>',chat:'<path d="M21 12a8 8 0 01-11.6 7.1L3 21l1.9-6A8 8 0 1121 12z"/>',check:'<path d="M5 12l5 5 9-10"/>',wrench:'<path d="M14.7 6.3a4 4 0 005 5L21 17l-4 4-5.7-1.3-8-8L3 6l6 2z"/>'};
+const ic=(n,s=20)=>`<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${I[n]}</svg>`;
+const mapSvg='<svg viewBox="0 0 300 340" preserveAspectRatio="xMidYMid slice" aria-hidden="true"><rect x="170" y="180" width="110" height="90" rx="14" fill="var(--park)"/><g stroke="var(--road)" stroke-width="14" fill="none" stroke-linecap="round"><path d="M0 120H300M0 250H300M80 0V340M210 0V340"/></g><path d="M40 250 C 90 210, 120 190, 150 160 S 210 100, 255 70" stroke="var(--blue)" stroke-width="5" stroke-dasharray="2 9" fill="none" stroke-linecap="round"/></svg>';
+const F=[
+['chatRoom','Ruang chat','Pesan masuk naik 250 ms, titik mengetik melompat, kartu penawaran masuk dengan spring.',
+`<div class="bar"><span class="ib">${ic('back')}</span><span class="av">MJ</span><div><h3>Bengkel Maju Jaya</h3><small>Online</small></div></div>
+<div class="body">
+<div class="card sm" style="--i:0"><b>BK-7F3A21</b> · Ganti oli matic<br><span class="m">Kam, 2 Okt · 09.00 WIB</span></div>
+<div class="sys" style="--i:1">Bengkel menerima booking-mu</div>
+<div class="b" style="--i:2">Halo, motornya Vario 125 ya? Oli yang dipakai bawaan atau synthetic?</div>
+<div class="b me" style="--i:3">Bawaan saja kak. Ada bunyi kasar di CVT juga<i>08.41 ✓✓</i></div>
+<div class="b" style="--i:4">Baik, kami cek CVT saat servis. Kalau perlu ganti roller, kami kirim penawaran dulu.</div>
+<div class="dots" style="--i:5"><s></s><s></s><s></s></div></div>
+<div class="foot"><div class="qr qrc"><span>Saya sudah di lokasi</span><span>Terima kasih</span><span>Bisa lebih pagi?</span></div>
+<div class="cmp"><span class="ib">${ic('img')}</span><div>Tulis pesan…</div><span class="ib" style="background:var(--blue);color:#fff;border:0">${ic('send')}</span></div></div>`],
+['sosForm','Motor mogok: masalah, lokasi, biaya','Tombol darurat berdenyut di Beranda. Pin jatuh dengan spring, cincin akurasi mengembang. Biaya tetap dan terlihat sebelum bayar.',
+`<div class="bar"><span class="ib">${ic('back')}</span><h3>Bantuan motor mogok</h3></div>
+<div class="body"><b style="--i:0">Apa yang terjadi?</b>
+<div class="chips" style="--i:1"><span class="on">Mesin mati</span><span>Ban bocor</span><span>Aki tekor</span><span>Bensin habis</span><span>Rem bermasalah</span><span>Lainnya</span></div>
+<div class="card" style="padding:0;overflow:hidden;--i:2"><div class="map" style="height:130px;flex:none">${mapSvg}<div class="acc" style="left:50%;top:60%"></div><div class="pin" style="left:50%;top:60%"></div></div>
+<div style="padding:10px 12px" class="sm"><b>Jl. Raya Bogor km 24</b><br><span class="m">Akurasi ±12 m · depan toko roti</span></div></div>
+<div class="card" style="--i:3"><div class="r"><span class="m">Biaya panggilan (≤ 3 km)</span><b>Rp 25.000</b></div><div class="r"><span class="m">Biaya malam</span><b>Rp 0</b></div><div class="r t"><span>Total</span><span>Rp 25.000</span></div></div>
+<div class="note w" style="--i:4">Perbaikan di tempat dibayar terpisah setelah kamu setujui penawarannya. Kecelakaan atau luka? Telepon 112.</div></div>
+<div class="foot"><button class="btn">Bayar dan cari bengkel</button></div>`],
+['sosSearching','Mencari bengkel','Radar 3 cincin 2,6 dtk; titik bengkel muncul berurutan; gelombang 2 terisi saat menunggu.',
+`<div class="bar"><span class="ib">${ic('back')}</span><h3>Mencari bengkel terdekat</h3></div>
+<div class="body" style="align-items:center;text-align:center">
+<div class="radar" style="--i:0"><i></i><i></i><i></i><div class="core">${ic('gps',34)}</div>
+<span class="dot" style="left:30px;top:70px;animation-delay:.6s"></span><span class="dot" style="right:34px;top:120px;animation-delay:.9s"></span><span class="dot" style="left:96px;bottom:26px;animation-delay:1.2s"></span></div>
+<h3 style="margin:0;font-size:20px;font-weight:800;--i:1">Menghubungi 3 bengkel…</h3>
+<p class="m" style="margin:0;--i:2">Gelombang 2 dari 3. Biasanya ada yang menerima dalam 90 detik.</p>
+<div class="wave" style="width:100%;--i:3"><s></s><s></s><s></s></div></div>
+<div class="foot"><button class="btn out">Batalkan dan refund</button></div>`],
+['sosTracking','Mekanik menuju lokasi','Marker bergerak halus mengikuti rute, ETA berubah, kode 4 digit memantul satu per satu.',
+`<div class="map">${mapSvg}<div class="pin" style="left:85%;top:21%"></div><div class="mk" aria-label="Posisi mekanik">${ic('bike',18)}</div><div class="eta">Tiba ±8 menit · 2,4 km</div></div>
+<div class="foot" style="gap:10px"><div style="display:flex;gap:10px;align-items:center"><span class="av">MJ</span><div style="flex:1"><b>Pak Budi · Maju Jaya</b><div class="sm m">Honda Beat B 4821 XYZ · ★ 4,8</div></div><span class="ib" style="background:var(--blue);color:#fff;border:0">${ic('chat')}</span></div>
+<div class="card" style="display:flex;justify-content:space-between;align-items:center"><div class="sm"><b>Kode kedatangan</b><div class="m">Sebutkan saat mekanik tiba</div></div><div class="code"><b>4</b><b>8</b><b>1</b><b>7</b></div></div></div>`],
+['sosQuote','Persetujuan penawaran biaya','Kartu penawaran masuk dengan spring dan getar. Total hitung naik; tidak ada tambahan tanpa persetujuan.',
+`<div class="bar"><span class="ib">${ic('back')}</span><h3>Penawaran dari Maju Jaya</h3></div>
+<div class="body"><div class="bd w" style="align-self:flex-start;--i:0">Berlaku 09:42</div>
+<div class="card" style="--i:1"><b>Diagnosa: aki tekor</b><div class="sm m" style="margin-bottom:8px">Aki sudah 3 tahun, tegangan 9,8 V.</div>
+<div class="r"><span>Aki GS 5Ah (sparepart)</span><b>Rp 165.000</b></div><div class="r"><span>Jasa pasang</span><b>Rp 20.000</b></div><div class="r t"><span>Total perbaikan</span><span>Rp 185.000</span></div></div>
+<div class="note" style="--i:2">Biaya panggilan Rp 25.000 sudah dibayar. Dana ditahan BengkelKu sampai pekerjaan selesai.</div></div>
+<div class="foot"><button class="btn pulse">Setujui dan bayar Rp 185.000</button><button class="btn out sm">Tolak penawaran</button></div>`],
+['ownerSosOffer','Tawaran darurat (sisi bengkel)','Layar naik penuh; cincin 60 dtk menyusut linear dan merah pada 10 dtk terakhir; tombol Terima berdenyut.',
+`<div class="bar"><h3>Panggilan darurat baru</h3></div>
+<div class="body" style="text-align:center">
+<div class="ring" style="--i:0"><svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="44" fill="none" stroke="var(--line)" stroke-width="8"/><circle class="a" cx="50" cy="50" r="44" fill="none" stroke="var(--blue)" stroke-width="8" stroke-linecap="round"/></svg><b>60</b></div>
+<div class="earn" style="--i:1">Rp 48.300<div class="sm" style="font-weight:600">pendapatan bersih · biaya panggilan Rp 25.000</div></div>
+<div class="card" style="text-align:left;--i:2"><div class="r"><span class="m">Jarak · perkiraan</span><b>2,4 km · 9 menit</b></div><div class="r"><span class="m">Masalah</span><b>Mesin mati</b></div><div class="r"><span class="m">Area</span><b>Jl. Raya Bogor (±300 m)</b></div></div>
+<div class="note" style="--i:3">Lokasi tepat dibuka setelah kamu menerima.</div></div>
+<div class="foot"><button class="btn pulse" style="background:var(--okC)">Terima panggilan</button><button class="btn out sm">Lewati</button></div>`]
+];
+const g=document.getElementById('g');
+g.innerHTML=F.map(([id,t,d,h])=>`<div class="fr"><code>${id}</code><h2>${t}</h2><p>${d}</p><div class="ph play">${h}</div></div>`).join('');
+const play=()=>document.querySelectorAll('.ph').forEach(p=>{p.classList.remove('play');void p.offsetWidth;p.classList.add('play')});
+document.getElementById('rp').onclick=play;
+document.querySelectorAll('[data-t]').forEach(b=>b.onclick=()=>{document.documentElement.dataset.theme=b.dataset.t;document.querySelectorAll('[data-t]').forEach(x=>x.setAttribute('aria-pressed',x===b))});
+</script>
+</body>
+</html>

@@ -1,0 +1,36 @@
+# --- BengkelKu monorepo root ---
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editor / IDE
+.idea/
+.vscode/
+*.iml
+
+# Output analisis sementara
+analyze_out.txt
+analyze_err.txt
+
+# Flutter / Dart (lihat juga bengkelku-mobile/.gitignore)
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+build/
+
+# Node / Next.js (lihat juga BengkelKu - Admin Web/bengkelku-admin-web/.gitignore)
+node_modules/
+.next/
+out/
+.vercel/
+
+# Env & rahasia — JANGAN commit
+.env
+.env.*
+*.env
+!.env.example
+*.pem
+*.jks
+*.keystore

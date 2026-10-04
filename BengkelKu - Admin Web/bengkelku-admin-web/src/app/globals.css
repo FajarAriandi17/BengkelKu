@@ -1,0 +1,43 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: light dark;
+}
+
+html,
+body {
+  padding: 0;
+  margin: 0;
+  font-family: "Plus Jakarta Sans", system-ui, sans-serif;
+  background: #f3f5fb;
+  color: #0f172a;
+}
+
+@media (prefers-color-scheme: dark) {
+  html,
+  body {
+    background: #0d1427;
+    color: #e8ecf8;
+  }
+}
+
+/* Hormati reduce motion */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Blur default untuk dokumen sensitif */
+.doc-blur {
+  filter: blur(16px);
+  transition: filter 180ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+.doc-blur.revealed {
+  filter: none;
+}

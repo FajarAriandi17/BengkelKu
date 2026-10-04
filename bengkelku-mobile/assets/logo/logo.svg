@@ -1,0 +1,16 @@
+<svg width="128" height="128" viewBox="0 0 128 128" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="BengkelKu">
+  <!-- Pin lokasi biru -->
+  <path d="M64 8C41 8 22 26.5 22 49c0 29 42 71 42 71s42-42 42-71C106 26.5 87 8 64 8z"
+        fill="#1F4FD8"/>
+  <!-- Lingkaran dalam -->
+  <circle cx="64" cy="48" r="30" fill="#E4EBFF"/>
+  <!-- Siluet motor sederhana -->
+  <g fill="#1F4FD8">
+    <circle cx="50" cy="56" r="8" fill="none" stroke="#1F4FD8" stroke-width="4"/>
+    <circle cx="78" cy="56" r="8" fill="none" stroke="#1F4FD8" stroke-width="4"/>
+    <path d="M50 56h12l6-10h8l4 6" fill="none" stroke="#1F4FD8" stroke-width="4"
+          stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M58 46l-4-6h-6" fill="none" stroke="#1F4FD8" stroke-width="4"
+          stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+</svg>
