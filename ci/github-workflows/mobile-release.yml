@@ -1,0 +1,146 @@
+# Build rilis BengkelKu: APK/AAB (Android, ubuntu) + IPA (iOS, macOS).
+# Secrets (Settings → Secrets and variables → Actions):
+#   SUPABASE_URL, SUPABASE_ANON_KEY, GMAPS_API_KEY, SENTRY_DSN (opsional)
+#   Android (opsional; tanpa ini APK pakai debug key):
+#     ANDROID_KEYSTORE_BASE64, ANDROID_KEYSTORE_PASSWORD, ANDROID_KEY_ALIAS, ANDROID_KEY_PASSWORD
+#   iOS (opsional; tanpa ini IPA dibuat TANPA tanda tangan):
+#     IOS_P12_BASE64, IOS_P12_PASSWORD, IOS_PROVISION_PROFILE_BASE64, IOS_TEAM_ID
+name: mobile-release
+
+on:
+  workflow_dispatch:
+  push:
+    tags: ["v*"]
+
+env:
+  FLUTTER_VERSION: "3.35.4"
+
+defaults:
+  run:
+    working-directory: bengkelku-mobile
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with: { flutter-version: "${{ env.FLUTTER_VERSION }}", channel: stable, cache: true }
+      - run: flutter pub get
+      - run: flutter analyze --no-fatal-infos
+      - run: flutter test
+
+  android:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with: { distribution: temurin, java-version: "17" }
+      - uses: subosito/flutter-action@v2
+        with: { flutter-version: "${{ env.FLUTTER_VERSION }}", channel: stable, cache: true }
+      - name: Tulis .env (dart-define)
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+          GMAPS_API_KEY: ${{ secrets.GMAPS_API_KEY }}
+          SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
+        run: |
+          python3 -c 'import json,os; json.dump({**{k: os.environ.get(k,"") for k in ["SUPABASE_URL","SUPABASE_ANON_KEY","GMAPS_API_KEY","SENTRY_DSN"]}, "APP_ENV":"prod"}, open(".env","w"))'
+      - name: Keystore rilis (bila tersedia)
+        env:
+          KS: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          KS_PASS: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          KEY_PASS: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        run: |
+          if [ -n "$KS" ]; then
+            echo "$KS" | base64 -d > android/release-key.jks
+            printf "storePassword=%s\nkeyPassword=%s\nkeyAlias=%s\nstoreFile=../release-key.jks\n" "$KS_PASS" "$KEY_PASS" "$KEY_ALIAS" > android/key.properties
+          fi
+      - run: flutter pub get
+      - run: flutter build apk --release --dart-define-from-file=.env
+      - run: flutter build appbundle --release --dart-define-from-file=.env
+      - uses: actions/upload-artifact@v4
+        with:
+          name: bengkelku-android
+          path: |
+            bengkelku-mobile/build/app/outputs/flutter-apk/app-release.apk
+            bengkelku-mobile/build/app/outputs/bundle/release/app-release.aab
+
+  ios:
+    needs: test
+    runs-on: macos-14
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with: { flutter-version: "${{ env.FLUTTER_VERSION }}", channel: stable, cache: true }
+      - name: Tulis .env + Secrets.xcconfig
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+          GMAPS_API_KEY: ${{ secrets.GMAPS_API_KEY }}
+          SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
+        run: |
+          python3 -c 'import json,os; json.dump({**{k: os.environ.get(k,"") for k in ["SUPABASE_URL","SUPABASE_ANON_KEY","GMAPS_API_KEY","SENTRY_DSN"]}, "APP_ENV":"prod"}, open(".env","w"))'
+          echo "GMAPS_API_KEY=$GMAPS_API_KEY" > ios/Flutter/Secrets.xcconfig
+      - run: flutter pub get
+      - run: cd ios && pod install --repo-update
+      - name: Sertifikat & profil (bila tersedia)
+        id: sign
+        env:
+          P12: ${{ secrets.IOS_P12_BASE64 }}
+          P12_PASS: ${{ secrets.IOS_P12_PASSWORD }}
+          PROFILE: ${{ secrets.IOS_PROVISION_PROFILE_BASE64 }}
+          TEAM_ID: ${{ secrets.IOS_TEAM_ID }}
+        run: |
+          if [ -z "$P12" ] || [ -z "$PROFILE" ]; then echo "signed=false" >> $GITHUB_OUTPUT; exit 0; fi
+          KC=$RUNNER_TEMP/build.keychain; KCP=$(uuidgen)
+          security create-keychain -p "$KCP" "$KC"; security set-keychain-settings -lut 21600 "$KC"; security unlock-keychain -p "$KCP" "$KC"
+          echo "$P12" | base64 -d > $RUNNER_TEMP/cert.p12
+          security import $RUNNER_TEMP/cert.p12 -P "$P12_PASS" -A -t cert -f pkcs12 -k "$KC"
+          security list-keychain -d user -s "$KC"
+          mkdir -p "$HOME/Library/MobileDevice/Provisioning Profiles"
+          PP="$HOME/Library/MobileDevice/Provisioning Profiles/bengkelku.mobileprovision"
+          echo "$PROFILE" | base64 -d > "$PP"
+          security cms -D -i "$PP" > $RUNNER_TEMP/pp.plist
+          UUID=$(/usr/libexec/PlistBuddy -c "Print UUID" $RUNNER_TEMP/pp.plist)
+          /usr/libexec/PlistBuddy -c "Add :method string app-store" \
+            -c "Add :teamID string $TEAM_ID" \
+            -c "Add :provisioningProfiles dict" \
+            -c "Add :provisioningProfiles:com.bengkelkumotor.service string $UUID" \
+            $RUNNER_TEMP/ExportOptions.plist
+          echo "signed=true" >> $GITHUB_OUTPUT
+      - name: Build IPA (bertanda tangan → TestFlight/App Store)
+        if: steps.sign.outputs.signed == 'true'
+        run: flutter build ipa --release --dart-define-from-file=.env --export-options-plist=$RUNNER_TEMP/ExportOptions.plist
+      - name: Build IPA (tanpa tanda tangan → re-sign manual)
+        if: steps.sign.outputs.signed != 'true'
+        run: |
+          flutter build ios --release --no-codesign --dart-define-from-file=.env
+          mkdir -p build/ios/ipa/Payload
+          cp -R build/ios/iphoneos/Runner.app build/ios/ipa/Payload/
+          cd build/ios/ipa && zip -qry BengkelKu-unsigned.ipa Payload && rm -rf Payload
+      - uses: actions/upload-artifact@v4
+        with:
+          name: bengkelku-ios
+          path: bengkelku-mobile/build/ios/ipa/*.ipa
+
+  release:
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: [android, ios]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    defaults:
+      run:
+        working-directory: .
+    steps:
+      - uses: actions/download-artifact@v4
+        with: { path: dist }
+      - uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            dist/bengkelku-android/**/*.apk
+            dist/bengkelku-android/**/*.aab
+            dist/bengkelku-ios/*.ipa
