@@ -65,5 +65,5 @@ insert into public.app_config (key, value, label) values
   -- Voucher (Fitur E).
   ('referral_commission_free_months', '1'::jsonb, 'Bonus komisi 0% untuk referral bengkel (bulan)'),
   -- CTA eksternal.
-  ('tax_info_url', 'https://www.dipendajakarta.go.id/'::jsonb, 'Tautan informasi resmi pajak daerah')
+  ('tax_info_url', '"https://www.dipendajakarta.go.id/"'::jsonb, 'Tautan informasi resmi pajak daerah')
 on conflict (key) do nothing;

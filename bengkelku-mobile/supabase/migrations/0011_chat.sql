@@ -2,10 +2,30 @@
 -- Thread per booking & per panggilan darurat. Peserta tepat 2.
 -- Penyaringan nomor telepon / tautan / email dilakukan trigger DB.
 
-create type if not exists chat_thread_type as enum ('booking', 'sos');
-create type if not exists chat_message_kind as enum ('text', 'image', 'system', 'quote', 'location');
-create type if not exists chat_thread_state as enum ('open', 'readonly');
-create type if not exists chat_report_state as enum ('open', 'reviewing', 'actioned', 'dismissed');
+do $$
+begin
+  if not exists (select 1 from pg_type where typname = 'chat_thread_type') then
+    create type chat_thread_type as enum ('booking', 'sos');
+  end if;
+end $$;
+do $$
+begin
+  if not exists (select 1 from pg_type where typname = 'chat_message_kind') then
+    create type chat_message_kind as enum ('text', 'image', 'system', 'quote', 'location');
+  end if;
+end $$;
+do $$
+begin
+  if not exists (select 1 from pg_type where typname = 'chat_thread_state') then
+    create type chat_thread_state as enum ('open', 'readonly');
+  end if;
+end $$;
+do $$
+begin
+  if not exists (select 1 from pg_type where typname = 'chat_report_state') then
+    create type chat_report_state as enum ('open', 'reviewing', 'actioned', 'dismissed');
+  end if;
+end $$;
 
 create table if not exists public.chat_threads (
   id uuid primary key default gen_random_uuid(),

@@ -42,7 +42,7 @@ create index if not exists idx_odo_vehicle on public.odometer_logs (vehicle_id);
 create or replace function public.handle_new_user()
 returns trigger
 language plpgsql
-security definer set search_path = public
+security definer set search_path = public, extensions
 as $$
 begin
   insert into public.users (id, full_name, avatar_url)

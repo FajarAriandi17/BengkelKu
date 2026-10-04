@@ -35,7 +35,7 @@ create or replace function public.chat_send(
 )
 returns jsonb
 language plpgsql
-security definer set search_path = public
+security definer set search_path = public, extensions
 as $$
 declare
   v_thread public.chat_threads;
@@ -89,7 +89,7 @@ create or replace function public.chat_mark_read(
 )
 returns void
 language plpgsql
-security definer set search_path = public
+security definer set search_path = public, extensions
 as $$
 declare
   v_thread public.chat_threads;
@@ -125,7 +125,7 @@ end$$;
 create or replace function public.sos_mark_paid(p_request_id uuid)
 returns jsonb
 language plpgsql
-security definer set search_path = public
+security definer set search_path = public, extensions
 as $$
 declare
   v_request public.sos_requests;
@@ -171,7 +171,7 @@ end$$;
 create or replace function public.sos_on_accepted_chat()
 returns trigger
 language plpgsql
-security definer set search_path = public
+security definer set search_path = public, extensions
 as $$
 begin
   if new.status = 'DITERIMA'
@@ -195,7 +195,7 @@ create trigger trg_sos_accepted_chat
 create or replace function public.booking_on_paid_chat()
 returns trigger
 language plpgsql
-security definer set search_path = public
+security definer set search_path = public, extensions
 as $$
 begin
   if new.status = 'DIBAYAR_MENUNGGU_KONFIRMASI'

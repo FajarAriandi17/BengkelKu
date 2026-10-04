@@ -1,10 +1,18 @@
 -- 0014_support.sql — pusat bantuan & laporan masalah (Fitur F, PRD v1.3 Bagian 7)
 
-create type if not exists support_state as enum (
+do $$
+begin
+  if not exists (select 1 from pg_type where typname = 'support_state') then
+    create type support_state as enum (
   'DITERIMA', 'DITINJAU', 'MENUNGGU_INFO', 'SELESAI'
 );
+  end if;
+end $$;
 
-create type if not exists support_category as enum (
+do $$
+begin
+  if not exists (select 1 from pg_type where typname = 'support_category') then
+    create type support_category as enum (
   'BENGKEL_TIDAK_DATANG',
   'HARGA_TIDAK_SESUAI',
   'KERUSAKAN_SETELAH_SERVIS',
@@ -12,6 +20,8 @@ create type if not exists support_category as enum (
   'PERILAKU_TIDAK_PANTAS',
   'LAINNYA'
 );
+  end if;
+end $$;
 
 create table if not exists public.support_tickets (
   id uuid primary key default gen_random_uuid(),
@@ -71,7 +81,7 @@ create or replace function public.support_create_ticket(
 )
 returns jsonb
 language plpgsql
-security definer set search_path = public
+security definer set search_path = public, extensions
 as $$
 declare
   v_user uuid := auth.uid();

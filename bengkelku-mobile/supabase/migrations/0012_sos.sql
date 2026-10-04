@@ -6,7 +6,10 @@
 -- Semua tulisan dari klien lewat RPC (security definer) agar validasi
 -- (tier, gelombang, atomitas penerimaan, refund) dilakukan di server.
 
-create type if not exists sos_status as enum (
+do $$
+begin
+  if not exists (select 1 from pg_type where typname = 'sos_status') then
+    create type sos_status as enum (
   'MENUNGGU_PEMBAYARAN',
   'MENCARI_BENGKEL',
   'DITERIMA',
@@ -20,15 +23,27 @@ create type if not exists sos_status as enum (
   'KEDALUWARSA',
   'TIDAK_ADA_BENGKEL'
 );
+  end if;
+end $$;
 
-create type if not exists sos_offer_state as enum (
+do $$
+begin
+  if not exists (select 1 from pg_type where typname = 'sos_offer_state') then
+    create type sos_offer_state as enum (
   'sent', 'accepted', 'skipped', 'expired', 'taken'
 );
+  end if;
+end $$;
 
-create type if not exists sos_problem as enum (
+do $$
+begin
+  if not exists (select 1 from pg_type where typname = 'sos_problem') then
+    create type sos_problem as enum (
   'ENGINE_DEAD', 'FLAT_TIRE', 'DEAD_BATTERY', 'OUT_OF_FUEL',
   'BRAKE_ISSUE', 'OTHER'
 );
+  end if;
+end $$;
 
 -- ===========================================================================
 -- Tabel
@@ -116,13 +131,13 @@ create index if not exists idx_workshop_standby_ready on public.workshop_standby
 -- ===========================================================================
 
 create or replace function public.app_config_value(k text)
-returns jsonb language sql stable security definer set search_path = public as $$
+returns jsonb language sql stable security definer set search_path = public, extensions as $$
   select value from public.app_config where key = k;
 $$;
 
 -- Hitung tier berdasarkan jarak (meter) ke bengkel terdekat yang siaga.
 create or replace function public.sos_tier_for_distance(dist_m double precision)
-returns int language sql stable security definer set search_path = public as $$
+returns int language sql stable security definer set search_path = public, extensions as $$
   with tiers as (
     select (elem->>'tier')::int as tier, (elem->>'max_km')::int as max_km, (elem->>'fee')::int as fee
     from jsonb_array_elements(public.app_config_value('sos_tiers')) as elem
@@ -136,7 +151,7 @@ $$;
 
 -- Biaya panggilan untuk sebuah tier.
 create or replace function public.sos_fee_for_tier(t int)
-returns int language sql stable security definer set search_path = public as $$
+returns int language sql stable security definer set search_path = public, extensions as $$
   with tiers as (
     select (elem->>'tier')::int as tier, (elem->>'fee')::int as fee
     from jsonb_array_elements(public.app_config_value('sos_tiers')) as elem
@@ -146,7 +161,7 @@ $$;
 
 -- Label tier untuk tampilan ("≤ 3 km", "> 3 sampai 6 km", dst). PRD 3.5.
 create or replace function public.sos_tier_label(t int)
-returns text language sql stable security definer set search_path = public as $$
+returns text language sql stable security definer set search_path = public, extensions as $$
   with tiers as (
     select (elem->>'tier')::int as tier, (elem->>'max_km')::int as max_km,
            lag((elem->>'max_km')::int) over (order by (elem->>'tier')::int) as prev_km
@@ -161,7 +176,7 @@ $$;
 
 -- Apakah jam malam berlaku di waktu lokal pengendara? (21.00–05.00)
 create or replace function public.sos_is_night(at timestamptz)
-returns boolean language sql stable security definer set search_path = public as $$
+returns boolean language sql stable security definer set search_path = public, extensions as $$
   with cfg as (
     select
       (public.app_config_value('sos_night_start_hour') #>> '{}')::int as start_h,
@@ -190,7 +205,7 @@ create or replace function public.sos_quote_fee(
 )
 returns jsonb
 language plpgsql
-security definer set search_path = public
+security definer set search_path = public, extensions
 as $$
 declare
   v_nearest record;
@@ -257,7 +272,7 @@ create or replace function public.sos_create(
 )
 returns jsonb
 language plpgsql
-security definer set search_path = public
+security definer set search_path = public, extensions
 as $$
 declare
   v_rider uuid := auth.uid();
@@ -370,7 +385,7 @@ end$$;
 create or replace function public.sos_dispatch_wave()
 returns void
 language plpgsql
-security definer set search_path = public
+security definer set search_path = public, extensions
 as $$
 declare
   v_req record;
@@ -458,7 +473,7 @@ end$$;
 create or replace function public.sos_accept(p_offer_id uuid)
 returns jsonb
 language plpgsql
-security definer set search_path = public
+security definer set search_path = public, extensions
 as $$
 declare
   v_offer public.sos_offers;
@@ -466,8 +481,9 @@ declare
   v_workshop uuid;
   v_mechanic_name text;
 begin
-  select workshop_id into v_workshop
-  from public.workshops where owner_id = auth.uid();
+  select id into v_workshop
+  from public.workshops where owner_id = auth.uid()
+  order by created_at limit 1;
   if v_workshop is null then
     raise exception 'Kamu bukan pemilik bengkel';
   end if;
@@ -533,15 +549,16 @@ end$$;
 create or replace function public.sos_mark_arrived(p_request_id uuid)
 returns jsonb
 language plpgsql
-security definer set search_path = public
+security definer set search_path = public, extensions
 as $$
 declare
   v_request public.sos_requests;
   v_code text;
   v_workshop uuid;
 begin
-  select workshop_id into v_workshop
-  from public.workshops where owner_id = auth.uid();
+  select id into v_workshop
+  from public.workshops where owner_id = auth.uid()
+  order by created_at limit 1;
 
   select * into v_request
   from public.sos_requests
@@ -572,7 +589,7 @@ create or replace function public.sos_confirm_arrival(
 )
 returns boolean
 language plpgsql
-security definer set search_path = public
+security definer set search_path = public, extensions
 as $$
 declare
   v_request public.sos_requests;
@@ -609,7 +626,7 @@ create or replace function public.sos_cancel(
 )
 returns jsonb
 language plpgsql
-security definer set search_path = public
+security definer set search_path = public, extensions
 as $$
 declare
   v_request public.sos_requests;
@@ -631,7 +648,7 @@ begin
   -- Hanya rider pemilik atau bengkel penerima.
   if v_request.rider_id <> auth.uid()
      and v_request.accepted_workshop_id is distinct from (
-       select workshop_id from public.workshops where owner_id = auth.uid()
+       select id from public.workshops where owner_id = auth.uid()
      ) then
     raise exception 'Tidak berhak membatalkan';
   end if;
@@ -692,16 +709,17 @@ create or replace function public.sos_complete(
 )
 returns void
 language plpgsql
-security definer set search_path = public
+security definer set search_path = public, extensions
 as $$
 declare
   v_workshop uuid;
 begin
-  select workshop_id into v_workshop
-  from public.workshops where owner_id = auth.uid();
+  select id into v_workshop
+  from public.workshops where owner_id = auth.uid()
+  order by created_at limit 1;
 
   update public.sos_requests
-  set status = case when p_with_repair then 'SELESAI' else 'SELESAI_TANPA_PERBAIKAN' end,
+  set status = (case when p_with_repair then 'SELESAI' else 'SELESAI_TANPA_PERBAIKAN' end)::sos_status,
       ended_reason = case when p_with_repair then 'repair_done' else 'no_repair_needed' end,
       updated_at = now()
   where id = p_request_id
@@ -720,7 +738,7 @@ create or replace function public.sos_toggle_standby(
 )
 returns void
 language plpgsql
-security definer set search_path = public
+security definer set search_path = public, extensions
 as $$
 declare
   v_owner uuid;
@@ -746,7 +764,7 @@ create or replace function public.sos_update_standby_position(
 )
 returns void
 language plpgsql
-security definer set search_path = public
+security definer set search_path = public, extensions
 as $$
 declare
   v_owner uuid;
@@ -850,7 +868,7 @@ alter publication supabase_realtime add table public.sos_offers;
 -- ===========================================================================
 
 create or replace function public.sos_prune_tracking()
-returns void language sql security definer set search_path = public as $$
+returns void language sql security definer set search_path = public, extensions as $$
   delete from public.sos_tracking
   where recorded_at < now() - (
     (coalesce((public.app_config_value('sos_tracking_retention_hours') #>> '{}')::int, 24) || ' hours')::interval

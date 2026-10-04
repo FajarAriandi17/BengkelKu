@@ -4,11 +4,21 @@
 -- Pengendara Setujui+bayar atau Tolak. Tanpa persetujuan bengkel tidak boleh
 -- mengerjakan tambahan; total tidak bisa naik tanpa penawaran baru.
 
-create type if not exists quote_state as enum (
+do $$
+begin
+  if not exists (select 1 from pg_type where typname = 'quote_state') then
+    create type quote_state as enum (
   'sent', 'approved', 'rejected', 'expired', 'superseded'
 );
+  end if;
+end $$;
 
-create type if not exists quote_item_type as enum ('jasa', 'sparepart');
+do $$
+begin
+  if not exists (select 1 from pg_type where typname = 'quote_item_type') then
+    create type quote_item_type as enum ('jasa', 'sparepart');
+  end if;
+end $$;
 
 create table if not exists public.quotes (
   id uuid primary key default gen_random_uuid(),
@@ -59,7 +69,7 @@ create or replace function public.quote_create(
 )
 returns jsonb
 language plpgsql
-security definer set search_path = public
+security definer set search_path = public, extensions
 as $$
 declare
   v_workshop uuid;
@@ -76,8 +86,9 @@ declare
   v_active int;
   v_quote public.quotes;
 begin
-  select workshop_id into v_workshop
-  from public.workshops where owner_id = auth.uid();
+  select id into v_workshop
+  from public.workshops where owner_id = auth.uid()
+  order by created_at limit 1;
   if v_workshop is null then
     raise exception 'Kamu bukan pemilik bengkel';
   end if;
@@ -166,7 +177,7 @@ end$$;
 create or replace function public.quote_approve(p_quote_id uuid)
 returns void
 language plpgsql
-security definer set search_path = public
+security definer set search_path = public, extensions
 as $$
 declare
   v_quote public.quotes;
@@ -226,7 +237,7 @@ create or replace function public.quote_reject(
 )
 returns void
 language plpgsql
-security definer set search_path = public
+security definer set search_path = public, extensions
 as $$
 declare
   v_quote public.quotes;
@@ -277,7 +288,7 @@ end$$;
 -- ===========================================================================
 
 create or replace function public.quote_expire_stale()
-returns void language sql security definer set search_path = public as $$
+returns void language sql security definer set search_path = public, extensions as $$
   update public.quotes
   set state = 'expired', updated_at = now()
   where state = 'sent' and expires_at < now();

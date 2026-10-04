@@ -43,7 +43,7 @@ $$;
 create or replace function public.on_service_record()
 returns trigger
 language plpgsql
-security definer set search_path = public
+security definer set search_path = public, extensions
 as $$
 declare
   v record;
