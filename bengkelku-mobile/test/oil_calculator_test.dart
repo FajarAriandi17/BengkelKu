@@ -55,10 +55,10 @@ void main() {
     });
 
     test("nextOilTargetDate menambah hari", () {
-      final base = DateTime.utc(2026, 1, 1);
+      final base = DateTime.utc(2026);
       expect(
         nextOilTargetDate(serviceDate: base, intervalDays: 90),
-        DateTime.utc(2026, 4, 1),
+        DateTime.utc(2026, 4),
       );
     });
 
@@ -67,7 +67,7 @@ void main() {
       expect(
         remainingDays(
           targetDate: DateTime.utc(2026, 1, 10),
-          now: DateTime.utc(2026, 1, 1),
+          now: DateTime.utc(2026),
         ),
         9,
       );
@@ -75,7 +75,7 @@ void main() {
 
     test("alur end-to-end: servis → mendekati → soon", () {
       const target = 16000;
-      final targetDate = DateTime.utc(2026, 4, 1);
+      final targetDate = DateTime.utc(2026, 4);
       final rKm = remainingKm(targetKm: target, currentOdometer: 15750);
       final rDays = remainingDays(
         targetDate: targetDate,

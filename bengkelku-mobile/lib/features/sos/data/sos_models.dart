@@ -334,10 +334,12 @@ class WorkshopStandby extends Equatable {
       emergencyReady: json['emergency_ready'] as bool,
       afterHours: json['after_hours'] as bool? ?? false,
       radiusTierMax: json['radius_tier_max'] as int,
-      lastLat:
-          json['last_lat'] != null ? (json['last_lat'] as num).toDouble() : null,
-      lastLng:
-          json['last_lng'] != null ? (json['last_lng'] as num).toDouble() : null,
+      lastLat: json['last_lat'] != null
+          ? (json['last_lat'] as num).toDouble()
+          : null,
+      lastLng: json['last_lng'] != null
+          ? (json['last_lng'] as num).toDouble()
+          : null,
       lastSeenAt: json['last_seen_at'] != null
           ? DateTime.parse(json['last_seen_at'] as String)
           : null,

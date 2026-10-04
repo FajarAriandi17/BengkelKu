@@ -72,23 +72,34 @@ class _BookingSummaryScreenState extends State<BookingSummaryScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text("Bengkel Jaya Motor", style: AppTypography.h2.copyWith(color: c.ink)),
+                  Text("Bengkel Jaya Motor",
+                      style: AppTypography.h2.copyWith(color: c.ink)),
                   const SizedBox(height: 4),
-                  Text("Jl. Fatmawati No. 12, Jakarta Selatan", style: AppTypography.caption.copyWith(color: c.ink.withOpacity(0.6))),
+                  Text("Jl. Fatmawati No. 12, Jakarta Selatan",
+                      style: AppTypography.caption
+                          .copyWith(color: c.ink.withValues(alpha: 0.6))),
                   const Divider(height: 24),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text("Jadwal Servis", style: AppTypography.body.copyWith(color: c.ink.withOpacity(0.7))),
-                      Text("Besok, 09.00 WIB", style: AppTypography.bodyStrong.copyWith(color: c.ink)),
+                      Text("Jadwal Servis",
+                          style: AppTypography.body
+                              .copyWith(color: c.ink.withValues(alpha: 0.7))),
+                      Text("Besok, 09.00 WIB",
+                          style:
+                              AppTypography.bodyStrong.copyWith(color: c.ink)),
                     ],
                   ),
                   const SizedBox(height: 6),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text("Kendaraan", style: AppTypography.body.copyWith(color: c.ink.withOpacity(0.7))),
-                      Text("Honda Vario 160 (B 1234 XYZ)", style: AppTypography.bodyStrong.copyWith(color: c.ink)),
+                      Text("Kendaraan",
+                          style: AppTypography.body
+                              .copyWith(color: c.ink.withValues(alpha: 0.7))),
+                      Text("Honda Vario 160 (B 1234 XYZ)",
+                          style:
+                              AppTypography.bodyStrong.copyWith(color: c.ink)),
                     ],
                   ),
                 ],
@@ -97,7 +108,8 @@ class _BookingSummaryScreenState extends State<BookingSummaryScreen> {
             const SizedBox(height: 20),
 
             // Layanan dipilih
-            Text("Layanan Dipesan", style: AppTypography.h2.copyWith(color: c.ink, fontSize: 16)),
+            Text("Layanan Dipesan",
+                style: AppTypography.h2.copyWith(color: c.ink, fontSize: 16)),
             const SizedBox(height: 10),
             Container(
               padding: const EdgeInsets.all(16),
@@ -110,7 +122,8 @@ class _BookingSummaryScreenState extends State<BookingSummaryScreen> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text("Servis Rutin / Ringan", style: TextStyle(fontWeight: FontWeight.w500)),
+                      Text("Servis Rutin / Ringan",
+                          style: TextStyle(fontWeight: FontWeight.w500)),
                       Text("Rp 55.000"),
                     ],
                   ),
@@ -118,7 +131,8 @@ class _BookingSummaryScreenState extends State<BookingSummaryScreen> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text("Ganti Oli Mesin Sintetik", style: TextStyle(fontWeight: FontWeight.w500)),
+                      Text("Ganti Oli Mesin Sintetik",
+                          style: TextStyle(fontWeight: FontWeight.w500)),
                       Text("Rp 65.000"),
                     ],
                   ),

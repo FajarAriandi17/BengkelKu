@@ -32,7 +32,7 @@ class _BookingListScreenState extends State<BookingListScreen>
         bottom: TabBar(
           controller: _tabController,
           labelColor: c.blue,
-          unselectedLabelColor: c.ink.withOpacity(0.5),
+          unselectedLabelColor: c.ink.withValues(alpha: 0.5),
           indicatorColor: c.blue,
           tabs: const [
             Tab(text: "Aktif"),
@@ -106,7 +106,7 @@ class _BookingCardItem extends StatelessWidget {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.04),
+            color: Colors.black.withValues(alpha: 0.04),
             blurRadius: 6,
             offset: const Offset(0, 2),
           ),
@@ -123,20 +123,28 @@ class _BookingCardItem extends StatelessWidget {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(workshopName, style: AppTypography.h2.copyWith(color: c.ink, fontSize: 16)),
+                  Text(workshopName,
+                      style: AppTypography.h2
+                          .copyWith(color: c.ink, fontSize: 16)),
                   BookingStatusBadge(status: status),
                 ],
               ),
               const SizedBox(height: 8),
               Row(
                 children: [
-                  Icon(Icons.calendar_today_outlined, size: 14, color: c.ink.withOpacity(0.6)),
+                  Icon(Icons.calendar_today_outlined,
+                      size: 14, color: c.ink.withValues(alpha: 0.6)),
                   const SizedBox(width: 6),
-                  Text(dateTimeStr, style: AppTypography.caption.copyWith(color: c.ink.withOpacity(0.7))),
+                  Text(dateTimeStr,
+                      style: AppTypography.caption
+                          .copyWith(color: c.ink.withValues(alpha: 0.7))),
                   const SizedBox(width: 16),
-                  Icon(Icons.two_wheeler, size: 14, color: c.ink.withOpacity(0.6)),
+                  Icon(Icons.two_wheeler,
+                      size: 14, color: c.ink.withValues(alpha: 0.6)),
                   const SizedBox(width: 6),
-                  Text(vehicleInfo, style: AppTypography.caption.copyWith(color: c.ink.withOpacity(0.7))),
+                  Text(vehicleInfo,
+                      style: AppTypography.caption
+                          .copyWith(color: c.ink.withValues(alpha: 0.7))),
                 ],
               ),
             ],

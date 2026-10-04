@@ -47,7 +47,8 @@ class _MediaPickerTileState extends State<MediaPickerTile> {
       widget.onFileSelected(file);
     } catch (e) {
       if (!mounted) return;
-      final errorMessage = e is MediaTooLargeException ? e.message : kMediaTooLargeMessage;
+      final errorMessage =
+          e is MediaTooLargeException ? e.message : kMediaTooLargeMessage;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
@@ -55,7 +56,6 @@ class _MediaPickerTileState extends State<MediaPickerTile> {
             style: const TextStyle(color: Colors.white),
           ),
           backgroundColor: Theme.of(context).extension<AppColors>()!.bad,
-          duration: const Duration(seconds: 4),
         ),
       );
     }
@@ -86,7 +86,8 @@ class _MediaPickerTileState extends State<MediaPickerTile> {
               const SizedBox(height: 16),
               ListTile(
                 leading: Icon(Icons.camera_alt, color: c.blue),
-                title: Text("Kamera In-App", style: AppTypography.bodyStrong),
+                title: const Text("Kamera In-App",
+                    style: AppTypography.bodyStrong),
                 onTap: () {
                   Navigator.pop(ctx);
                   _pickImage(ImageSource.camera);
@@ -94,7 +95,8 @@ class _MediaPickerTileState extends State<MediaPickerTile> {
               ),
               ListTile(
                 leading: Icon(Icons.photo_library, color: c.blue),
-                title: Text("Galeri Foto", style: AppTypography.bodyStrong),
+                title:
+                    const Text("Galeri Foto", style: AppTypography.bodyStrong),
                 onTap: () {
                   Navigator.pop(ctx);
                   _pickImage(ImageSource.gallery);
@@ -143,10 +145,11 @@ class _MediaPickerTileState extends State<MediaPickerTile> {
                       child: Container(
                         padding: const EdgeInsets.all(4),
                         decoration: BoxDecoration(
-                          color: Colors.black.withOpacity(0.6),
+                          color: Colors.black.withValues(alpha: 0.6),
                           shape: BoxShape.circle,
                         ),
-                        child: const Icon(Icons.close, color: Colors.white, size: 18),
+                        child: const Icon(Icons.close,
+                            color: Colors.white, size: 18),
                       ),
                     ),
                   ),
@@ -165,7 +168,8 @@ class _MediaPickerTileState extends State<MediaPickerTile> {
                     const SizedBox(height: 2),
                     Text(
                       widget.subtitle!,
-                      style: AppTypography.caption.copyWith(color: c.ink.withOpacity(0.5)),
+                      style: AppTypography.caption
+                          .copyWith(color: c.ink.withValues(alpha: 0.5)),
                     ),
                   ],
                 ],

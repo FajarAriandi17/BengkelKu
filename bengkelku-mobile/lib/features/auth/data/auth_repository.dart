@@ -66,11 +66,8 @@ class AuthRepository {
     final uid = currentUser?.id;
     if (uid == null) return null;
 
-    final response = await _client
-        .from("users")
-        .select()
-        .eq("id", uid)
-        .maybeSingle();
+    final response =
+        await _client.from("users").select().eq("id", uid).maybeSingle();
     return response;
   }
 

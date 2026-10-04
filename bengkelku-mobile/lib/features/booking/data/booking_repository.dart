@@ -21,16 +21,20 @@ class BookingRepository {
 
     final deadline = DateTime.now().toUtc().add(const Duration(minutes: 60));
 
-    final bookingRes = await _client.from("bookings").insert({
-      "rider_id": uid,
-      "workshop_id": workshopId,
-      "vehicle_id": vehicleId,
-      "status": "MENUNGGU_PEMBAYARAN",
-      "scheduled_at": scheduledAt.toUtc().toIso8601String(),
-      "subtotal_idr": subtotalIdr,
-      "total_idr": totalIdr,
-      "payment_deadline": deadline.toIso8601String(),
-    }).select().single();
+    final bookingRes = await _client
+        .from("bookings")
+        .insert({
+          "rider_id": uid,
+          "workshop_id": workshopId,
+          "vehicle_id": vehicleId,
+          "status": "MENUNGGU_PEMBAYARAN",
+          "scheduled_at": scheduledAt.toUtc().toIso8601String(),
+          "subtotal_idr": subtotalIdr,
+          "total_idr": totalIdr,
+          "payment_deadline": deadline.toIso8601String(),
+        })
+        .select()
+        .single();
 
     final bookingId = bookingRes["id"] as String;
 

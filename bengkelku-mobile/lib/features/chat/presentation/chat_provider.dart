@@ -79,7 +79,6 @@ class ChatThreadsNotifier extends StateNotifier<AsyncValue<List<ChatThread>>> {
               workshopId: t.workshopId,
               state: t.state,
               lastMessageAt: t.lastMessageAt,
-              riderUnread: 0,
               workshopUnread: t.workshopUnread,
               lastMessageText: t.lastMessageText,
               workshopName: t.workshopName,

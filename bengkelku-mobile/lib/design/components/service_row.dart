@@ -31,7 +31,7 @@ class ServiceRow extends StatelessWidget {
         color: isSelected ? c.blueSoft : c.panel,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: isSelected ? c.blue : c.blueSoft.withOpacity(0.5),
+          color: isSelected ? c.blue : c.blueSoft.withValues(alpha: 0.5),
         ),
       ),
       child: InkWell(
@@ -52,11 +52,13 @@ class ServiceRow extends StatelessWidget {
                     const SizedBox(height: 2),
                     Row(
                       children: [
-                        Icon(Icons.schedule, size: 14, color: c.ink.withOpacity(0.5)),
+                        Icon(Icons.schedule,
+                            size: 14, color: c.ink.withValues(alpha: 0.5)),
                         const SizedBox(width: 4),
                         Text(
                           "$durationMinutes menit",
-                          style: AppTypography.caption.copyWith(color: c.ink.withOpacity(0.6)),
+                          style: AppTypography.caption
+                              .copyWith(color: c.ink.withValues(alpha: 0.6)),
                         ),
                       ],
                     ),
@@ -71,7 +73,7 @@ class ServiceRow extends StatelessWidget {
                 const SizedBox(width: 10),
                 Icon(
                   isSelected ? Icons.check_circle : Icons.add_circle_outline,
-                  color: isSelected ? c.blue : c.ink.withOpacity(0.4),
+                  color: isSelected ? c.blue : c.ink.withValues(alpha: 0.4),
                   size: 22,
                 ),
               ],

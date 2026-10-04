@@ -77,7 +77,8 @@ class _SosTrackingScreenState extends ConsumerState<SosTrackingScreen> {
             await QuoteRepository().getQuotesForSos(widget.requestId);
         final pending = quotes.where((q) => q.canRespond).toList();
         if (pending.isNotEmpty && mounted) {
-          context.go('/sos/${widget.requestId}/quote?quoteId=${pending.first.id}');
+          context
+              .go('/sos/${widget.requestId}/quote?quoteId=${pending.first.id}');
           return;
         }
       } catch (_) {
@@ -95,24 +96,24 @@ class _SosTrackingScreenState extends ConsumerState<SosTrackingScreen> {
 
   void _subscribeRequest() {
     _requestChannel = ref.read(sosRepositoryProvider).subscribeToRequest(
-          widget.requestId,
-          (req) {
-            if (!mounted) return;
-            setState(() => _request = req);
-            _routeFor(req);
-          },
-        );
+      widget.requestId,
+      (req) {
+        if (!mounted) return;
+        setState(() => _request = req);
+        _routeFor(req);
+      },
+    );
   }
 
   void _subscribeLocation() {
     _locationChannel =
         ref.read(sosRepositoryProvider).subscribeToMechanicLocation(
-              widget.requestId,
-              (loc) {
-                if (!mounted) return;
-                setState(() => _mechanicLocation = loc);
-              },
-            );
+      widget.requestId,
+      (loc) {
+        if (!mounted) return;
+        setState(() => _mechanicLocation = loc);
+      },
+    );
   }
 
   void _subscribeQuotes() {

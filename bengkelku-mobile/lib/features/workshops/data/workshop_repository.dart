@@ -15,14 +15,19 @@ class WorkshopRepository {
     int limit = 50,
   }) async {
     try {
-      final response = await _client.rpc("nearby_workshops", params: {
-        "lat": lat,
-        "lng": lng,
-        "radius_m": radiusMeters,
-        "limit_n": limit,
-      }) as List<dynamic>;
+      final response = await _client.rpc(
+        "nearby_workshops",
+        params: {
+          "lat": lat,
+          "lng": lng,
+          "radius_m": radiusMeters,
+          "limit_n": limit,
+        },
+      ) as List<dynamic>;
 
-      return response.map((item) => Workshop.fromJson(item as Map<String, dynamic>)).toList();
+      return response
+          .map((item) => Workshop.fromJson(item as Map<String, dynamic>))
+          .toList();
     } catch (_) {
       // Fallback query standar jika RPC belum di-seed di environment testing
       final response = await _client
@@ -49,7 +54,8 @@ class WorkshopRepository {
   }
 
   /// Ambil daftar layanan sebuah bengkel
-  Future<List<WorkshopServiceItem>> getWorkshopServices(String workshopId) async {
+  Future<List<WorkshopServiceItem>> getWorkshopServices(
+      String workshopId) async {
     final response = await _client
         .from("services")
         .select()
@@ -57,7 +63,8 @@ class WorkshopRepository {
         .eq("is_active", true);
 
     return (response as List<dynamic>)
-        .map((item) => WorkshopServiceItem.fromJson(item as Map<String, dynamic>))
+        .map((item) =>
+            WorkshopServiceItem.fromJson(item as Map<String, dynamic>))
         .toList();
   }
 }

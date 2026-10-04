@@ -11,10 +11,13 @@ class SosRepository {
   // Quote biaya panggilan berdasarkan lokasi
   Future<SosFeeCalculation> quoteFee(double lat, double lng) async {
     try {
-      final response = await _supabase.rpc('sos_quote_fee', params: {
-        'p_lat': lat,
-        'p_lng': lng,
-      });
+      final response = await _supabase.rpc(
+        'sos_quote_fee',
+        params: {
+          'p_lat': lat,
+          'p_lng': lng,
+        },
+      );
 
       return SosFeeCalculation.fromJson(response);
     } catch (e) {
@@ -33,15 +36,18 @@ class SosRepository {
     String? landmark,
   }) async {
     try {
-      final response = await _supabase.rpc('sos_create', params: {
-        'p_problem_code': problemCode,
-        'p_problem_note': problemNote,
-        'p_photos': photos ?? [],
-        'p_lat': lat,
-        'p_lng': lng,
-        'p_accuracy_m': accuracyM,
-        'p_landmark': landmark,
-      });
+      final response = await _supabase.rpc(
+        'sos_create',
+        params: {
+          'p_problem_code': problemCode,
+          'p_problem_note': problemNote,
+          'p_photos': photos ?? [],
+          'p_lat': lat,
+          'p_lng': lng,
+          'p_accuracy_m': accuracyM,
+          'p_landmark': landmark,
+        },
+      );
 
       // sos_create mengembalikan { request, offers }.
       return SosRequest.fromJson(
@@ -55,17 +61,13 @@ class SosRepository {
   // Ambil detail permintaan
   Future<SosRequest> getRequest(String requestId) async {
     try {
-      final response = await _supabase
-          .from('sos_requests')
-          .select('''
+      final response = await _supabase.from('sos_requests').select('''
             *,
             workshops:accepted_workshop_id(
               name,
               rating_avg
             )
-          ''')
-          .eq('id', requestId)
-          .single();
+          ''').eq('id', requestId).single();
 
       return SosRequest.fromJson({
         ...response,
@@ -83,10 +85,13 @@ class SosRepository {
     required String reason,
   }) async {
     try {
-      final response = await _supabase.rpc('sos_cancel', params: {
-        'p_request_id': requestId,
-        'p_reason': reason,
-      });
+      final response = await _supabase.rpc(
+        'sos_cancel',
+        params: {
+          'p_request_id': requestId,
+          'p_reason': reason,
+        },
+      );
 
       return {
         'refund_percent': response['refund_percent'] as int,
@@ -146,10 +151,13 @@ class SosRepository {
   // Konfirmasi kode kedatangan (dari sisi pengendara)
   Future<void> confirmArrivalCode(String requestId, String code) async {
     try {
-      await _supabase.rpc('sos_confirm_arrival', params: {
-        'p_request_id': requestId,
-        'p_code': code,
-      });
+      await _supabase.rpc(
+        'sos_confirm_arrival',
+        params: {
+          'p_request_id': requestId,
+          'p_code': code,
+        },
+      );
     } catch (e) {
       throw Exception('Kode tidak valid atau sudah digunakan');
     }
@@ -184,11 +192,14 @@ class SosRepository {
     int radiusTierMax = 4,
   }) async {
     try {
-      await _supabase.rpc('sos_toggle_standby', params: {
-        'p_workshop_id': workshopId,
-        'p_ready': ready,
-        'p_radius_tier_max': radiusTierMax,
-      });
+      await _supabase.rpc(
+        'sos_toggle_standby',
+        params: {
+          'p_workshop_id': workshopId,
+          'p_ready': ready,
+          'p_radius_tier_max': radiusTierMax,
+        },
+      );
     } catch (e) {
       throw Exception('Gagal mengubah status siaga: $e');
     }
@@ -198,9 +209,12 @@ class SosRepository {
   // sos_accept mengembalikan { request_id, workshop_id, mechanic_name }.
   Future<Map<String, dynamic>> acceptOffer(String offerId) async {
     try {
-      final response = await _supabase.rpc('sos_accept', params: {
-        'p_offer_id': offerId,
-      });
+      final response = await _supabase.rpc(
+        'sos_accept',
+        params: {
+          'p_offer_id': offerId,
+        },
+      );
 
       return (response as Map).cast<String, dynamic>();
     } catch (e) {
@@ -214,9 +228,12 @@ class SosRepository {
   // Tandai mekanik sudah tiba
   Future<String> markArrived(String requestId) async {
     try {
-      final response = await _supabase.rpc('sos_mark_arrived', params: {
-        'p_request_id': requestId,
-      });
+      final response = await _supabase.rpc(
+        'sos_mark_arrived',
+        params: {
+          'p_request_id': requestId,
+        },
+      );
 
       return response['arrival_code'] as String;
     } catch (e) {
@@ -292,9 +309,12 @@ class SosRepository {
   /// Tandai biaya panggilan sudah dibayar → status MENCARI_BENGKEL (PRD 3.5).
   Future<SosRequest> markPaid(String requestId) async {
     try {
-      final response = await _supabase.rpc('sos_mark_paid', params: {
-        'p_request_id': requestId,
-      });
+      final response = await _supabase.rpc(
+        'sos_mark_paid',
+        params: {
+          'p_request_id': requestId,
+        },
+      );
       return SosRequest.fromJson((response as Map).cast<String, dynamic>());
     } catch (e) {
       throw Exception('Gagal menandai pembayaran: $e');

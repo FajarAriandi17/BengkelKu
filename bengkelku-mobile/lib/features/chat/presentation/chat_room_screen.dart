@@ -245,6 +245,7 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
   }
 
   void _onTextChanged(String text) {
+    if (_currentUserId == null) return;
     // Broadcast typing indicator
     final isTyping = text.trim().isNotEmpty;
     _repository.broadcastTyping(widget.threadId, _currentUserId!, isTyping);
@@ -340,7 +341,8 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
                                 messenger.showSnackBar(
                                   const SnackBar(
                                     content: Text(
-                                        'Laporan terkirim. Terima kasih.'),
+                                      'Laporan terkirim. Terima kasih.',
+                                    ),
                                   ),
                                 );
                               } catch (e) {
@@ -587,6 +589,8 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
             controller: _messageController,
             onSend: () => _sendMessage(text: _messageController.text),
             onImagePick: _pickImage,
+            onChanged: _onTextChanged,
+            sending: _isSending,
             enabled: _thread?.canSend ?? false,
             disabledMessage: _thread?.state == ChatThreadState.readonly
                 ? 'Chat sudah ditutup'

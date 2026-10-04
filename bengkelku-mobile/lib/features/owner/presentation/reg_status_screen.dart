@@ -5,7 +5,8 @@ import "../../../core/theme/app_typography.dart";
 import "../../../design/components/app_button.dart";
 
 class RegStatusScreen extends StatelessWidget {
-  const RegStatusScreen({super.key, this.status = "pending", this.rejectedReason});
+  const RegStatusScreen(
+      {super.key, this.status = "pending", this.rejectedReason});
 
   final String status; // 'pending' | 'approved' | 'rejected'
   final String? rejectedReason;
@@ -23,7 +24,8 @@ class RegStatusScreen extends StatelessWidget {
         ),
       "rejected" => (
           "Verifikasi Ditolak",
-          rejectedReason ?? "Dokumen KTP kurang jelas. Silakan perbarui berkas kamu.",
+          rejectedReason ??
+              "Dokumen KTP kurang jelas. Silakan perbarui berkas kamu.",
           Icons.error_outline,
           c.bad,
         ),
@@ -47,9 +49,14 @@ class RegStatusScreen extends StatelessWidget {
           children: [
             Icon(icon, size: 72, color: iconColor),
             const SizedBox(height: 24),
-            Text(title, style: AppTypography.display.copyWith(color: c.ink), textAlign: TextAlign.center),
+            Text(title,
+                style: AppTypography.display.copyWith(color: c.ink),
+                textAlign: TextAlign.center),
             const SizedBox(height: 12),
-            Text(message, style: AppTypography.body.copyWith(color: c.ink.withOpacity(0.7)), textAlign: TextAlign.center),
+            Text(message,
+                style: AppTypography.body
+                    .copyWith(color: c.ink.withValues(alpha: 0.7)),
+                textAlign: TextAlign.center),
             const SizedBox(height: 32),
             if (status == "rejected")
               AppButton(

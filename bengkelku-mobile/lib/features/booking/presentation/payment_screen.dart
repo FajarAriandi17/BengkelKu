@@ -53,7 +53,8 @@ class _PaymentScreenState extends State<PaymentScreen> {
             ),
             const SizedBox(height: 20),
 
-            Text("Pilih Metode Pembayaran", style: AppTypography.h2.copyWith(color: c.ink, fontSize: 16)),
+            Text("Pilih Metode Pembayaran",
+                style: AppTypography.h2.copyWith(color: c.ink, fontSize: 16)),
             const SizedBox(height: 12),
 
             // Method 1: QRIS
@@ -63,7 +64,8 @@ class _PaymentScreenState extends State<PaymentScreen> {
               onChanged: (val) => setState(() => _selectedMethod = val!),
               title: const Text("QRIS (BCA, Mandiri, GoPay, OVO, ShopeePay)"),
               secondary: Icon(Icons.qr_code_2, color: c.blue),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12)),
               tileColor: c.panel,
             ),
             const SizedBox(height: 8),
@@ -75,7 +77,8 @@ class _PaymentScreenState extends State<PaymentScreen> {
               onChanged: (val) => setState(() => _selectedMethod = val!),
               title: const Text("E-Wallet (GoPay / OVO / Dana)"),
               secondary: Icon(Icons.account_balance_wallet, color: c.blue),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12)),
               tileColor: c.panel,
             ),
             const SizedBox(height: 8),
@@ -87,7 +90,8 @@ class _PaymentScreenState extends State<PaymentScreen> {
               onChanged: (val) => setState(() => _selectedMethod = val!),
               title: const Text("Virtual Account (BCA / Mandiri / BRI / BNI)"),
               secondary: Icon(Icons.account_balance, color: c.blue),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12)),
               tileColor: c.panel,
             ),
             const SizedBox(height: 24),
@@ -105,7 +109,9 @@ class _PaymentScreenState extends State<PaymentScreen> {
                     children: [
                       Icon(Icons.qr_code_2, size: 180, color: c.ink),
                       const SizedBox(height: 8),
-                      Text("Pindai QRIS untuk membayar", style: AppTypography.caption.copyWith(color: Colors.black54)),
+                      Text("Pindai QRIS untuk membayar",
+                          style: AppTypography.caption
+                              .copyWith(color: Colors.black54)),
                     ],
                   ),
                 ),
@@ -118,7 +124,8 @@ class _PaymentScreenState extends State<PaymentScreen> {
         minimum: const EdgeInsets.all(16),
         child: AppButton(
           label: "Simulasi Bayar Sukses",
-          onPressed: () => context.go("/payment-success?bookingId=${widget.bookingId}"),
+          onPressed: () =>
+              context.go("/payment-success?bookingId=${widget.bookingId}"),
         ),
       ),
     );

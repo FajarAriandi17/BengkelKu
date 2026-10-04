@@ -36,7 +36,7 @@ class _SosFormScreenState extends ConsumerState<SosFormScreen> {
 
   SosFeeCalculation? _fee;
   bool _loadingFee = false;
-  List<String> _photoUrls = [];
+  final List<String> _photoUrls = [];
 
   @override
   void initState() {
@@ -75,7 +75,8 @@ class _SosFormScreenState extends ConsumerState<SosFormScreen> {
     setState(() => _loadingFee = true);
     try {
       final repo = ref.read(sosRepositoryProvider);
-      final fee = await repo.quoteFee(_position!.latitude, _position!.longitude);
+      final fee =
+          await repo.quoteFee(_position!.latitude, _position!.longitude);
       setState(() => _fee = fee);
     } catch (e) {
       if (mounted) {
@@ -414,7 +415,8 @@ class _LocationCard extends StatelessWidget {
                 SizedBox(
                   width: 20,
                   height: 20,
-                  child: CircularProgressIndicator(strokeWidth: 2, color: c.blue),
+                  child:
+                      CircularProgressIndicator(strokeWidth: 2, color: c.blue),
                 ),
                 const SizedBox(width: 12),
                 Text(
@@ -438,7 +440,8 @@ class _LocationCard extends StatelessWidget {
                         ),
                       ),
                     ),
-                    TextButton(onPressed: onRetry, child: const Text('Coba lagi')),
+                    TextButton(
+                        onPressed: onRetry, child: const Text('Coba lagi')),
                   ],
                 )
               : Row(
@@ -449,7 +452,8 @@ class _LocationCard extends StatelessWidget {
                         color: c.blueSoft,
                         shape: BoxShape.circle,
                       ),
-                      child: Icon(Icons.my_location, color: c.blueText, size: 20),
+                      child:
+                          Icon(Icons.my_location, color: c.blueText, size: 20),
                     ),
                     const SizedBox(width: 12),
                     Expanded(

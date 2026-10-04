@@ -27,7 +27,8 @@ class _LocationScreenState extends State<LocationScreen> {
     } else if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text("kami butuh lokasi untuk menampilkan bengkel terdekat. kamu juga bisa cari lewat nama kota."),
+          content: Text(
+              "kami butuh lokasi untuk menampilkan bengkel terdekat. kamu juga bisa cari lewat nama kota."),
         ),
       );
     }
@@ -58,11 +59,11 @@ class _LocationScreenState extends State<LocationScreen> {
               const SizedBox(height: 12),
               Text(
                 "Aktifkan lokasi GPS kamu agar BengkelKu dapat menampilkan bengkel terdekat di sekitar kamu secara otomatis.",
-                style: AppTypography.body.copyWith(color: c.ink.withOpacity(0.7)),
+                style: AppTypography.body
+                    .copyWith(color: c.ink.withValues(alpha: 0.7)),
                 textAlign: TextAlign.center,
               ),
               const Spacer(),
-
               AppButton(
                 label: "Aktifkan Lokasi GPS",
                 onPressed: _requestLocation,
@@ -70,24 +71,26 @@ class _LocationScreenState extends State<LocationScreen> {
                 icon: Icons.my_location,
               ),
               const SizedBox(height: 16),
-
               TextButton(
                 onPressed: () {
                   showModalBottomSheet(
                     context: context,
                     shape: const RoundedRectangleBorder(
-                      borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+                      borderRadius:
+                          BorderRadius.vertical(top: Radius.circular(20)),
                     ),
                     builder: (ctx) => Padding(
                       padding: const EdgeInsets.all(20),
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Text("Pilih Kota Manual", style: AppTypography.h2.copyWith(color: c.ink)),
+                          Text("Pilih Kota Manual",
+                              style: AppTypography.h2.copyWith(color: c.ink)),
                           const SizedBox(height: 16),
                           ...LocationService.fallbackCities.map(
                             (city) => ListTile(
-                              title: Text(city["name"] as String, style: AppTypography.bodyStrong),
+                              title: Text(city["name"] as String,
+                                  style: AppTypography.bodyStrong),
                               onTap: () {
                                 Navigator.pop(ctx);
                                 _selectCity(city);

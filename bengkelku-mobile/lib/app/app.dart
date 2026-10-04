@@ -18,7 +18,6 @@ class BengkelKuApp extends ConsumerWidget {
       debugShowCheckedModeBanner: false,
       theme: AppTheme.light(),
       darkTheme: AppTheme.dark(),
-      themeMode: ThemeMode.system,
       routerConfig: router,
       locale: const Locale("id", "ID"),
       supportedLocales: const [Locale("id", "ID")],

@@ -36,16 +36,20 @@ class GarageRepository {
     final uid = SupabaseService.currentUser?.id;
     if (uid == null) throw Exception("Belum login");
 
-    final response = await _client.from("vehicles").insert({
-      "user_id": uid,
-      "brand": brand,
-      "model": model,
-      "year": year,
-      "plate": plate,
-      "odometer": odometer,
-      "oil_interval_km": oilIntervalKm,
-      "oil_interval_days": oilIntervalDays,
-    }).select().single();
+    final response = await _client
+        .from("vehicles")
+        .insert({
+          "user_id": uid,
+          "brand": brand,
+          "model": model,
+          "year": year,
+          "plate": plate,
+          "odometer": odometer,
+          "oil_interval_km": oilIntervalKm,
+          "oil_interval_days": oilIntervalDays,
+        })
+        .select()
+        .single();
 
     return Vehicle.fromJson(response);
   }

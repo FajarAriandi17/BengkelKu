@@ -6,7 +6,6 @@ import "../../../core/theme/app_typography.dart";
 import "../../../core/utils/formatters.dart";
 import "../../../design/components/app_button.dart";
 import "../../../design/components/app_text_field.dart";
-import "../../oil/domain/oil_calculator.dart";
 import "../data/garage_repository.dart";
 import "../data/vehicle_model.dart";
 
@@ -63,20 +62,35 @@ class _GarageScreenState extends State<GarageScreen> {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text("Tambah Motor ke Garasi", style: AppTypography.h1.copyWith(color: context.colors.ink)),
+              Text("Tambah Motor ke Garasi",
+                  style: AppTypography.h1.copyWith(color: context.colors.ink)),
               const SizedBox(height: 16),
-              AppTextField(controller: brandController, label: "Merek Motor", hint: "misal: Honda / Yamaha"),
+              AppTextField(
+                  controller: brandController,
+                  label: "Merek Motor",
+                  hint: "misal: Honda / Yamaha"),
               const SizedBox(height: 12),
-              AppTextField(controller: modelController, label: "Model Motor", hint: "misal: Vario 160 / NMAX"),
+              AppTextField(
+                  controller: modelController,
+                  label: "Model Motor",
+                  hint: "misal: Vario 160 / NMAX"),
               const SizedBox(height: 12),
-              AppTextField(controller: plateController, label: "Plat Nomor", hint: "misal: B 1234 XYZ"),
+              AppTextField(
+                  controller: plateController,
+                  label: "Plat Nomor",
+                  hint: "misal: B 1234 XYZ"),
               const SizedBox(height: 12),
-              AppTextField(controller: odoController, label: "Odometer Terkini (km)", hint: "12500", keyboardType: TextInputType.number),
+              AppTextField(
+                  controller: odoController,
+                  label: "Odometer Terkini (km)",
+                  hint: "12500",
+                  keyboardType: TextInputType.number),
               const SizedBox(height: 20),
               AppButton(
                 label: "Simpan Motor",
                 onPressed: () async {
-                  if (brandController.text.isEmpty || modelController.text.isEmpty) return;
+                  if (brandController.text.isEmpty ||
+                      modelController.text.isEmpty) return;
                   Navigator.pop(ctx);
                   await _garageRepo.addVehicle(
                     brand: brandController.text,
@@ -113,9 +127,14 @@ class _GarageScreenState extends State<GarageScreen> {
                     children: [
                       Icon(Icons.two_wheeler, size: 80, color: c.blueSoft),
                       const SizedBox(height: 16),
-                      Text("Garasi Masih Kosong", style: AppTypography.h1.copyWith(color: c.ink)),
+                      Text("Garasi Masih Kosong",
+                          style: AppTypography.h1.copyWith(color: c.ink)),
                       const SizedBox(height: 8),
-                      Text("Tambahkan motor kamu ke Garasi untuk memantau jadwal ganti oli & riwayat servis.", style: AppTypography.body.copyWith(color: c.ink.withOpacity(0.7)), textAlign: TextAlign.center),
+                      Text(
+                          "Tambahkan motor kamu ke Garasi untuk memantau jadwal ganti oli & riwayat servis.",
+                          style: AppTypography.body
+                              .copyWith(color: c.ink.withValues(alpha: 0.7)),
+                          textAlign: TextAlign.center),
                       const SizedBox(height: 24),
                       AppButton(
                         label: "Tambah Motor Pertama",
@@ -148,8 +167,14 @@ class _GarageScreenState extends State<GarageScreen> {
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Text("${v.brand} ${v.model}", style: AppTypography.h2.copyWith(color: c.ink)),
-                                    Text("${v.plate ?? '-'} • Odometer: ${Formatters.odometer(v.odometer)}", style: AppTypography.caption.copyWith(color: c.ink.withOpacity(0.6))),
+                                    Text("${v.brand} ${v.model}",
+                                        style: AppTypography.h2
+                                            .copyWith(color: c.ink)),
+                                    Text(
+                                        "${v.plate ?? '-'} • Odometer: ${Formatters.odometer(v.odometer)}",
+                                        style: AppTypography.caption.copyWith(
+                                            color:
+                                                c.ink.withValues(alpha: 0.6))),
                                   ],
                                 ),
                               ),
@@ -159,11 +184,14 @@ class _GarageScreenState extends State<GarageScreen> {
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Text("Status Oli:", style: AppTypography.body.copyWith(color: c.ink.withOpacity(0.7))),
+                              Text("Status Oli:",
+                                  style: AppTypography.body.copyWith(
+                                      color: c.ink.withValues(alpha: 0.7))),
                               TextButton.icon(
                                 icon: const Icon(Icons.opacity, size: 16),
                                 label: const Text("Detail Oli"),
-                                onPressed: () => context.push("/oil-detail?vehicleId=${v.id}"),
+                                onPressed: () => context
+                                    .push("/oil-detail?vehicleId=${v.id}"),
                               ),
                             ],
                           ),

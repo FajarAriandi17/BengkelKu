@@ -58,24 +58,34 @@ class OilDetailScreen extends StatelessWidget {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text("Sisa Jarak Ganti Oli", style: AppTypography.body.copyWith(color: c.ink.withOpacity(0.7))),
-                      Text(Formatters.odometer(rKm), style: AppTypography.h2.copyWith(color: c.blue)),
+                      Text("Sisa Jarak Ganti Oli",
+                          style: AppTypography.body
+                              .copyWith(color: c.ink.withValues(alpha: 0.7))),
+                      Text(Formatters.odometer(rKm),
+                          style: AppTypography.h2.copyWith(color: c.blue)),
                     ],
                   ),
                   const Divider(height: 20),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text("Sisa Hari", style: AppTypography.body.copyWith(color: c.ink.withOpacity(0.7))),
-                      Text("$rDays Hari Lagi", style: AppTypography.h2.copyWith(color: c.blue)),
+                      Text("Sisa Hari",
+                          style: AppTypography.body
+                              .copyWith(color: c.ink.withValues(alpha: 0.7))),
+                      Text("$rDays Hari Lagi",
+                          style: AppTypography.h2.copyWith(color: c.blue)),
                     ],
                   ),
                   const Divider(height: 20),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text("Target Odometer", style: AppTypography.body.copyWith(color: c.ink.withOpacity(0.7))),
-                      Text(Formatters.odometer(targetOdo), style: AppTypography.bodyStrong.copyWith(color: c.ink)),
+                      Text("Target Odometer",
+                          style: AppTypography.body
+                              .copyWith(color: c.ink.withValues(alpha: 0.7))),
+                      Text(Formatters.odometer(targetOdo),
+                          style:
+                              AppTypography.bodyStrong.copyWith(color: c.ink)),
                     ],
                   ),
                 ],
@@ -90,13 +100,15 @@ class OilDetailScreen extends StatelessWidget {
                     style: OutlinedButton.styleFrom(
                       foregroundColor: c.ink,
                       minimumSize: const Size.fromHeight(48),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12)),
                     ),
                     onPressed: () {
                       showModalBottomSheet(
                         context: context,
                         shape: const RoundedRectangleBorder(
-                          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+                          borderRadius:
+                              BorderRadius.vertical(top: Radius.circular(20)),
                         ),
                         builder: (ctx) => const SnoozeSheet(),
                       );

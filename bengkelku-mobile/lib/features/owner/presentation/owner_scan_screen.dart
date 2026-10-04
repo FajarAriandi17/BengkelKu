@@ -23,7 +23,8 @@ class OwnerScanScreen extends StatelessWidget {
             children: [
               Text(
                 "Arahkan kamera ke kode QR di tiket booking pelanggan untuk melakukan check-in.",
-                style: AppTypography.body.copyWith(color: c.ink.withOpacity(0.7)),
+                style: AppTypography.body
+                    .copyWith(color: c.ink.withValues(alpha: 0.7)),
                 textAlign: TextAlign.center,
               ),
               const Spacer(),
@@ -40,9 +41,11 @@ class OwnerScanScreen extends StatelessWidget {
                 child: const Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(Icons.qr_code_scanner, size: 80, color: Colors.white70),
+                    Icon(Icons.qr_code_scanner,
+                        size: 80, color: Colors.white70),
                     SizedBox(height: 8),
-                    Text("Area Scan QR", style: TextStyle(color: Colors.white70)),
+                    Text("Area Scan QR",
+                        style: TextStyle(color: Colors.white70)),
                   ],
                 ),
               ),
@@ -53,7 +56,8 @@ class OwnerScanScreen extends StatelessWidget {
                 onPressed: () {
                   Navigator.pop(context);
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text("Check-In Budi Santoso Berhasil!")),
+                    const SnackBar(
+                        content: Text("Check-In Budi Santoso Berhasil!")),
                   );
                 },
               ),

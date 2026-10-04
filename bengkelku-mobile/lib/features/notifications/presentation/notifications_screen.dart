@@ -27,14 +27,16 @@ class NotificationsScreen extends StatelessWidget {
         children: [
           _NotifTile(
             title: "Oli Motor Mendekati Batas",
-            body: "oli motor kamu sudah dekat waktunya ganti. yuk booking sekarang.",
+            body:
+                "oli motor kamu sudah dekat waktunya ganti. yuk booking sekarang.",
             timeStr: "2 jam yang lalu",
             icon: Icons.opacity,
             color: c.warn,
           ),
           _NotifTile(
             title: "Booking Dikonfirmasi",
-            body: "Bengkel Jaya Motor telah mengonfirmasi booking kamu untuk besok jam 09.00 WIB.",
+            body:
+                "Bengkel Jaya Motor telah mengonfirmasi booking kamu untuk besok jam 09.00 WIB.",
             timeStr: "Kemarin",
             icon: Icons.check_circle_outline,
             color: c.ok,
@@ -77,7 +79,7 @@ class _NotifTile extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: color.withOpacity(0.15),
+              color: color.withValues(alpha: 0.15),
               shape: BoxShape.circle,
             ),
             child: Icon(icon, color: color, size: 20),
@@ -87,11 +89,16 @@ class _NotifTile extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(title, style: AppTypography.bodyStrong.copyWith(color: c.ink)),
+                Text(title,
+                    style: AppTypography.bodyStrong.copyWith(color: c.ink)),
                 const SizedBox(height: 2),
-                Text(body, style: AppTypography.caption.copyWith(color: c.ink.withOpacity(0.7))),
+                Text(body,
+                    style: AppTypography.caption
+                        .copyWith(color: c.ink.withValues(alpha: 0.7))),
                 const SizedBox(height: 6),
-                Text(timeStr, style: AppTypography.caption.copyWith(color: c.ink.withOpacity(0.4), fontSize: 10)),
+                Text(timeStr,
+                    style: AppTypography.caption.copyWith(
+                        color: c.ink.withValues(alpha: 0.4), fontSize: 10)),
               ],
             ),
           ),

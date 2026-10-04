@@ -42,7 +42,8 @@ RefundCalculation calculateRefund({
     return const RefundCalculation(
       percentage: 0.0,
       refundAmountIdr: 0,
-      explanation: "Waktu slot telah lewat atau Tidak Hadir (No-Show). Refund 0%.",
+      explanation:
+          "Waktu slot telah lewat atau Tidak Hadir (No-Show). Refund 0%.",
     );
   }
 }

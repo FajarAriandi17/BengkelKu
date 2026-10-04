@@ -55,7 +55,8 @@ class _SosPayScreenState extends ConsumerState<SosPayScreen> {
   void _onExpired() {
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Waktu pembayaran habis. Permintaan dibatalkan.')),
+      const SnackBar(
+          content: Text('Waktu pembayaran habis. Permintaan dibatalkan.')),
     );
     ref.read(activeSosProvider.notifier).clear();
     context.go('/home');
@@ -243,26 +244,28 @@ class _SummaryCard extends StatelessWidget {
       ),
       child: Column(
         children: [
-          ...rows.map((r) => Padding(
-                padding: const EdgeInsets.symmetric(vertical: 3),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      r.label,
-                      style: TextStyle(color: c.ink2, fontSize: 13),
+          ...rows.map(
+            (r) => Padding(
+              padding: const EdgeInsets.symmetric(vertical: 3),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    r.label,
+                    style: TextStyle(color: c.ink2, fontSize: 13),
+                  ),
+                  Text(
+                    'Rp ${_fmt(r.amount)}',
+                    style: TextStyle(
+                      color: c.ink,
+                      fontWeight: FontWeight.w700,
+                      fontSize: 13,
                     ),
-                    Text(
-                      'Rp ${_fmt(r.amount)}',
-                      style: TextStyle(
-                        color: c.ink,
-                        fontWeight: FontWeight.w700,
-                        fontSize: 13,
-                      ),
-                    ),
-                  ],
-                ),
-              )),
+                  ),
+                ],
+              ),
+            ),
+          ),
           Divider(color: c.line, height: 16),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,

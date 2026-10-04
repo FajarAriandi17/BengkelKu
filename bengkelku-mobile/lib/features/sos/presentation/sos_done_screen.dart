@@ -96,9 +96,7 @@ class _SosDoneScreenState extends ConsumerState<SosDoneScreen> {
             ),
             const SizedBox(height: 16),
             Text(
-              withoutRepair
-                  ? 'Penawaran ditolak'
-                  : 'Panggilan darurat selesai',
+              withoutRepair ? 'Penawaran ditolak' : 'Panggilan darurat selesai',
               style: AppTypography.h1.copyWith(color: c.ink),
               textAlign: TextAlign.center,
             ),
@@ -123,7 +121,8 @@ class _SosDoneScreenState extends ConsumerState<SosDoneScreen> {
                   _row(context, 'Kode', req.code),
                   if ((req.workshopName ?? '').isNotEmpty)
                     _row(context, 'Bengkel', req.workshopName!),
-                  _row(context, 'Biaya panggilan', Formatters.rupiah(req.total)),
+                  _row(
+                      context, 'Biaya panggilan', Formatters.rupiah(req.total)),
                 ],
               ),
             ),

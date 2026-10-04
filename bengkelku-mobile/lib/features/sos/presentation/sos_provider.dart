@@ -109,9 +109,8 @@ class ActiveSosNotifier extends StateNotifier<AsyncValue<SosRequest?>> {
 }
 
 /// Status siaga darurat bengkel saat ini (sisi owner).
-final workshopStandbyProvider =
-    StateNotifierProvider<WorkshopStandbyNotifier, AsyncValue<WorkshopStandby?>>(
-        (ref) {
+final workshopStandbyProvider = StateNotifierProvider<WorkshopStandbyNotifier,
+    AsyncValue<WorkshopStandby?>>((ref) {
   return WorkshopStandbyNotifier(ref.watch(sosRepositoryProvider));
 });
 
@@ -150,7 +149,8 @@ class WorkshopStandbyNotifier
           .maybeSingle();
 
       state = AsyncValue.data(
-          response == null ? null : WorkshopStandby.fromJson(response));
+        response == null ? null : WorkshopStandby.fromJson(response),
+      );
     } catch (e, st) {
       state = AsyncValue.error(e, st);
     }

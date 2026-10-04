@@ -19,14 +19,18 @@ class OwnerRepository {
     final uid = SupabaseService.currentUser?.id;
     if (uid == null) throw Exception("Belum login");
 
-    final response = await _client.from("workshops").insert({
-      "owner_id": uid,
-      "name": name,
-      "address": address,
-      "phone": phone,
-      "status": "draft",
-      "location": "POINT($lng $lat)",
-    }).select().single();
+    final response = await _client
+        .from("workshops")
+        .insert({
+          "owner_id": uid,
+          "name": name,
+          "address": address,
+          "phone": phone,
+          "status": "draft",
+          "location": "POINT($lng $lat)",
+        })
+        .select()
+        .single();
 
     return response;
   }
@@ -42,7 +46,8 @@ class OwnerRepository {
     final uid = SupabaseService.currentUser?.id;
     if (uid == null) throw Exception("Belum login");
 
-    final path = "$uid/$workshopId/$docType-${DateTime.now().millisecondsSinceEpoch}.jpg";
+    final path =
+        "$uid/$workshopId/$docType-${DateTime.now().millisecondsSinceEpoch}.jpg";
 
     await _client.storage.from("verification-docs").upload(path, file);
 

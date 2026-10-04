@@ -12,7 +12,9 @@ void main() {
       expect(MediaGuard.isUnderLimit((2 * 1024 * 1024) + 1), false);
     });
 
-    test("ensureUnderLimit melempar MediaTooLargeException dengan pesan baku persis", () {
+    test(
+        "ensureUnderLimit melempar MediaTooLargeException dengan pesan baku persis",
+        () {
       expect(
         () => MediaGuard.ensureUnderLimit((2 * 1024 * 1024) + 100),
         throwsA(

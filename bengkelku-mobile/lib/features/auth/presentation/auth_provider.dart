@@ -11,7 +11,8 @@ final authStateProvider = StreamProvider<AuthState>((ref) {
   return Supabase.instance.client.auth.onAuthStateChange;
 });
 
-final currentUserProfileProvider = FutureProvider<Map<String, dynamic>?>((ref) async {
+final currentUserProfileProvider =
+    FutureProvider<Map<String, dynamic>?>((ref) async {
   final repo = ref.watch(authRepositoryProvider);
   return await repo.getProfile();
 });
@@ -36,7 +37,8 @@ class AuthController extends StateNotifier<AsyncValue<void>> {
   Future<bool> register(String email, String password, String fullName) async {
     state = const AsyncValue.loading();
     try {
-      await _repo.signUpWithEmail(email: email, password: password, fullName: fullName);
+      await _repo.signUpWithEmail(
+          email: email, password: password, fullName: fullName);
       state = const AsyncValue.data(null);
       return true;
     } catch (e, st) {

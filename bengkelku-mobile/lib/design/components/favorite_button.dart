@@ -49,11 +49,12 @@ class _FavoriteButtonState extends State<FavoriteButton> {
         constraints: const BoxConstraints(),
         icon: AnimatedSwitcher(
           duration: Motion.micro,
-          transitionBuilder: (child, anim) => ScaleTransition(scale: anim, child: child),
+          transitionBuilder: (child, anim) =>
+              ScaleTransition(scale: anim, child: child),
           child: Icon(
             _fav ? Icons.favorite : Icons.favorite_border,
             key: ValueKey(_fav),
-            color: _fav ? c.heart : c.ink.withOpacity(0.4),
+            color: _fav ? c.heart : c.ink.withValues(alpha: 0.4),
             size: widget.size,
           ),
         ),

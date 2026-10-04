@@ -78,22 +78,22 @@ class _SosButtonState extends State<SosButton>
                 borderRadius: BorderRadius.circular(99),
                 boxShadow: [
                   BoxShadow(
-                    color: colors.warnC.withOpacity(0.3),
+                    color: colors.warnC.withValues(alpha: 0.3),
                     blurRadius: 12,
                     offset: const Offset(0, 4),
                   ),
                 ],
               ),
-              child: Row(
+              child: const Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const Icon(
+                  Icon(
                     Icons.error_outline,
                     color: Color(0xFF1B1200),
                     size: 20,
                   ),
-                  const SizedBox(width: 8),
-                  const Text(
+                  SizedBox(width: 8),
+                  Text(
                     'Motor mogok?',
                     style: TextStyle(
                       color: Color(0xFF1B1200),
@@ -126,8 +126,7 @@ class RadarPulse extends StatefulWidget {
   State<RadarPulse> createState() => _RadarPulseState();
 }
 
-class _RadarPulseState extends State<RadarPulse>
-    with TickerProviderStateMixin {
+class _RadarPulseState extends State<RadarPulse> with TickerProviderStateMixin {
   late AnimationController _pulseController;
   late AnimationController _dotsController;
 
@@ -166,7 +165,7 @@ class _RadarPulseState extends State<RadarPulse>
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).extension<AppColors>()!;
-    final size = 240.0;
+    const size = 240.0;
 
     return SizedBox(
       width: size,
@@ -211,7 +210,7 @@ class _RadarPulseState extends State<RadarPulse>
               shape: BoxShape.circle,
               boxShadow: [
                 BoxShadow(
-                  color: colors.blue.withOpacity(0.3),
+                  color: colors.blue.withValues(alpha: 0.3),
                   blurRadius: 20,
                   offset: const Offset(0, 4),
                 ),
@@ -238,7 +237,8 @@ class _RadarPulseState extends State<RadarPulse>
               animation: _dotsController,
               builder: (context, child) {
                 final delay = index * 0.15;
-                final progress = (_dotsController.value - delay).clamp(0.0, 1.0);
+                final progress =
+                    (_dotsController.value - delay).clamp(0.0, 1.0);
 
                 return Positioned(
                   left: size / 2 + x - 7,
@@ -253,7 +253,7 @@ class _RadarPulseState extends State<RadarPulse>
                         shape: BoxShape.circle,
                         boxShadow: [
                           BoxShadow(
-                            color: colors.okC.withOpacity(0.4),
+                            color: colors.okC.withValues(alpha: 0.4),
                             blurRadius: 8,
                             spreadRadius: 4,
                           ),
@@ -300,9 +300,7 @@ class WaveProgress extends StatelessWidget {
               color: isActive ? colors.blue : colors.line,
               borderRadius: BorderRadius.circular(9),
             ),
-            child: isCurrent
-                ? _AnimatedFill(color: colors.blue)
-                : null,
+            child: isCurrent ? _AnimatedFill(color: colors.blue) : null,
           ),
         );
       }),
@@ -346,10 +344,8 @@ class _AnimatedFillState extends State<_AnimatedFill>
         return Container(
           decoration: BoxDecoration(
             gradient: LinearGradient(
-              begin: Alignment.centerLeft,
-              end: Alignment.centerRight,
               stops: [_controller.value - 0.5, _controller.value],
-              colors: [widget.color, widget.color.withOpacity(0.3)],
+              colors: [widget.color, widget.color.withValues(alpha: 0.3)],
             ),
             borderRadius: BorderRadius.circular(9),
           ),
@@ -471,7 +467,7 @@ class EtaPill extends StatelessWidget {
         borderRadius: BorderRadius.circular(99),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.1),
+            color: Colors.black.withValues(alpha: 0.1),
             blurRadius: 22,
             offset: const Offset(0, 8),
           ),
@@ -618,14 +614,12 @@ class FeeBreakdown extends StatelessWidget {
           _FeeRow(
             label: 'Biaya panggilan ($tierLabel)',
             amount: callFee,
-            isMuted: false,
           ),
           if (nightFee > 0) ...[
             const SizedBox(height: 6),
             _FeeRow(
               label: 'Biaya malam',
               amount: nightFee,
-              isMuted: false,
             ),
           ],
           if (serviceFee > 0) ...[
@@ -633,7 +627,7 @@ class FeeBreakdown extends StatelessWidget {
             _FeeRow(
               label: 'Biaya layanan',
               amount: serviceFee,
-              isMuted: false,
+              isMuted: true,
             ),
           ],
           Padding(
@@ -647,7 +641,6 @@ class FeeBreakdown extends StatelessWidget {
           _FeeRow(
             label: 'Total',
             amount: total,
-            isMuted: false,
             isTotal: true,
           ),
         ],

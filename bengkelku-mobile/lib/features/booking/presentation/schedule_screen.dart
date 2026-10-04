@@ -18,7 +18,7 @@ class ScheduleScreen extends StatefulWidget {
 class _ScheduleScreenState extends State<ScheduleScreen> {
   DateTime _selectedDate = DateTime.now().add(const Duration(days: 1));
   String? _selectedSlot = "09:00";
-  String? _selectedVehicleId = "v-1";
+  final String _selectedVehicleId = "v-1";
 
   final List<DateTime> _availableDates = List.generate(
     7,
@@ -33,7 +33,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
     "13:00",
     "14:00",
     "15:00",
-    "16:00"
+    "16:00",
   ];
 
   @override
@@ -50,7 +50,8 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text("Pilih Kendaraan", style: AppTypography.h2.copyWith(color: c.ink, fontSize: 16)),
+            Text("Pilih Kendaraan",
+                style: AppTypography.h2.copyWith(color: c.ink, fontSize: 16)),
             const SizedBox(height: 10),
 
             // Card kendaraan
@@ -69,8 +70,12 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text("Honda Vario 160", style: AppTypography.bodyStrong.copyWith(color: c.ink)),
-                        Text("B 1234 XYZ • Odometer: 12.500 km", style: AppTypography.caption.copyWith(color: c.ink.withOpacity(0.6))),
+                        Text("Honda Vario 160",
+                            style: AppTypography.bodyStrong
+                                .copyWith(color: c.ink)),
+                        Text("B 1234 XYZ • Odometer: 12.500 km",
+                            style: AppTypography.caption
+                                .copyWith(color: c.ink.withValues(alpha: 0.6))),
                       ],
                     ),
                   ),
@@ -97,7 +102,11 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
           label: "Ringkasan Pemesanan",
           onPressed: _selectedSlot == null
               ? null
-              : () => context.push("/summary?workshopId=${widget.workshopId}"),
+              : () => context.push(
+                    "/summary?workshopId=${widget.workshopId}"
+                    "&vehicleId=$_selectedVehicleId"
+                    "&slot=${_selectedDate.toIso8601String().substring(0, 10)}T$_selectedSlot",
+                  ),
         ),
       ),
     );

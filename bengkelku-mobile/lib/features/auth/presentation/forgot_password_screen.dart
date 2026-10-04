@@ -15,8 +15,7 @@ class ForgotPasswordScreen extends ConsumerStatefulWidget {
       _ForgotPasswordScreenState();
 }
 
-class _ForgotPasswordScreenState
-    extends ConsumerState<ForgotPasswordScreen> {
+class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
   final _emailController = TextEditingController();
   bool _loading = false;
 
@@ -34,7 +33,9 @@ class _ForgotPasswordScreenState
       await ref.read(authRepositoryProvider).resetPassword(email);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Instruksi reset kata sandi telah dikirim ke email kamu")),
+          const SnackBar(
+              content: Text(
+                  "Instruksi reset kata sandi telah dikirim ke email kamu")),
         );
         Navigator.pop(context);
       }
@@ -70,7 +71,8 @@ class _ForgotPasswordScreenState
             const SizedBox(height: 8),
             Text(
               "Masukkan email yang terdaftar. Kami akan mengirimkan tautan untuk mengatur ulang kata sandi kamu.",
-              style: AppTypography.body.copyWith(color: c.ink.withOpacity(0.7)),
+              style: AppTypography.body
+                  .copyWith(color: c.ink.withValues(alpha: 0.7)),
             ),
             const SizedBox(height: 24),
             AppTextField(

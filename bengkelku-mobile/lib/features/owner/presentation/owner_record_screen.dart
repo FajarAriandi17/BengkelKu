@@ -45,14 +45,17 @@ class _OwnerRecordScreenState extends State<OwnerRecordScreen> {
       if (mounted) {
         Navigator.pop(context);
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Riwayat servis disimpan & status oli pelanggan diperbarui!")),
+          const SnackBar(
+              content: Text(
+                  "Riwayat servis disimpan & status oli pelanggan diperbarui!")),
         );
       }
     } catch (e) {
       if (mounted) {
         Navigator.pop(context);
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Servis ditandai SELESAI & odometer diperbarui")),
+          const SnackBar(
+              content: Text("Servis ditandai SELESAI & odometer diperbarui")),
         );
       }
     } finally {
@@ -74,14 +77,15 @@ class _OwnerRecordScreenState extends State<OwnerRecordScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text("Pengerjaan Servis Selesai", style: AppTypography.h1.copyWith(color: c.ink)),
+            Text("Pengerjaan Servis Selesai",
+                style: AppTypography.h1.copyWith(color: c.ink)),
             const SizedBox(height: 6),
             Text(
               "Input odometer terkini untuk otomatis memperbarui status & pengingat oli di aplikasi pelanggan.",
-              style: AppTypography.body.copyWith(color: c.ink.withOpacity(0.7)),
+              style: AppTypography.body
+                  .copyWith(color: c.ink.withValues(alpha: 0.7)),
             ),
             const SizedBox(height: 20),
-
             AppTextField(
               controller: _odoController,
               label: "Odometer Terkini Motor Pelanggan (km)",
@@ -89,18 +93,21 @@ class _OwnerRecordScreenState extends State<OwnerRecordScreen> {
               keyboardType: TextInputType.number,
             ),
             const SizedBox(height: 16),
-
             SwitchListTile(
               value: _oilChanged,
               onChanged: (val) => setState(() => _oilChanged = val),
-              title: Text("Oli Mesin Diganti?", style: AppTypography.bodyStrong.copyWith(color: c.ink)),
-              subtitle: Text("Nyalakan jika oli mesin diganti dalam pengerjaan ini", style: AppTypography.caption.copyWith(color: c.ink.withOpacity(0.6))),
-              activeColor: c.blue,
+              title: Text("Oli Mesin Diganti?",
+                  style: AppTypography.bodyStrong.copyWith(color: c.ink)),
+              subtitle: Text(
+                  "Nyalakan jika oli mesin diganti dalam pengerjaan ini",
+                  style: AppTypography.caption
+                      .copyWith(color: c.ink.withValues(alpha: 0.6))),
+              activeThumbColor: c.blue,
               tileColor: c.panel,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12)),
             ),
             const SizedBox(height: 16),
-
             AppTextField(
               controller: _notesController,
               label: "Catatan Mekanik (Opsional)",

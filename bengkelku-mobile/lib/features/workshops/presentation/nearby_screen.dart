@@ -2,8 +2,6 @@ import "package:flutter/material.dart";
 import "package:go_router/go_router.dart";
 
 import "../../../core/theme/app_colors.dart";
-import "../../../core/theme/app_typography.dart";
-import "../../../design/components/app_chip.dart";
 import "../../../design/components/workshop_card.dart";
 import "../data/workshop_model.dart";
 import "../data/workshop_repository.dart";
@@ -28,7 +26,8 @@ class _NearbyScreenState extends State<NearbyScreen> {
 
   Future<void> _fetch() async {
     setState(() => _loading = true);
-    final res = await _workshopRepo.getNearbyWorkshops(lat: -6.2615, lng: 106.8106);
+    final res =
+        await _workshopRepo.getNearbyWorkshops(lat: -6.2615, lng: 106.8106);
     if (mounted) {
       setState(() {
         _workshops = res;
@@ -65,7 +64,8 @@ class _NearbyScreenState extends State<NearbyScreen> {
                       prefixIcon: const Icon(Icons.search),
                       filled: true,
                       fillColor: c.panel,
-                      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                      contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 16, vertical: 10),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
                         borderSide: BorderSide(color: c.blueSoft),
@@ -95,7 +95,6 @@ class _NearbyScreenState extends State<NearbyScreen> {
                             ratingAvg: 4.8,
                             ratingCount: 120,
                             distanceMeters: 850,
-                            isOpen: true,
                             onTap: () => context.push("/home/workshop/ws-1"),
                           ),
                           WorkshopCard(
@@ -105,17 +104,16 @@ class _NearbyScreenState extends State<NearbyScreen> {
                             ratingAvg: 4.9,
                             ratingCount: 340,
                             distanceMeters: 1400,
-                            isOpen: true,
                             onTap: () => context.push("/home/workshop/ws-2"),
                           ),
                           WorkshopCard(
                             id: "ws-3",
                             name: "Bengkel Motor Berkah",
-                            address: "Jl. Panglima Polim No. 88, Jakarta Selatan",
+                            address:
+                                "Jl. Panglima Polim No. 88, Jakarta Selatan",
                             ratingAvg: 4.6,
                             ratingCount: 85,
                             distanceMeters: 2100,
-                            isOpen: true,
                             onTap: () => context.push("/home/workshop/ws-3"),
                           ),
                         ],
@@ -134,7 +132,8 @@ class _NearbyScreenState extends State<NearbyScreen> {
                             distanceMeters: ws.distanceMeters,
                             photoUrl: ws.photoUrl,
                             isOpen: ws.isOpen,
-                            onTap: () => context.push("/home/workshop/${ws.id}"),
+                            onTap: () =>
+                                context.push("/home/workshop/${ws.id}"),
                           );
                         },
                       ),

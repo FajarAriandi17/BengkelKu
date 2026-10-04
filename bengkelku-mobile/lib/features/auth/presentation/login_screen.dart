@@ -114,7 +114,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
               ),
               Text(
                 "Marketplace Servis & Pengingat Oli Motor",
-                style: AppTypography.caption.copyWith(color: c.ink.withOpacity(0.6)),
+                style: AppTypography.caption
+                    .copyWith(color: c.ink.withValues(alpha: 0.6)),
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 28),
@@ -123,7 +124,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
               TabBar(
                 controller: _tabController,
                 labelColor: c.blue,
-                unselectedLabelColor: c.ink.withOpacity(0.5),
+                unselectedLabelColor: c.ink.withValues(alpha: 0.5),
                 indicatorColor: c.blue,
                 tabs: const [
                   Tab(text: "Masuk"),
@@ -205,7 +206,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                     padding: const EdgeInsets.symmetric(horizontal: 12),
                     child: Text(
                       "atau masuk dengan",
-                      style: AppTypography.caption.copyWith(color: c.ink.withOpacity(0.5)),
+                      style: AppTypography.caption
+                          .copyWith(color: c.ink.withValues(alpha: 0.5)),
                     ),
                   ),
                   Expanded(child: Divider(color: c.blueSoft)),
@@ -219,9 +221,11 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                   foregroundColor: c.ink,
                   side: BorderSide(color: c.blueSoft),
                   minimumSize: const Size.fromHeight(48),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12)),
                 ),
-                icon: const Icon(Icons.g_mobiledata, size: 28, color: Colors.red),
+                icon:
+                    const Icon(Icons.g_mobiledata, size: 28, color: Colors.red),
                 label: const Text("Masuk dengan Google"),
                 onPressed: _loginGoogle,
               ),
@@ -232,7 +236,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                     foregroundColor: c.ink,
                     side: BorderSide(color: c.blueSoft),
                     minimumSize: const Size.fromHeight(48),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12)),
                   ),
                   icon: const Icon(Icons.apple, size: 22),
                   label: const Text("Sign in with Apple"),

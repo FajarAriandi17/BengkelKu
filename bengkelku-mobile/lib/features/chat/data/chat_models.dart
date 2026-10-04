@@ -123,8 +123,10 @@ class ChatMessage extends Equatable {
     this.isMine = false,
   });
 
-  factory ChatMessage.fromJson(Map<String, dynamic> json,
-      {required String currentUserId}) {
+  factory ChatMessage.fromJson(
+    Map<String, dynamic> json, {
+    required String currentUserId,
+  }) {
     return ChatMessage(
       id: json['id'] as String,
       threadId: json['thread_id'] as String,

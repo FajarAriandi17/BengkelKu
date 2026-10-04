@@ -46,7 +46,7 @@ class WorkshopCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.04),
+            color: Colors.black.withValues(alpha: 0.04),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -82,7 +82,8 @@ class WorkshopCard extends StatelessWidget {
                         Expanded(
                           child: Text(
                             name,
-                            style: AppTypography.h2.copyWith(color: c.ink, fontSize: 16),
+                            style: AppTypography.h2
+                                .copyWith(color: c.ink, fontSize: 16),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                           ),
@@ -97,7 +98,8 @@ class WorkshopCard extends StatelessWidget {
                     const SizedBox(height: 4),
                     Text(
                       address,
-                      style: AppTypography.caption.copyWith(color: c.ink.withOpacity(0.6)),
+                      style: AppTypography.caption
+                          .copyWith(color: c.ink.withValues(alpha: 0.6)),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
@@ -113,7 +115,8 @@ class WorkshopCard extends StatelessWidget {
                         ),
                         Text(
                           " ($ratingCount)",
-                          style: AppTypography.caption.copyWith(color: c.ink.withOpacity(0.5)),
+                          style: AppTypography.caption
+                              .copyWith(color: c.ink.withValues(alpha: 0.5)),
                         ),
                         const SizedBox(width: 12),
                         // Jarak

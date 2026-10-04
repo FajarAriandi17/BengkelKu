@@ -129,7 +129,8 @@ class Quote extends Equatable {
   bool get isPending => state == QuoteState.sent;
   bool get isApproved => state == QuoteState.approved;
   bool get isRejected => state == QuoteState.rejected;
-  bool get isExpired => state == QuoteState.expired || DateTime.now().isAfter(expiresAt);
+  bool get isExpired =>
+      state == QuoteState.expired || DateTime.now().isAfter(expiresAt);
   bool get canRespond => isPending && !isExpired;
 
   Duration get timeRemaining {

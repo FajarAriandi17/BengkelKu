@@ -82,13 +82,13 @@ class _SosSearchingScreenState extends ConsumerState<SosSearchingScreen> {
 
   void _subscribe() {
     _channel = ref.read(sosRepositoryProvider).subscribeToRequest(
-          widget.requestId,
-          (req) {
-            if (!mounted) return;
-            setState(() => _request = req);
-            _routeFor(req);
-          },
-        );
+      widget.requestId,
+      (req) {
+        if (!mounted) return;
+        setState(() => _request = req);
+        _routeFor(req);
+      },
+    );
   }
 
   Future<void> _advanceWave() async {
@@ -251,7 +251,7 @@ class _SosSearchingScreenState extends ConsumerState<SosSearchingScreen> {
                 style: AppTypography.caption.copyWith(color: c.ink2),
               ),
               const SizedBox(height: 20),
-              WaveProgress(currentWave: req.wave, totalWaves: 3),
+              WaveProgress(currentWave: req.wave),
             ],
             const Spacer(),
             AppButton(

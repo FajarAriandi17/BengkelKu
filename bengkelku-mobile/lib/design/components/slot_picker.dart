@@ -30,7 +30,8 @@ class SlotPicker extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text("Pilih Tanggal", style: AppTypography.h2.copyWith(color: c.ink, fontSize: 16)),
+        Text("Pilih Tanggal",
+            style: AppTypography.h2.copyWith(color: c.ink, fontSize: 16)),
         const SizedBox(height: 10),
         SizedBox(
           height: 70,
@@ -83,7 +84,8 @@ class SlotPicker extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 18),
-        Text("Pilih Slot Jam", style: AppTypography.h2.copyWith(color: c.ink, fontSize: 16)),
+        Text("Pilih Slot Jam",
+            style: AppTypography.h2.copyWith(color: c.ink, fontSize: 16)),
         const SizedBox(height: 10),
         Wrap(
           spacing: 8,

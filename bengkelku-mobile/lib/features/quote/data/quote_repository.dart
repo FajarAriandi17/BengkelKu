@@ -10,13 +10,16 @@ class QuoteRepository {
   // Buat penawaran (workshop side)
   Future<Quote> createQuote(QuoteCreateRequest request) async {
     try {
-      final response = await _supabase.rpc('quote_create', params: {
-        'p_booking_id': request.bookingId,
-        'p_sos_request_id': request.sosRequestId,
-        'p_items': request.items.map((item) => item.toJson()).toList(),
-        'p_note': request.note,
-        'p_photos': request.photos,
-      });
+      final response = await _supabase.rpc(
+        'quote_create',
+        params: {
+          'p_booking_id': request.bookingId,
+          'p_sos_request_id': request.sosRequestId,
+          'p_items': request.items.map((item) => item.toJson()).toList(),
+          'p_note': request.note,
+          'p_photos': request.photos,
+        },
+      );
 
       return Quote.fromJson(response);
     } catch (e) {
@@ -27,9 +30,12 @@ class QuoteRepository {
   // Setujui penawaran (rider side)
   Future<void> approveQuote(String quoteId) async {
     try {
-      await _supabase.rpc('quote_approve', params: {
-        'p_quote_id': quoteId,
-      });
+      await _supabase.rpc(
+        'quote_approve',
+        params: {
+          'p_quote_id': quoteId,
+        },
+      );
     } catch (e) {
       throw Exception('Gagal menyetujui penawaran: $e');
     }
@@ -38,10 +44,13 @@ class QuoteRepository {
   // Tolak penawaran (rider side)
   Future<void> rejectQuote(String quoteId, String? reason) async {
     try {
-      await _supabase.rpc('quote_reject', params: {
-        'p_quote_id': quoteId,
-        'p_reason': reason,
-      });
+      await _supabase.rpc(
+        'quote_reject',
+        params: {
+          'p_quote_id': quoteId,
+          'p_reason': reason,
+        },
+      );
     } catch (e) {
       throw Exception('Gagal menolak penawaran: $e');
     }
@@ -60,11 +69,13 @@ class QuoteRepository {
           .order('created_at', ascending: false);
 
       return (response as List)
-          .map((json) => Quote.fromJson({
-                ...json,
-                'workshop_name': json['workshops']?['name'],
-                'workshop_avatar': json['workshops']?['avatar_url'],
-              }))
+          .map(
+            (json) => Quote.fromJson({
+              ...json,
+              'workshop_name': json['workshops']?['name'],
+              'workshop_avatar': json['workshops']?['avatar_url'],
+            }),
+          )
           .toList();
     } catch (e) {
       throw Exception('Gagal memuat penawaran: $e');
@@ -84,11 +95,13 @@ class QuoteRepository {
           .order('created_at', ascending: false);
 
       return (response as List)
-          .map((json) => Quote.fromJson({
-                ...json,
-                'workshop_name': json['workshops']?['name'],
-                'workshop_avatar': json['workshops']?['avatar_url'],
-              }))
+          .map(
+            (json) => Quote.fromJson({
+              ...json,
+              'workshop_name': json['workshops']?['name'],
+              'workshop_avatar': json['workshops']?['avatar_url'],
+            }),
+          )
           .toList();
     } catch (e) {
       throw Exception('Gagal memuat penawaran: $e');
@@ -98,14 +111,10 @@ class QuoteRepository {
   // Ambil detail satu penawaran
   Future<Quote> getQuote(String quoteId) async {
     try {
-      final response = await _supabase
-          .from('quotes')
-          .select('''
+      final response = await _supabase.from('quotes').select('''
             *,
             workshops:workshop_id(name)
-          ''')
-          .eq('id', quoteId)
-          .single();
+          ''').eq('id', quoteId).single();
 
       return Quote.fromJson({
         ...response,

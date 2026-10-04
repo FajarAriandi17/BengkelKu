@@ -53,7 +53,8 @@ class _WorkshopDetailScreenState extends State<WorkshopDetailScreen> {
     final c = context.colors;
 
     final name = _workshop?.name ?? "Bengkel Jaya Motor";
-    final address = _workshop?.address ?? "Jl. Fatmawati No. 12, Jakarta Selatan";
+    final address =
+        _workshop?.address ?? "Jl. Fatmawati No. 12, Jakarta Selatan";
     final ratingAvg = _workshop?.ratingAvg ?? 4.8;
     final ratingCount = _workshop?.ratingCount ?? 120;
 
@@ -96,7 +97,8 @@ class _WorkshopDetailScreenState extends State<WorkshopDetailScreen> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Expanded(
-                        child: Text(name, style: AppTypography.h1.copyWith(color: c.ink)),
+                        child: Text(name,
+                            style: AppTypography.h1.copyWith(color: c.ink)),
                       ),
                       AppStatusBadge(
                         label: "Buka",
@@ -106,26 +108,35 @@ class _WorkshopDetailScreenState extends State<WorkshopDetailScreen> {
                     ],
                   ),
                   const SizedBox(height: 6),
-                  Text(address, style: AppTypography.body.copyWith(color: c.ink.withOpacity(0.7))),
+                  Text(address,
+                      style: AppTypography.body
+                          .copyWith(color: c.ink.withValues(alpha: 0.7))),
                   const SizedBox(height: 8),
 
                   Row(
                     children: [
                       RatingStars(rating: ratingAvg, starSize: 18),
                       const SizedBox(width: 6),
-                      Text("$ratingAvg ($ratingCount ulasan)", style: AppTypography.label.copyWith(color: c.ink)),
+                      Text("$ratingAvg ($ratingCount ulasan)",
+                          style: AppTypography.label.copyWith(color: c.ink)),
                     ],
                   ),
                   const Divider(height: 32),
 
                   // Jam buka
-                  Text("Jam Operasional", style: AppTypography.h2.copyWith(color: c.ink, fontSize: 16)),
+                  Text("Jam Operasional",
+                      style: AppTypography.h2
+                          .copyWith(color: c.ink, fontSize: 16)),
                   const SizedBox(height: 6),
-                  Text("Senin - Sabtu: 08.00 - 17.00 WIB", style: AppTypography.body.copyWith(color: c.ink.withOpacity(0.7))),
+                  Text("Senin - Sabtu: 08.00 - 17.00 WIB",
+                      style: AppTypography.body
+                          .copyWith(color: c.ink.withValues(alpha: 0.7))),
                   const Divider(height: 32),
 
                   // Layanan
-                  Text("Pilih Layanan Servis", style: AppTypography.h2.copyWith(color: c.ink, fontSize: 16)),
+                  Text("Pilih Layanan Servis",
+                      style: AppTypography.h2
+                          .copyWith(color: c.ink, fontSize: 16)),
                   const SizedBox(height: 12),
 
                   if (_services.isEmpty)

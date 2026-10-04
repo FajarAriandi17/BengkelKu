@@ -53,7 +53,8 @@ class _CancelSheetState extends State<CancelSheet> {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text("Batalkan Booking", style: AppTypography.h1.copyWith(color: c.ink)),
+          Text("Batalkan Booking",
+              style: AppTypography.h1.copyWith(color: c.ink)),
           const SizedBox(height: 12),
 
           // Box Informasi Kebijakan Refund
@@ -66,14 +67,17 @@ class _CancelSheetState extends State<CancelSheet> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text("Kebijakan Pengembalian Dana", style: AppTypography.label.copyWith(color: c.blue)),
+                Text("Kebijakan Pengembalian Dana",
+                    style: AppTypography.label.copyWith(color: c.blue)),
                 const SizedBox(height: 4),
-                Text(_refund.explanation, style: AppTypography.caption.copyWith(color: c.ink)),
+                Text(_refund.explanation,
+                    style: AppTypography.caption.copyWith(color: c.ink)),
                 const Divider(height: 16),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text("Total Pengembalian Dana:", style: AppTypography.body.copyWith(color: c.ink)),
+                    Text("Total Pengembalian Dana:",
+                        style: AppTypography.body.copyWith(color: c.ink)),
                     Text(
                       Formatters.rupiah(_refund.refundAmountIdr),
                       style: AppTypography.h2.copyWith(color: c.blue),
@@ -95,7 +99,6 @@ class _CancelSheetState extends State<CancelSheet> {
 
           AppButton(
             label: "Konfirmasi Pembatalan",
-            variant: AppButtonVariant.primary,
             onPressed: () {
               Navigator.pop(context);
               ScaffoldMessenger.of(context).showSnackBar(

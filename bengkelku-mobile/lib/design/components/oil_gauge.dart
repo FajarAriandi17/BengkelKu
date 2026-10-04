@@ -51,9 +51,11 @@ class OilGauge extends StatelessWidget {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Text(label ?? text,
-                    style: AppTypography.h2.copyWith(color: color)),
-                Text("status oli", style: AppTypography.caption),
+                Text(
+                  label ?? text,
+                  style: AppTypography.h2.copyWith(color: color),
+                ),
+                const Text("status oli", style: AppTypography.caption),
               ],
             ),
           ),

@@ -13,7 +13,8 @@ class BankAccountScreen extends StatefulWidget {
 }
 
 class _BankAccountScreenState extends State<BankAccountScreen> {
-  final _bankController = TextEditingController(text: "BCA (Bank Central Asia)");
+  final _bankController =
+      TextEditingController(text: "BCA (Bank Central Asia)");
   final _accountNumberController = TextEditingController(text: "8821990411");
   final _accountNameController = TextEditingController(text: "BUDI SANTOSO");
 
@@ -31,21 +32,21 @@ class _BankAccountScreenState extends State<BankAccountScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text("Pengaturan Rekening Bank", style: AppTypography.h1.copyWith(color: c.ink)),
+            Text("Pengaturan Rekening Bank",
+                style: AppTypography.h1.copyWith(color: c.ink)),
             const SizedBox(height: 6),
             Text(
               "Dana hasil transaksi booking akan dicairkan otomatis H+1 ke rekening ini.",
-              style: AppTypography.body.copyWith(color: c.ink.withOpacity(0.7)),
+              style: AppTypography.body
+                  .copyWith(color: c.ink.withValues(alpha: 0.7)),
             ),
             const SizedBox(height: 20),
-
             AppTextField(
               controller: _bankController,
               label: "Nama Bank",
               hint: "misal: BCA / Mandiri / BRI",
             ),
             const SizedBox(height: 12),
-
             AppTextField(
               controller: _accountNumberController,
               label: "Nomor Rekening",
@@ -53,7 +54,6 @@ class _BankAccountScreenState extends State<BankAccountScreen> {
               keyboardType: TextInputType.number,
             ),
             const SizedBox(height: 12),
-
             AppTextField(
               controller: _accountNameController,
               label: "Nama Pemilik Rekening",

@@ -31,16 +31,24 @@ class EmptyState extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(icon, size: 56, color: c.ink.withOpacity(0.3)),
+            Icon(icon, size: 56, color: c.ink.withValues(alpha: 0.3)),
             const SizedBox(height: 12),
-            Text(title, style: AppTypography.h2.copyWith(color: c.ink), textAlign: TextAlign.center),
+            Text(title,
+                style: AppTypography.h2.copyWith(color: c.ink),
+                textAlign: TextAlign.center),
             if (message != null) ...[
               const SizedBox(height: 6),
-              Text(message!, style: AppTypography.body.copyWith(color: c.ink.withOpacity(0.6)), textAlign: TextAlign.center),
+              Text(message!,
+                  style: AppTypography.body
+                      .copyWith(color: c.ink.withValues(alpha: 0.6)),
+                  textAlign: TextAlign.center),
             ],
             if (actionLabel != null && onAction != null) ...[
               const SizedBox(height: 16),
-              AppButton(label: actionLabel!, onPressed: onAction, variant: AppButtonVariant.secondary),
+              AppButton(
+                  label: actionLabel!,
+                  onPressed: onAction,
+                  variant: AppButtonVariant.secondary),
             ],
           ],
         ),
@@ -72,12 +80,16 @@ class ErrorState extends StatelessWidget {
           children: [
             Icon(Icons.error_outline, size: 56, color: c.bad),
             const SizedBox(height: 12),
-            Text("Terjadi Kesalahan", style: AppTypography.h2.copyWith(color: c.bad)),
+            Text("Terjadi Kesalahan",
+                style: AppTypography.h2.copyWith(color: c.bad)),
             const SizedBox(height: 6),
-            Text(message, style: AppTypography.body.copyWith(color: c.ink.withOpacity(0.7)), textAlign: TextAlign.center),
+            Text(message,
+                style: AppTypography.body
+                    .copyWith(color: c.ink.withValues(alpha: 0.7)),
+                textAlign: TextAlign.center),
             if (onRetry != null) ...[
               const SizedBox(height: 16),
-              AppButton(label: "Coba Lagi", onPressed: onRetry, variant: AppButtonVariant.primary),
+              AppButton(label: "Coba Lagi", onPressed: onRetry),
             ],
           ],
         ),

@@ -40,8 +40,11 @@ class ProfileScreen extends ConsumerWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text("Pengendara BengkelKu", style: AppTypography.h2.copyWith(color: c.ink)),
-                      Text("rider@bengkelku.id", style: AppTypography.caption.copyWith(color: c.ink.withOpacity(0.6))),
+                      Text("Pengendara BengkelKu",
+                          style: AppTypography.h2.copyWith(color: c.ink)),
+                      Text("rider@bengkelku.id",
+                          style: AppTypography.caption
+                              .copyWith(color: c.ink.withValues(alpha: 0.6))),
                     ],
                   ),
                 ),
@@ -50,59 +53,77 @@ class ProfileScreen extends ConsumerWidget {
           ),
           const SizedBox(height: 20),
 
-          Text("Akun Pemilik Bengkel", style: AppTypography.label.copyWith(color: c.ink.withOpacity(0.6))),
+          Text("Akun Pemilik Bengkel",
+              style: AppTypography.label
+                  .copyWith(color: c.ink.withValues(alpha: 0.6))),
           const SizedBox(height: 8),
 
           ListTile(
             leading: Icon(Icons.storefront, color: c.blue),
-            title: Text("Beralih ke Dashboard Owner", style: AppTypography.bodyStrong.copyWith(color: c.ink)),
-            subtitle: Text("Kelola usaha bengkel, booking, & dompet", style: AppTypography.caption.copyWith(color: c.ink.withOpacity(0.6))),
+            title: Text("Beralih ke Dashboard Owner",
+                style: AppTypography.bodyStrong.copyWith(color: c.ink)),
+            subtitle: Text("Kelola usaha bengkel, booking, & dompet",
+                style: AppTypography.caption
+                    .copyWith(color: c.ink.withValues(alpha: 0.6))),
             trailing: const Icon(Icons.chevron_right),
             tileColor: c.panel,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
             onTap: () => context.go("/owner"),
           ),
           const SizedBox(height: 8),
 
           ListTile(
             leading: Icon(Icons.add_business, color: c.blue),
-            title: Text("Daftarkan Usaha Bengkel Baru", style: AppTypography.bodyStrong.copyWith(color: c.ink)),
-            subtitle: Text("Daftar dan unggah dokumen verifikasi", style: AppTypography.caption.copyWith(color: c.ink.withOpacity(0.6))),
+            title: Text("Daftarkan Usaha Bengkel Baru",
+                style: AppTypography.bodyStrong.copyWith(color: c.ink)),
+            subtitle: Text("Daftar dan unggah dokumen verifikasi",
+                style: AppTypography.caption
+                    .copyWith(color: c.ink.withValues(alpha: 0.6))),
             trailing: const Icon(Icons.chevron_right),
             tileColor: c.panel,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
             onTap: () => context.push("/owner/register"),
           ),
           const SizedBox(height: 20),
 
-          Text("Pengaturan Akun", style: AppTypography.label.copyWith(color: c.ink.withOpacity(0.6))),
+          Text("Pengaturan Akun",
+              style: AppTypography.label
+                  .copyWith(color: c.ink.withValues(alpha: 0.6))),
           const SizedBox(height: 8),
 
           ListTile(
             leading: Icon(Icons.notifications_outlined, color: c.ink),
-            title: Text("Pengaturan Notifikasi", style: AppTypography.bodyStrong.copyWith(color: c.ink)),
+            title: Text("Pengaturan Notifikasi",
+                style: AppTypography.bodyStrong.copyWith(color: c.ink)),
             trailing: const Icon(Icons.chevron_right),
             tileColor: c.panel,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
             onTap: () => context.push("/notifications/settings"),
           ),
           const SizedBox(height: 8),
 
           ListTile(
             leading: Icon(Icons.lock_outline, color: c.ink),
-            title: Text("Ubah Kata Sandi", style: AppTypography.bodyStrong.copyWith(color: c.ink)),
+            title: Text("Ubah Kata Sandi",
+                style: AppTypography.bodyStrong.copyWith(color: c.ink)),
             trailing: const Icon(Icons.chevron_right),
             tileColor: c.panel,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
             onTap: () => context.push("/forgot-password"),
           ),
           const SizedBox(height: 20),
 
           ListTile(
             leading: Icon(Icons.logout, color: c.bad),
-            title: Text("Keluar (Logout)", style: AppTypography.bodyStrong.copyWith(color: c.bad)),
+            title: Text("Keluar (Logout)",
+                style: AppTypography.bodyStrong.copyWith(color: c.bad)),
             tileColor: c.panel,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
             onTap: () async {
               await ref.read(authRepositoryProvider).signOut();
               if (context.mounted) context.go("/login");

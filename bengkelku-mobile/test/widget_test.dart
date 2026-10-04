@@ -3,12 +3,11 @@
 
 import 'package:bengkelku/core/theme/app_colors.dart';
 import 'package:bengkelku/core/theme/app_theme.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   testWidgets('Tema terang AppColors berisi token v1.3', (tester) async {
-    final colors = AppColors.light;
+    const colors = AppColors.light;
 
     expect(colors.ink2, isNotNull);
     expect(colors.line, isNotNull);

@@ -26,7 +26,12 @@ class BookingStatusBadge extends StatelessWidget {
           c.blueSoft,
           Icons.hourglass_empty
         ),
-      "DIKONFIRMASI" => ("Dikonfirmasi", c.ok, c.okSoft, Icons.check_circle_outline),
+      "DIKONFIRMASI" => (
+          "Dikonfirmasi",
+          c.ok,
+          c.okSoft,
+          Icons.check_circle_outline
+        ),
       "CHECK_IN" => ("Check-In", c.blue, c.blueSoft, Icons.qr_code_scanner),
       "DIKERJAKAN" => ("Sedang Dikerjakan", c.blue, c.blueSoft, Icons.build),
       "SELESAI" => ("Selesai", c.ok, c.okSoft, Icons.task_alt),

@@ -39,7 +39,8 @@ class PaymentSuccessScreen extends StatelessWidget {
               const SizedBox(height: 8),
               Text(
                 "Pembayaran kamu telah diterima. Menunggu pihak bengkel mengonfirmasi pesanan kamu.",
-                style: AppTypography.body.copyWith(color: c.ink.withOpacity(0.7)),
+                style: AppTypography.body
+                    .copyWith(color: c.ink.withValues(alpha: 0.7)),
                 textAlign: TextAlign.center,
               ),
               const Spacer(),
@@ -80,7 +81,8 @@ class PaymentFailedScreen extends StatelessWidget {
               const SizedBox(height: 8),
               Text(
                 "Transaksi tidak dapat diproses. Silakan coba metode pembayaran lain.",
-                style: AppTypography.body.copyWith(color: c.ink.withOpacity(0.7)),
+                style: AppTypography.body
+                    .copyWith(color: c.ink.withValues(alpha: 0.7)),
                 textAlign: TextAlign.center,
               ),
               const Spacer(),

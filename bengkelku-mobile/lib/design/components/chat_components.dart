@@ -42,7 +42,8 @@ class ChatThreadTile extends StatelessWidget {
                       ),
                     )
                   : Text(
-                      thread.workshopName?.substring(0, 2).toUpperCase() ?? 'BK',
+                      thread.workshopName?.substring(0, 2).toUpperCase() ??
+                          'BK',
                       style: TextStyle(
                         color: colors.blueText,
                         fontWeight: FontWeight.w800,
@@ -195,7 +196,8 @@ class ChatBubble extends StatelessWidget {
         );
       },
       child: Align(
-        alignment: message.isMine ? Alignment.centerRight : Alignment.centerLeft,
+        alignment:
+            message.isMine ? Alignment.centerRight : Alignment.centerLeft,
         child: Container(
           constraints: BoxConstraints(
             maxWidth: MediaQuery.of(context).size.width * 0.8,
@@ -249,7 +251,7 @@ class ChatBubble extends StatelessWidget {
                     Text(
                       DateFormat('HH:mm').format(message.createdAt),
                       style: TextStyle(
-                        color: Colors.white.withOpacity(0.75),
+                        color: Colors.white.withValues(alpha: 0.75),
                         fontSize: 10.5,
                         fontWeight: FontWeight.w600,
                       ),
@@ -260,7 +262,7 @@ class ChatBubble extends StatelessWidget {
                       size: 14,
                       color: message.isRead
                           ? colors.blue
-                          : Colors.white.withOpacity(0.75),
+                          : Colors.white.withValues(alpha: 0.75),
                     ),
                   ],
                 ),
@@ -284,7 +286,6 @@ class SystemMessage extends StatelessWidget {
     final colors = Theme.of(context).extension<AppColors>()!;
 
     return Align(
-      alignment: Alignment.center,
       child: Container(
         margin: const EdgeInsets.symmetric(vertical: 8),
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
@@ -373,7 +374,7 @@ class _TypingDotsState extends State<TypingDots>
                       width: 7,
                       height: 7,
                       decoration: BoxDecoration(
-                        color: colors.ink2.withOpacity(opacity),
+                        color: colors.ink2.withValues(alpha: opacity),
                         shape: BoxShape.circle,
                       ),
                     ),
@@ -444,7 +445,9 @@ class ChatComposer extends StatelessWidget {
   final VoidCallback onSend;
   final VoidCallback onImagePick;
   final bool enabled;
+  final bool sending;
   final String? disabledMessage;
+  final ValueChanged<String>? onChanged;
 
   const ChatComposer({
     super.key,
@@ -452,7 +455,9 @@ class ChatComposer extends StatelessWidget {
     required this.onSend,
     required this.onImagePick,
     this.enabled = true,
+    this.sending = false,
     this.disabledMessage,
+    this.onChanged,
   });
 
   @override
@@ -512,6 +517,7 @@ class ChatComposer extends StatelessWidget {
               ),
               child: TextField(
                 controller: controller,
+                onChanged: onChanged,
                 maxLines: null,
                 maxLength: 1000,
                 style: TextStyle(
@@ -537,20 +543,32 @@ class ChatComposer extends StatelessWidget {
           ),
           const SizedBox(width: 8),
           // Tombol kirim
-          InkWell(
-            onTap: onSend,
-            borderRadius: BorderRadius.circular(12),
-            child: Container(
-              width: 44,
-              height: 44,
-              decoration: BoxDecoration(
-                color: colors.blue,
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: const Icon(
-                Icons.send,
-                color: Colors.white,
-                size: 20,
+          Semantics(
+            button: true,
+            label: 'Kirim pesan',
+            child: InkWell(
+              onTap: sending ? null : onSend,
+              borderRadius: BorderRadius.circular(12),
+              child: Container(
+                width: 44,
+                height: 44,
+                decoration: BoxDecoration(
+                  color: sending ? colors.line : colors.blue,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: sending
+                    ? const Padding(
+                        padding: EdgeInsets.all(12),
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: Colors.white,
+                        ),
+                      )
+                    : const Icon(
+                        Icons.send,
+                        color: Colors.white,
+                        size: 20,
+                      ),
               ),
             ),
           ),

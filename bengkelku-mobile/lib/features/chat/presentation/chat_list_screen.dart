@@ -53,7 +53,7 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> {
       body: asyncThreads.when(
         loading: () => const Padding(
           padding: EdgeInsets.all(16),
-          child: SkeletonList(itemCount: 4),
+          child: SkeletonList(),
         ),
         error: (e, _) => ErrorState(
           message: 'Gagal memuat daftar chat',
@@ -61,7 +61,7 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> {
         ),
         data: (threads) {
           if (threads.isEmpty) {
-            return EmptyState(
+            return const EmptyState(
               icon: Icons.chat_bubble_outline,
               title: 'Belum ada chat',
               message:

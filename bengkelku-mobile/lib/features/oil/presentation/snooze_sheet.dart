@@ -25,50 +25,52 @@ class _SnoozeSheetState extends State<SnoozeSheet> {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text("Tunda Pengingat Oli", style: AppTypography.h1.copyWith(color: c.ink)),
+          Text("Tunda Pengingat Oli",
+              style: AppTypography.h1.copyWith(color: c.ink)),
           const SizedBox(height: 8),
           Text(
             "Pilih berapa lama kamu ingin menunda notifikasi pengingat oli motor ini.",
-            style: AppTypography.body.copyWith(color: c.ink.withOpacity(0.7)),
+            style: AppTypography.body
+                .copyWith(color: c.ink.withValues(alpha: 0.7)),
           ),
           const SizedBox(height: 16),
-
           RadioListTile<int>(
             value: 3,
             groupValue: _selectedDays,
             title: const Text("Tunda 3 Hari"),
             onChanged: (val) => setState(() => _selectedDays = val!),
             tileColor: c.panel,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
           ),
           const SizedBox(height: 8),
-
           RadioListTile<int>(
             value: 7,
             groupValue: _selectedDays,
             title: const Text("Tunda 7 Hari"),
             onChanged: (val) => setState(() => _selectedDays = val!),
             tileColor: c.panel,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
           ),
           const SizedBox(height: 8),
-
           RadioListTile<int>(
             value: 14,
             groupValue: _selectedDays,
             title: const Text("Tunda 14 Hari"),
             onChanged: (val) => setState(() => _selectedDays = val!),
             tileColor: c.panel,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
           ),
           const SizedBox(height: 20),
-
           AppButton(
             label: "Simpan Penundaan",
             onPressed: () {
               Navigator.pop(context);
               ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text("Pengingat oli ditunda $_selectedDays hari")),
+                SnackBar(
+                    content: Text("Pengingat oli ditunda $_selectedDays hari")),
               );
             },
           ),

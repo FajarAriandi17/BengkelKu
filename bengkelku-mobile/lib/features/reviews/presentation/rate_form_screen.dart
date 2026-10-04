@@ -36,11 +36,13 @@ class _RateFormScreenState extends State<RateFormScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text("Bagaimana Pengalaman Servis Kamu?", style: AppTypography.h1.copyWith(color: c.ink)),
+            Text("Bagaimana Pengalaman Servis Kamu?",
+                style: AppTypography.h1.copyWith(color: c.ink)),
             const SizedBox(height: 8),
             Text(
               "Ulasan kamu membantu pengguna lain memilih bengkel terpercaya.",
-              style: AppTypography.body.copyWith(color: c.ink.withOpacity(0.7)),
+              style: AppTypography.body
+                  .copyWith(color: c.ink.withValues(alpha: 0.7)),
             ),
             const SizedBox(height: 24),
 
@@ -58,12 +60,14 @@ class _RateFormScreenState extends State<RateFormScreen> {
             AppTextField(
               controller: _commentController,
               label: "Ulasan Teks",
-              hint: "Tuliskan pendapat kamu mengenai pengerjaan & pelayanan bengkel...",
+              hint:
+                  "Tuliskan pendapat kamu mengenai pengerjaan & pelayanan bengkel...",
               maxLines: 3,
             ),
             const SizedBox(height: 16),
 
-            Text("Foto Ulasan (Opsional, Maks 2 MB)", style: AppTypography.label.copyWith(color: c.ink)),
+            Text("Foto Ulasan (Opsional, Maks 2 MB)",
+                style: AppTypography.label.copyWith(color: c.ink)),
             const SizedBox(height: 8),
             MediaPickerTile(
               title: "Unggah Foto Ulasan",

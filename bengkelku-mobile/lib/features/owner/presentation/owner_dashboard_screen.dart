@@ -48,16 +48,21 @@ class _OwnerDashboardScreenState extends State<OwnerDashboardScreen> {
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text("Pendapatan Hari Ini", style: AppTypography.caption.copyWith(color: Colors.white70)),
+                      Text("Pendapatan Hari Ini",
+                          style: AppTypography.caption
+                              .copyWith(color: Colors.white70)),
                       const SizedBox(height: 4),
-                      Text("Rp 340.000", style: AppTypography.h1.copyWith(color: Colors.white, fontSize: 22)),
+                      Text("Rp 340.000",
+                          style: AppTypography.h1
+                              .copyWith(color: Colors.white, fontSize: 22)),
                     ],
                   ),
                   ElevatedButton.icon(
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.white,
                       foregroundColor: c.blue,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12)),
                     ),
                     icon: const Icon(Icons.qr_code_scanner, size: 18),
                     label: const Text("Scan Check-In"),
@@ -90,7 +95,8 @@ class _OwnerDashboardScreenState extends State<OwnerDashboardScreen> {
             ),
             const SizedBox(height: 24),
 
-            Text("Antrean Booking Hari Ini", style: AppTypography.h2.copyWith(color: c.ink)),
+            Text("Antrean Booking Hari Ini",
+                style: AppTypography.h2.copyWith(color: c.ink)),
             const SizedBox(height: 12),
 
             // Card item booking masuk
@@ -106,16 +112,24 @@ class _OwnerDashboardScreenState extends State<OwnerDashboardScreen> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text("Booking #BK-884920", style: AppTypography.h2.copyWith(color: c.ink, fontSize: 16)),
-                      const BookingStatusBadge(status: "DIBAYAR_MENUNGGU_KONFIRMASI"),
+                      Text("Booking #BK-884920",
+                          style: AppTypography.h2
+                              .copyWith(color: c.ink, fontSize: 16)),
+                      const BookingStatusBadge(
+                          status: "DIBAYAR_MENUNGGU_KONFIRMASI"),
                     ],
                   ),
                   const SizedBox(height: 6),
-                  Text("Pengendara: Budi Santoso (Honda Vario 160)", style: AppTypography.body.copyWith(color: c.ink.withOpacity(0.8))),
-                  Text("Layanan: Servis Rutin + Ganti Oli Sintetik", style: AppTypography.caption.copyWith(color: c.ink.withOpacity(0.6))),
-                  Text("Jam Slot: 09:00 WIB", style: AppTypography.caption.copyWith(color: c.blue, fontWeight: FontWeight.bold)),
+                  Text("Pengendara: Budi Santoso (Honda Vario 160)",
+                      style: AppTypography.body
+                          .copyWith(color: c.ink.withValues(alpha: 0.8))),
+                  Text("Layanan: Servis Rutin + Ganti Oli Sintetik",
+                      style: AppTypography.caption
+                          .copyWith(color: c.ink.withValues(alpha: 0.6))),
+                  Text("Jam Slot: 09:00 WIB",
+                      style: AppTypography.caption.copyWith(
+                          color: c.blue, fontWeight: FontWeight.bold)),
                   const Divider(height: 20),
-
                   Row(
                     children: [
                       Expanded(
@@ -128,9 +142,11 @@ class _OwnerDashboardScreenState extends State<OwnerDashboardScreen> {
                             showModalBottomSheet(
                               context: context,
                               shape: const RoundedRectangleBorder(
-                                borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+                                borderRadius: BorderRadius.vertical(
+                                    top: Radius.circular(20)),
                               ),
-                              builder: (ctx) => const OwnerRejectSheet(bookingId: "BK-884920"),
+                              builder: (ctx) => const OwnerRejectSheet(
+                                  bookingId: "BK-884920"),
                             );
                           },
                           child: const Text("Tolak"),
@@ -142,7 +158,9 @@ class _OwnerDashboardScreenState extends State<OwnerDashboardScreen> {
                           label: "Konfirmasi / Terima",
                           onPressed: () {
                             ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(content: Text("Booking berhasil dikonfirmasi")),
+                              const SnackBar(
+                                  content:
+                                      Text("Booking berhasil dikonfirmasi")),
                             );
                           },
                         ),
@@ -153,7 +171,8 @@ class _OwnerDashboardScreenState extends State<OwnerDashboardScreen> {
                   AppButton(
                     label: "Input Pengerjaan Servis & Odometer",
                     variant: AppButtonVariant.secondary,
-                    onPressed: () => context.push("/owner/record?bookingId=BK-884920"),
+                    onPressed: () =>
+                        context.push("/owner/record?bookingId=BK-884920"),
                   ),
                 ],
               ),

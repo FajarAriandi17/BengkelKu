@@ -33,13 +33,17 @@ class PriceSummary extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text("Ringkasan Biaya", style: AppTypography.h2.copyWith(color: c.ink, fontSize: 16)),
+          Text("Ringkasan Biaya",
+              style: AppTypography.h2.copyWith(color: c.ink, fontSize: 16)),
           const SizedBox(height: 12),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text("Subtotal Layanan", style: AppTypography.body.copyWith(color: c.ink.withOpacity(0.7))),
-              Text(Formatters.rupiah(subtotalIdr), style: AppTypography.bodyStrong.copyWith(color: c.ink)),
+              Text("Subtotal Layanan",
+                  style: AppTypography.body
+                      .copyWith(color: c.ink.withValues(alpha: 0.7))),
+              Text(Formatters.rupiah(subtotalIdr),
+                  style: AppTypography.bodyStrong.copyWith(color: c.ink)),
             ],
           ),
           if (platformFeeIdr > 0) ...[
@@ -47,8 +51,11 @@ class PriceSummary extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text("Biaya Layanan", style: AppTypography.body.copyWith(color: c.ink.withOpacity(0.7))),
-                Text(Formatters.rupiah(platformFeeIdr), style: AppTypography.bodyStrong.copyWith(color: c.ink)),
+                Text("Biaya Layanan",
+                    style: AppTypography.body
+                        .copyWith(color: c.ink.withValues(alpha: 0.7))),
+                Text(Formatters.rupiah(platformFeeIdr),
+                    style: AppTypography.bodyStrong.copyWith(color: c.ink)),
               ],
             ),
           ],
@@ -56,7 +63,8 @@ class PriceSummary extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text("Total Pembayaran", style: AppTypography.h2.copyWith(color: c.ink, fontSize: 16)),
+              Text("Total Pembayaran",
+                  style: AppTypography.h2.copyWith(color: c.ink, fontSize: 16)),
               Text(
                 Formatters.rupiah(totalIdr),
                 style: AppTypography.h1.copyWith(color: c.blue, fontSize: 20),

@@ -36,17 +36,25 @@ class OwnerWalletScreen extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text("Saldo Siap Dicairkan (Payout H+1)", style: AppTypography.caption.copyWith(color: Colors.white70)),
+                Text("Saldo Siap Dicairkan (Payout H+1)",
+                    style:
+                        AppTypography.caption.copyWith(color: Colors.white70)),
                 const SizedBox(height: 6),
-                Text(Formatters.rupiah(312800), style: AppTypography.h1.copyWith(color: Colors.white, fontSize: 26)),
+                Text(Formatters.rupiah(312800),
+                    style: AppTypography.h1
+                        .copyWith(color: Colors.white, fontSize: 26)),
                 const SizedBox(height: 12),
-                Text("Komisi platform 8% dipotong otomatis saat batch payout H+1.", style: AppTypography.caption.copyWith(color: Colors.white70)),
+                Text(
+                    "Komisi platform 8% dipotong otomatis saat batch payout H+1.",
+                    style:
+                        AppTypography.caption.copyWith(color: Colors.white70)),
               ],
             ),
           ),
           const SizedBox(height: 24),
 
-          Text("Riwayat Batch Payout", style: AppTypography.h2.copyWith(color: c.ink)),
+          Text("Riwayat Batch Payout",
+              style: AppTypography.h2.copyWith(color: c.ink)),
           const SizedBox(height: 12),
 
           Container(
@@ -61,11 +69,15 @@ class OwnerWalletScreen extends StatelessWidget {
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text("Payout H+1 (12 Sep 2026)", style: AppTypography.bodyStrong.copyWith(color: c.ink)),
-                    Text("BCA ••••• 8821", style: AppTypography.caption.copyWith(color: c.ink.withOpacity(0.6))),
+                    Text("Payout H+1 (12 Sep 2026)",
+                        style: AppTypography.bodyStrong.copyWith(color: c.ink)),
+                    Text("BCA ••••• 8821",
+                        style: AppTypography.caption
+                            .copyWith(color: c.ink.withValues(alpha: 0.6))),
                   ],
                 ),
-                Text(Formatters.rupiah(312800), style: AppTypography.h2.copyWith(color: c.ok)),
+                Text(Formatters.rupiah(312800),
+                    style: AppTypography.h2.copyWith(color: c.ok)),
               ],
             ),
           ),

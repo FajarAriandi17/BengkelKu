@@ -23,11 +23,13 @@ class ChatRepository {
           .order('last_message_at', ascending: false);
 
       return (response as List)
-          .map((json) => ChatThread.fromJson({
-                ...json,
-                'workshop_name': json['workshops']?['name'],
-                'workshop_avatar': json['workshops']?['avatar_url'],
-              }))
+          .map(
+            (json) => ChatThread.fromJson({
+              ...json,
+              'workshop_name': json['workshops']?['name'],
+              'workshop_avatar': json['workshops']?['avatar_url'],
+            }),
+          )
           .toList();
     } catch (e) {
       throw Exception('Gagal memuat daftar chat: $e');
@@ -35,7 +37,8 @@ class ChatRepository {
   }
 
   // Ambil pesan dalam thread
-  Future<List<ChatMessage>> getMessages(String threadId, String currentUserId) async {
+  Future<List<ChatMessage>> getMessages(
+      String threadId, String currentUserId) async {
     try {
       final response = await _supabase
           .from('chat_messages')
@@ -45,7 +48,8 @@ class ChatRepository {
           .limit(100);
 
       return (response as List)
-          .map((json) => ChatMessage.fromJson(json, currentUserId: currentUserId))
+          .map((json) =>
+              ChatMessage.fromJson(json, currentUserId: currentUserId))
           .toList();
     } catch (e) {
       throw Exception('Gagal memuat pesan: $e');
@@ -66,17 +70,20 @@ class ChatRepository {
     final clientId = _uuid.v4();
 
     try {
-      final response = await _supabase.rpc('chat_send', params: {
-        'p_thread_id': threadId,
-        'p_sender_id': senderId,
-        'p_kind': kind.name,
-        'p_body': body,
-        'p_media_paths': mediaPaths ?? [],
-        'p_quote_id': quoteId,
-        'p_latitude': latitude,
-        'p_longitude': longitude,
-        'p_client_id': clientId,
-      });
+      final response = await _supabase.rpc(
+        'chat_send',
+        params: {
+          'p_thread_id': threadId,
+          'p_sender_id': senderId,
+          'p_kind': kind.name,
+          'p_body': body,
+          'p_media_paths': mediaPaths ?? [],
+          'p_quote_id': quoteId,
+          'p_latitude': latitude,
+          'p_longitude': longitude,
+          'p_client_id': clientId,
+        },
+      );
 
       return ChatMessage.fromJson(response, currentUserId: senderId);
     } catch (e) {
@@ -87,10 +94,13 @@ class ChatRepository {
   // Tandai pesan sebagai dibaca
   Future<void> markAsRead(String threadId, String userId) async {
     try {
-      await _supabase.rpc('chat_mark_read', params: {
-        'p_thread_id': threadId,
-        'p_user_id': userId,
-      });
+      await _supabase.rpc(
+        'chat_mark_read',
+        params: {
+          'p_thread_id': threadId,
+          'p_user_id': userId,
+        },
+      );
     } catch (e) {
       // Tidak perlu throw, karena ini non-blocking
       debugPrint('Gagal menandai sebagai dibaca: $e');
@@ -108,7 +118,10 @@ class ChatRepository {
           event: PostgresChangeEvent.insert,
           schema: 'public',
           table: 'chat_messages',
-          filter: PostgresChangeFilter(type: PostgresChangeFilterType.eq, column: 'thread_id', value: threadId),
+          filter: PostgresChangeFilter(
+              type: PostgresChangeFilterType.eq,
+              column: 'thread_id',
+              value: threadId),
           callback: (payload) {
             final userId = _supabase.auth.currentUser?.id ?? '';
             final message = ChatMessage.fromJson(
@@ -146,7 +159,8 @@ class ChatRepository {
   }
 
   // Broadcast status "sedang mengetik"
-  Future<void> broadcastTyping(String threadId, String userId, bool isTyping) async {
+  Future<void> broadcastTyping(
+      String threadId, String userId, bool isTyping) async {
     try {
       final channel = _supabase.channel('typing:$threadId');
       await channel.sendBroadcastMessage(
@@ -200,14 +214,10 @@ class ChatRepository {
   // Ambil satu thread (dipakai layar chat room).
   Future<ChatThread> getThread(String threadId) async {
     try {
-      final response = await _supabase
-          .from('chat_threads')
-          .select('''
+      final response = await _supabase.from('chat_threads').select('''
             *,
             workshops:workshop_id(name)
-          ''')
-          .eq('id', threadId)
-          .single();
+          ''').eq('id', threadId).single();
 
       return ChatThread.fromJson({
         ...response,
@@ -221,14 +231,10 @@ class ChatRepository {
   // Ambil thread chat untuk sebuah panggilan darurat (bila sudah dibuat).
   Future<ChatThread?> getThreadForSos(String sosRequestId) async {
     try {
-      final response = await _supabase
-          .from('chat_threads')
-          .select('''
+      final response = await _supabase.from('chat_threads').select('''
             *,
             workshops:workshop_id(name)
-          ''')
-          .eq('sos_request_id', sosRequestId)
-          .maybeSingle();
+          ''').eq('sos_request_id', sosRequestId).maybeSingle();
 
       if (response == null) return null;
       return ChatThread.fromJson({

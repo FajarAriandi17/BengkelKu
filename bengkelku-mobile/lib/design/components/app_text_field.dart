@@ -72,7 +72,8 @@ class _AppTextFieldState extends State<AppTextField> {
           style: AppTypography.body.copyWith(color: c.ink),
           decoration: InputDecoration(
             hintText: widget.hint,
-            hintStyle: AppTypography.body.copyWith(color: c.ink.withOpacity(0.4)),
+            hintStyle: AppTypography.body
+                .copyWith(color: c.ink.withValues(alpha: 0.4)),
             errorText: widget.errorText,
             helperText: widget.helperText,
             prefixIcon: widget.prefixIcon,
@@ -80,7 +81,7 @@ class _AppTextFieldState extends State<AppTextField> {
                 ? IconButton(
                     icon: Icon(
                       _obscured ? Icons.visibility_off : Icons.visibility,
-                      color: c.ink.withOpacity(0.6),
+                      color: c.ink.withValues(alpha: 0.6),
                       size: 20,
                     ),
                     onPressed: () => setState(() => _obscured = !_obscured),
@@ -88,7 +89,8 @@ class _AppTextFieldState extends State<AppTextField> {
                 : widget.suffixIcon,
             filled: true,
             fillColor: c.panel,
-            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+            contentPadding:
+                const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
               borderSide: BorderSide(color: c.blueSoft),
