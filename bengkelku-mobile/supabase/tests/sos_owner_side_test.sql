@@ -30,11 +30,14 @@ insert into auth.users(id,email) values
   ('00000000-0000-0000-0000-0000000000b3','c@x'),
   ('00000000-0000-0000-0000-0000000000b4','d@x');
 
+-- Fixture: bengkel disetujui ditulis seperti admin (guard 0021).
+select set_config('bengkelku.allow_status_change','on',false);
 insert into public.workshops(id,owner_id,name,location,status) values
  ('20000000-0000-0000-0000-000000000001','00000000-0000-0000-0000-0000000000b1','A', st_setsrid(st_makepoint(106.801,-6.201),4326)::geography,'verified'),
  ('20000000-0000-0000-0000-000000000002','00000000-0000-0000-0000-0000000000b2','B', st_setsrid(st_makepoint(106.805,-6.205),4326)::geography,'verified'),
  ('20000000-0000-0000-0000-000000000003','00000000-0000-0000-0000-0000000000b3','C', st_setsrid(st_makepoint(106.802,-6.202),4326)::geography,'pending'),
  ('20000000-0000-0000-0000-000000000004','00000000-0000-0000-0000-0000000000b4','D', st_setsrid(st_makepoint(106.803,-6.203),4326)::geography,'verified');
+select set_config('bengkelku.allow_status_change','',false);
 
 -- D tutup setiap hari.
 insert into public.workshop_hours(workshop_id, weekday, is_closed)

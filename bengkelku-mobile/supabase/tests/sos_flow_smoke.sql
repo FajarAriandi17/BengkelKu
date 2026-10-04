@@ -4,9 +4,12 @@
 -- users
 insert into auth.users(id,email) values ('00000000-0000-0000-0000-00000000000a','rider@x'),('00000000-0000-0000-0000-00000000000b','owner@x'),('00000000-0000-0000-0000-00000000000c','owner2@x');
 select id, roles from public.users;
+-- Fixture: bengkel disetujui ditulis seperti admin (guard 0021).
+select set_config('bengkelku.allow_status_change','on',false);
 insert into public.workshops(id,owner_id,name,location,status) values
  ('10000000-0000-0000-0000-000000000001','00000000-0000-0000-0000-00000000000b','Bengkel A', st_setsrid(st_makepoint(106.801,-6.201),4326)::geography,'verified'),
  ('10000000-0000-0000-0000-000000000002','00000000-0000-0000-0000-00000000000c','Bengkel B', st_setsrid(st_makepoint(106.805,-6.205),4326)::geography,'verified');
+select set_config('bengkelku.allow_status_change','',false);
 -- owner standby
 select set_config('request.jwt.claim.sub','00000000-0000-0000-0000-00000000000b',false);
 select public.sos_toggle_standby('10000000-0000-0000-0000-000000000001', true, 4);
