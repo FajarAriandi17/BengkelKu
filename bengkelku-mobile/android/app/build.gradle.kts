@@ -34,7 +34,7 @@ fun signingProperty(name: String): String =
         ?: error("Missing '$name' in android/key.properties")
 
 android {
-    namespace = "com.example.bengkelku"
+    namespace = "com.bengkelkumotor.service"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
 
@@ -44,8 +44,7 @@ android {
     }
 
     defaultConfig {
-        // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
-        applicationId = "com.example.bengkelku"
+        applicationId = "com.bengkelkumotor.service"
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
         manifestPlaceholders["GOOGLE_MAPS_API_KEY"] = googleMapsApiKey
@@ -60,17 +59,25 @@ android {
     }
 
     signingConfigs {
-        create("release") {
-            keyAlias = signingProperty("keyAlias")
-            keyPassword = signingProperty("keyPassword")
-            storeFile = file(signingProperty("storeFile"))
-            storePassword = signingProperty("storePassword")
+        if (keystorePropertiesFile.exists()) {
+            create("release") {
+                keyAlias = signingProperty("keyAlias")
+                keyPassword = signingProperty("keyPassword")
+                storeFile = file(signingProperty("storeFile"))
+                storePassword = signingProperty("storePassword")
+            }
         }
     }
 
     buildTypes {
         release {
-            signingConfig = signingConfigs.getByName("release")
+            // Tanpa android/key.properties (mis. build pratinjau di CI) APK
+            // ditandatangani kunci debug — JANGAN unggah build itu ke Play Store.
+            signingConfig = if (keystorePropertiesFile.exists()) {
+                signingConfigs.getByName("release")
+            } else {
+                signingConfigs.getByName("debug")
+            }
         }
     }
 }
