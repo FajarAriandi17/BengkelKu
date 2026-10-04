@@ -1,83 +1,46 @@
 import { NextResponse } from "next/server";
-import { createClient, createAdminClient } from "@/lib/supabase/server";
+import { createClient } from "@/lib/supabase/server";
 
-// POST /api/verify — simpan keputusan verifikasi bengkel + tulis audit log.
-// Hanya admin terautentikasi. Memakai service role untuk update lintas-RLS.
+// POST /api/verify — keputusan verifikasi bengkel.
+// Memanggil RPC admin_verify_workshop dengan SESI ADMIN sendiri: database
+// memeriksa peran verifikator, mengubah status + dokumen + peran pemilik,
+// menulis audit_logs, dan mengirim notifikasi ke aplikasi pemilik (atomik).
 export async function POST(req: Request) {
   const supabase = createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
+  if (!user) return NextResponse.json({ error: "sesi berakhir, silakan masuk lagi" }, { status: 401 });
 
-  if (!user) {
-    return NextResponse.json({ error: "unauthorized" }, { status: 401 });
+  let body: Record<string, unknown> = {};
+  try {
+    body = await req.json();
+  } catch {
+    return NextResponse.json({ error: "format permintaan tidak valid" }, { status: 400 });
+  }
+  const { workshopId, decision, checklist, reasonCode, note } = body as {
+    workshopId?: string;
+    decision?: string;
+    checklist?: Record<string, boolean>;
+    reasonCode?: string | null;
+    note?: string | null;
+  };
+
+  if (!workshopId || !decision || !["approve", "reject"].includes(decision)) {
+    return NextResponse.json({ error: "data keputusan tidak lengkap" }, { status: 400 });
   }
 
-  const body = await req.json();
-  const { workshopId, decision, checklist, reasonCode, note } = body ?? {};
-
-  if (!workshopId || !["approve", "reject"].includes(decision)) {
-    return NextResponse.json({ error: "bad request" }, { status: 400 });
-  }
-
-  const admin = createAdminClient();
-
-  // Pastikan pemanggil benar-benar admin (ada di admin_users).
-  const { data: adminRow } = await admin
-    .from("admin_users")
-    .select("id, role, is_active")
-    .eq("id", user.id)
-    .maybeSingle();
-
-  if (!adminRow || !adminRow.is_active) {
-    return NextResponse.json({ error: "forbidden" }, { status: 403 });
-  }
-
-  const newStatus = decision === "approve" ? "verified" : "rejected";
-
-  const { error: updErr } = await admin
-    .from("workshops")
-    .update({
-      status: newStatus,
-      rejected_reason: decision === "reject" ? (note ?? reasonCode) : null,
-      updated_at: new Date().toISOString(),
-    })
-    .eq("id", workshopId);
-
-  if (updErr) {
-    return NextResponse.json({ error: updErr.message }, { status: 500 });
-  }
-
-  await admin.from("audit_logs").insert({
-    actor_id: user.id,
-    action: decision === "approve" ? "APPROVE_WORKSHOP" : "REJECT_WORKSHOP",
-    target_type: "workshop",
-    target_id: workshopId,
-    meta: { checklist, reasonCode, note },
+  const { data, error } = await supabase.rpc("admin_verify_workshop", {
+    p_workshop_id: workshopId,
+    p_decision: decision,
+    p_reason_code: decision === "reject" ? reasonCode ?? null : null,
+    p_note: note?.trim() || null,
+    p_checklist: checklist ?? {},
   });
 
-  // Notifikasi ke pemilik bengkel.
-  const { data: ws } = await admin
-    .from("workshops")
-    .select("owner_id, name")
-    .eq("id", workshopId)
-    .maybeSingle();
-
-  if (ws?.owner_id) {
-    await admin.from("notifications").insert({
-      user_id: ws.owner_id,
-      kind: "verification",
-      title:
-        decision === "approve"
-          ? "selamat! bengkel kamu sudah tayang di BengkelKu"
-          : "pendaftaran bengkel kamu belum disetujui",
-      body:
-        decision === "approve"
-          ? "pelanggan kini bisa menemukan dan memesan servis di bengkelmu."
-          : (note ?? "silakan perbaiki data lalu ajukan ulang."),
-      data: { workshop_id: workshopId },
-    });
+  if (error) {
+    const status = /Hanya admin|verifikator/i.test(error.message) ? 403 : 400;
+    return NextResponse.json({ error: error.message }, { status });
   }
-
-  return NextResponse.json({ ok: true });
+  return NextResponse.json({ ok: true, result: data });
 }

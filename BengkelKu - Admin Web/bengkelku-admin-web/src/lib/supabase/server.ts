@@ -1,5 +1,5 @@
 import { cookies } from "next/headers";
-import { createServerClient } from "@supabase/ssr";
+import { createServerClient, type CookieOptions } from "@supabase/ssr";
 
 // Klien Supabase untuk Server Components / Route Handlers (memakai sesi cookie).
 export function createClient() {
@@ -10,7 +10,7 @@ export function createClient() {
     {
       cookies: {
         getAll: () => cookieStore.getAll(),
-        setAll: (list) => {
+        setAll: (list: { name: string; value: string; options: CookieOptions }[]) => {
           try {
             list.forEach(({ name, value, options }) =>
               cookieStore.set(name, value, options),

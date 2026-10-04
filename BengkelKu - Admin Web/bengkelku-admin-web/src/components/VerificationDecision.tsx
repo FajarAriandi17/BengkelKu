@@ -16,7 +16,7 @@ export function VerificationDecision({ workshopId }: { workshopId: string }) {
   const router = useRouter();
   const [checks, setChecks] = useState<Record<string, boolean>>({});
   const [mode, setMode] = useState<"idle" | "reject">("idle");
-  const [reasonCode, setReasonCode] = useState(REJECT_REASONS[0].code);
+  const [reasonCode, setReasonCode] = useState<string>(REJECT_REASONS[0].code);
   const [note, setNote] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -24,6 +24,11 @@ export function VerificationDecision({ workshopId }: { workshopId: string }) {
   const allChecked = CHECKLIST.every((c) => checks[c.key]);
 
   async function submit(decision: "approve" | "reject") {
+    if (decision === "reject" && reasonCode === "OTHER" && note.trim().length < 10) {
+      setError("jelaskan alasan penolakan (minimal 10 karakter).");
+      return;
+    }
+    if (decision === "reject" && !window.confirm("Kirim penolakan ke pemilik bengkel?")) return;
     setLoading(true);
     setError(null);
     const res = await fetch("/api/verify", {
@@ -34,12 +39,19 @@ export function VerificationDecision({ workshopId }: { workshopId: string }) {
         decision,
         checklist: checks,
         reasonCode: decision === "reject" ? reasonCode : null,
-        note: note || null,
+        // Teks yang tampil di aplikasi pemilik: label alasan + catatan.
+        note:
+          decision === "reject"
+            ? [REJECT_REASONS.find((r) => r.code === reasonCode)?.label, note.trim()]
+                .filter(Boolean)
+                .join(" — ")
+            : note.trim() || null,
       }),
     });
     setLoading(false);
     if (!res.ok) {
-      setError("gagal menyimpan keputusan. coba lagi.");
+      const j = (await res.json().catch(() => null)) as { error?: string } | null;
+      setError(j?.error ?? "gagal menyimpan keputusan. coba lagi.");
       return;
     }
     router.push("/verifikasi");
@@ -65,7 +77,7 @@ export function VerificationDecision({ workshopId }: { workshopId: string }) {
         ))}
       </div>
 
-      {error && <p className="mb-3 text-sm text-bad">{error}</p>}
+      {error && <p role="alert" className="mb-3 text-sm text-bad">{error}</p>}
 
       {mode === "idle" ? (
         <div className="space-y-2">
@@ -91,10 +103,11 @@ export function VerificationDecision({ workshopId }: { workshopId: string }) {
         </div>
       ) : (
         <div className="space-y-3">
-          <label className="block text-sm font-semibold">alasan penolakan</label>
+          <label htmlFor="reject-reason" className="block text-sm font-semibold">alasan penolakan</label>
           <select
+            id="reject-reason"
             value={reasonCode}
-            onChange={(e) => setReasonCode(e.target.value as typeof reasonCode)}
+            onChange={(e) => setReasonCode(e.target.value)}
             className="w-full rounded-md border border-blueSoft bg-panel px-3 py-2 text-sm"
           >
             {REJECT_REASONS.map((r) => (
@@ -106,7 +119,8 @@ export function VerificationDecision({ workshopId }: { workshopId: string }) {
           <textarea
             value={note}
             onChange={(e) => setNote(e.target.value)}
-            placeholder="catatan untuk pemilik bengkel (opsional)"
+            placeholder={reasonCode === "OTHER" ? "wajib: jelaskan apa yang perlu diperbaiki" : "catatan untuk pemilik bengkel (opsional, tampil di aplikasi)"}
+            aria-label="catatan penolakan"
             className="h-24 w-full rounded-md border border-blueSoft bg-panel px-3 py-2 text-sm"
           />
           <div className="flex gap-2">

@@ -1,18 +1,34 @@
 "use client";
 
-import { useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 
 // Login admin: username (email) + kata sandi. Tanpa signup publik.
 // 2FA TOTP diverifikasi setelah password (langkah kedua) — lihat docs/ARCHITECTURE.md.
 export default function LoginPage() {
+  return (
+    <Suspense fallback={null}>
+      <LoginForm />
+    </Suspense>
+  );
+}
+
+function LoginForm() {
   const router = useRouter();
   const params = useSearchParams();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // Akun aplikasi (bukan admin) diarahkan ke sini → keluarkan sesi & beri tahu.
+  useEffect(() => {
+    if (params.get("error") === "not_admin") {
+      createClient().auth.signOut();
+      setError("akun ini tidak terdaftar sebagai admin aktif.");
+    }
+  }, [params]);
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -28,7 +44,9 @@ export default function LoginPage() {
       setError("username atau kata sandi salah.");
       return;
     }
-    router.replace(params.get("next") ?? "/dashboard");
+    const next = params.get("next");
+    router.replace(next && next.startsWith("/") && !next.startsWith("//") ? next : "/dashboard");
+    router.refresh();
   }
 
   return (
@@ -39,11 +57,13 @@ export default function LoginPage() {
       >
         <h1 className="text-xl font-bold text-ink">BengkelKu Admin</h1>
         <p className="mb-6 mt-1 text-sm text-ink/60">
-          masuk untuk mengelola verifikasi bengkel.
+          masuk untuk mengelola verifikasi, operasional, dan keuangan.
         </p>
 
-        <label className="mb-1 block text-sm font-semibold">username (email)</label>
+        <label htmlFor="email" className="mb-1 block text-sm font-semibold">username (email)</label>
         <input
+          id="email"
+          autoComplete="username"
           type="email"
           required
           value={email}
@@ -51,8 +71,10 @@ export default function LoginPage() {
           className="mb-4 w-full rounded-md border border-blueSoft bg-panel px-3 py-2 outline-none focus:border-blue"
         />
 
-        <label className="mb-1 block text-sm font-semibold">kata sandi</label>
+        <label htmlFor="password" className="mb-1 block text-sm font-semibold">kata sandi</label>
         <input
+          id="password"
+          autoComplete="current-password"
           type="password"
           required
           value={password}
@@ -60,7 +82,7 @@ export default function LoginPage() {
           className="mb-4 w-full rounded-md border border-blueSoft bg-panel px-3 py-2 outline-none focus:border-blue"
         />
 
-        {error && <p className="mb-4 text-sm text-bad">{error}</p>}
+        {error && <p role="alert" className="mb-4 text-sm text-bad">{error}</p>}
 
         <button
           type="submit"

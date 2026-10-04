@@ -1,37 +1,44 @@
 import { createClient } from "@/lib/supabase/server";
+import { canAccess, requireAdmin } from "@/lib/admin";
+import { ErrorBox, PageTitle, StatCard } from "@/components/DataTable";
 
-// Dashboard: ringkasan antrean verifikasi & metrik singkat.
-export default async function DashboardPage() {
+type Stats = Record<string, number>;
+
+// Dashboard: metrik real-time dari admin_dashboard_stats (difilter per peran).
+export default async function DashboardPage({ searchParams }: { searchParams: { error?: string } }) {
+  const me = await requireAdmin("/dashboard");
   const supabase = createClient();
+  const { data, error } = await supabase.rpc("admin_dashboard_stats");
+  const s = (data ?? {}) as Stats;
 
-  const [{ count: pending }, { count: verified }] = await Promise.all([
-    supabase.from("workshops").select("*", { count: "exact", head: true }).eq("status", "pending"),
-    supabase.from("workshops").select("*", { count: "exact", head: true }).eq("status", "verified"),
-  ]);
-
-  const cards = [
-    { label: "menunggu verifikasi", value: pending ?? 0, href: "/verifikasi" },
-    { label: "bengkel tayang", value: verified ?? 0, href: "/bengkel" },
+  const cards: { label: string; key: string; href: string; tone?: "blue" | "bad" | "ok" | "warn" }[] = [
+    { label: "menunggu verifikasi", key: "pending_workshops", href: "/verifikasi", tone: "warn" },
+    { label: "bengkel tayang", key: "verified_workshops", href: "/bengkel", tone: "ok" },
+    { label: "bengkel disuspensi", key: "suspended_workshops", href: "/bengkel?status=suspended", tone: "bad" },
+    { label: "pengguna terdaftar", key: "users", href: "/pengguna" },
+    { label: "booking hari ini", key: "bookings_today", href: "/transaksi" },
+    { label: "SOS aktif", key: "sos_active", href: "/darurat" },
+    { label: "SOS > 3 mnt tanpa bengkel", key: "sos_unanswered", href: "/darurat", tone: "bad" },
+    { label: "bengkel siaga online", key: "standby_ready", href: "/darurat", tone: "ok" },
+    { label: "tiket bantuan terbuka", key: "tickets_open", href: "/bantuan", tone: "warn" },
+    { label: "laporan chat terbuka", key: "chat_reports_open", href: "/moderasi", tone: "bad" },
   ];
+  const visible = cards.filter((c) => canAccess(me.role, c.href.split("?")[0]));
 
   return (
     <div>
-      <h1 className="mb-6 text-2xl font-bold text-ink">Dashboard</h1>
-      <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
-        {cards.map((c) => (
-          <a
-            key={c.label}
-            href={c.href}
-            className="rounded-lg bg-panel p-5 shadow-sm transition hover:ring-2 hover:ring-blueSoft"
-          >
-            <div className="text-3xl font-extrabold text-blue">{c.value}</div>
-            <div className="mt-1 text-sm text-ink/60">{c.label}</div>
-          </a>
+      <PageTitle title="Dashboard" subtitle={`halo, ${me.full_name || me.email}. ringkasan operasional BengkelKu saat ini.`} />
+      {searchParams.error === "forbidden" && (
+        <div role="alert" className="mb-4 rounded-md bg-warnSoft px-4 py-3 text-sm text-warn">
+          peranmu tidak memiliki akses ke halaman tersebut.
+        </div>
+      )}
+      <ErrorBox message={error?.message} />
+      <div className="grid grid-cols-2 gap-4 md:grid-cols-3 xl:grid-cols-5">
+        {visible.map((c) => (
+          <StatCard key={c.key} label={c.label} value={s[c.key] ?? 0} href={c.href} tone={c.tone} />
         ))}
       </div>
-      <p className="mt-8 text-sm text-ink/50">
-        pilih “Verifikasi Bengkel” untuk meninjau antrean pendaftaran.
-      </p>
     </div>
   );
 }

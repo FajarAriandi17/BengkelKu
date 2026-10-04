@@ -1,11 +1,14 @@
 import { AdminShell } from "@/components/AdminShell";
+import { requireAdmin } from "@/lib/admin";
 
-// Layout untuk seluruh halaman admin (dibungkus AdminShell).
-// Middleware sudah memastikan sesi; pengecekan peran dilakukan per halaman/RLS.
-export default function DashLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
-  return <AdminShell>{children}</AdminShell>;
+export const dynamic = "force-dynamic";
+
+// Semua halaman admin wajib akun di admin_users yang aktif.
+export default async function DashLayout({ children }: { children: React.ReactNode }) {
+  const me = await requireAdmin();
+  return (
+    <AdminShell role={me.role} email={me.email} name={me.full_name}>
+      {children}
+    </AdminShell>
+  );
 }
