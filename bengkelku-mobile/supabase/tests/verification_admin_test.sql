@@ -184,4 +184,25 @@ exception when others then
   perform pg_temp.assert(sqlerrm like '%tidak ditemukan%', 'pengendara tidak bisa memakai aksi bengkel');
 end $$;
 
+-- 0105: RPC panel admin (peta, pengguna, tim, payout, laporan).
+select pg_temp.as_user('00000000-0000-0000-0000-0000000000ad');
+select pg_temp.assert((public.admin_workshop_geo(:'wid')->>'lat')::float between -6.27 and -6.25, 'admin_workshop_geo lat/lng');
+select pg_temp.assert((select count(*) from public.admin_list_users('rider@x', 10)) = 1, 'admin_list_users cari email');
+select pg_temp.assert((public.admin_report_summary(30)->>'bookings_done')::int >= 1, 'admin_report_summary menghitung booking selesai');
+select pg_temp.assert(pg_temp.fails($q$select public.admin_team_upsert('nobody@x','cs')$q$, '%belum terdaftar%'), 'tim: email tanpa akun Auth ditolak');
+select public.admin_team_upsert('rider@x','finance','Rina Finance');
+select pg_temp.assert((select role::text from public.admin_users where email='rider@x') = 'finance', 'tim: tambah admin finance');
+select pg_temp.assert(pg_temp.fails($q$select public.admin_team_set_active('00000000-0000-0000-0000-0000000000ad', false)$q$, '%diri sendiri%'), 'tim: tidak bisa nonaktifkan diri');
+select public.admin_team_set_active('00000000-0000-0000-0000-0000000000c2', false);
+select pg_temp.assert((select not is_active from public.admin_users where email='rider@x'), 'tim: nonaktifkan admin');
+insert into public.payouts(id, workshop_id, gross_idr, commission_idr, net_idr, scheduled_for)
+values ('40000000-0000-0000-0000-000000000001', :'wid', 100000, 8000, 92000, current_date);
+select pg_temp.assert(pg_temp.fails($q$select public.admin_payout_set_status('40000000-0000-0000-0000-000000000001','failed','x')$q$, '%Alasan gagal%'), 'payout gagal wajib alasan');
+select public.admin_payout_set_status('40000000-0000-0000-0000-000000000001','paid');
+select pg_temp.assert((select status::text = 'paid' and paid_at is not null from public.payouts where id='40000000-0000-0000-0000-000000000001'), 'payout ditandai dibayar');
+select pg_temp.assert(exists(select 1 from public.notifications where kind='payout'), 'pemilik dapat notifikasi payout');
+select pg_temp.as_user('00000000-0000-0000-0000-0000000000a5');
+select pg_temp.assert(pg_temp.fails($q$select public.admin_team_upsert('owner@x','cs')$q$, '%super admin%'), 'CS tidak bisa kelola tim');
+select pg_temp.assert(pg_temp.fails($q$select public.admin_payout_set_status('40000000-0000-0000-0000-000000000001','processing')$q$, '%finance%'), 'CS tidak bisa ubah payout');
+
 \echo VERIFICATION_ADMIN_OK
