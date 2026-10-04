@@ -83,6 +83,15 @@ class _SosDoneScreenState extends ConsumerState<SosDoneScreen> {
         title: const Text('Selesai'),
         elevation: 0,
         backgroundColor: c.panel,
+        actions: [
+          IconButton(
+            tooltip: 'Laporkan masalah',
+            icon: const Icon(Icons.flag_outlined),
+            onPressed: () => context.push(
+              '/help/report?sosRequestId=${widget.requestId}',
+            ),
+          ),
+        ],
       ),
       body: Padding(
         padding: const EdgeInsets.all(20),

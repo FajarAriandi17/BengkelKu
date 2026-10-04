@@ -230,6 +230,15 @@ class _SosTrackingScreenState extends ConsumerState<SosTrackingScreen> {
         title: const Text('Mekanik menuju lokasi'),
         elevation: 0,
         backgroundColor: c.panel,
+        actions: [
+          IconButton(
+            tooltip: 'Laporkan masalah',
+            icon: const Icon(Icons.flag_outlined),
+            onPressed: () => context.push(
+              '/help/report?sosRequestId=${widget.requestId}',
+            ),
+          ),
+        ],
       ),
       body: ListView(
         padding: const EdgeInsets.all(16),

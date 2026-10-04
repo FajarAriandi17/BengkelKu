@@ -64,6 +64,13 @@ import "../features/sos/presentation/owner_sos_offer_screen.dart";
 import "../features/sos/presentation/owner_sos_route_screen.dart";
 import "../features/sos/presentation/owner_standby_screen.dart";
 
+// Pusat Bantuan (v1.3 Fitur F)
+import "../features/support/data/support_models.dart";
+import "../features/support/presentation/help_center_screen.dart";
+import "../features/support/presentation/support_report_screen.dart";
+import "../features/support/presentation/support_ticket_detail_screen.dart";
+import "../features/support/presentation/support_tickets_screen.dart";
+
 /// Router lengkap go_router untuk seluruh layar BengkelKu Mobile (Rider & Owner).
 final routerProvider = Provider<GoRouter>((ref) {
   return GoRouter(
@@ -250,6 +257,38 @@ final routerProvider = Provider<GoRouter>((ref) {
             path: "sos/:requestId/quote",
             builder: (c, s) => OwnerQuoteFormScreen(
               requestId: s.pathParameters["requestId"] ?? "",
+            ),
+          ),
+        ],
+      ),
+
+      // Pusat Bantuan (v1.3) — PRD Bagian 7
+      GoRoute(
+        path: "/help",
+        builder: (c, s) => const HelpCenterScreen(),
+        routes: [
+          GoRoute(
+            path: "report",
+            builder: (c, s) {
+              final q = s.uri.queryParameters;
+              final cat = q["category"];
+              return SupportReportScreen(
+                bookingId: q["bookingId"],
+                sosRequestId: q["sosRequestId"],
+                threadId: q["threadId"],
+                initialCategory:
+                    cat == null ? null : SupportCategoryX.parse(cat),
+              );
+            },
+          ),
+          GoRoute(
+            path: "tickets",
+            builder: (c, s) => const SupportTicketsScreen(),
+          ),
+          GoRoute(
+            path: "tickets/:ticketId",
+            builder: (c, s) => SupportTicketDetailScreen(
+              ticketId: s.pathParameters["ticketId"] ?? "",
             ),
           ),
         ],

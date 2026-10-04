@@ -7,6 +7,7 @@ import '../../../core/utils/media_guard.dart';
 import '../../../design/components/chat_components.dart';
 import '../data/chat_models.dart';
 import '../data/chat_repository.dart';
+import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:async';
 import 'dart:io';
@@ -432,9 +433,26 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
               )
             : null,
         actions: [
-          IconButton(
+          PopupMenuButton<String>(
+            tooltip: 'Menu chat',
             icon: const Icon(Icons.more_vert),
-            onPressed: _showReportSheet,
+            onSelected: (v) {
+              if (v == 'report_chat') {
+                _showReportSheet();
+              } else if (v == 'support') {
+                context.push('/help/report?threadId=${widget.threadId}');
+              }
+            },
+            itemBuilder: (_) => const [
+              PopupMenuItem(
+                value: 'report_chat',
+                child: Text('Laporkan chat ini'),
+              ),
+              PopupMenuItem(
+                value: 'support',
+                child: Text('Laporkan masalah ke tim bantuan'),
+              ),
+            ],
           ),
         ],
       ),

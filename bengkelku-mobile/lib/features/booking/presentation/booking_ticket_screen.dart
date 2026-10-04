@@ -1,4 +1,5 @@
 import "package:flutter/material.dart";
+import "package:go_router/go_router.dart";
 
 import "../../../core/theme/app_colors.dart";
 import "../../../core/theme/app_typography.dart";
@@ -18,6 +19,15 @@ class BookingTicketScreen extends StatelessWidget {
       appBar: AppBar(
         title: const Text("Tiket Booking"),
         elevation: 0,
+        actions: [
+          IconButton(
+            tooltip: "Laporkan masalah",
+            icon: const Icon(Icons.flag_outlined),
+            onPressed: () => context.push(
+              "/help/report?bookingId=${Uri.encodeComponent(bookingId)}",
+            ),
+          ),
+        ],
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),

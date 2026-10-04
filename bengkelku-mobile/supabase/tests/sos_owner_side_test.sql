@@ -232,4 +232,45 @@ reset role;
 select pg_temp.assert((select state from public.support_tickets where id = :'tid') = 'DITINJAU',
   'balasan pengguna mengembalikan tiket ke DITINJAU');
 
+-- ---------------------------------------------------------------------------
+-- 0020: bengkel peserta boleh melapor; validasi server; balasan lewat RPC.
+-- ---------------------------------------------------------------------------
+select pg_temp.as_user('00000000-0000-0000-0000-0000000000b1');
+select pg_temp.assert(
+  (public.support_create_ticket('HARGA_TIDAK_SESUAI','pengendara minta harga di luar aplikasi','{}',null,:'rid',null)->>'code') like 'TK-%',
+  'bengkel penerima bisa melapor atas panggilan darurat');
+select pg_temp.as_user('00000000-0000-0000-0000-0000000000b2');
+do $$ begin
+  perform public.support_create_ticket('LAINNYA','bukan panggilan saya sama sekali','{}',null,
+    (select id from public.sos_requests where accepted_workshop_id = '20000000-0000-0000-0000-000000000001' limit 1),null);
+  raise exception 'seharusnya ditolak';
+exception when others then
+  perform pg_temp.assert(sqlerrm like '%tidak ditemukan%', 'bengkel lain tidak bisa melapor atas panggilan itu');
+end $$;
+do $$ begin
+  perform public.support_create_ticket('LAINNYA','pendek','{}',null,null,null);
+  raise exception 'seharusnya ditolak';
+exception when others then
+  perform pg_temp.assert(sqlerrm like '%minimal 10%', 'deskripsi terlalu pendek ditolak');
+end $$;
+do $$ begin
+  perform public.support_create_ticket('LAINNYA','foto terlalu banyak sekali','{a,b,c,d}',null,null,null);
+  raise exception 'seharusnya ditolak';
+exception when others then
+  perform pg_temp.assert(sqlerrm like '%Maksimal 3 foto%', 'lebih dari 3 foto ditolak');
+end $$;
+
+select pg_temp.as_user('00000000-0000-0000-0000-0000000000a1');
+update public.support_tickets set state = 'MENUNGGU_INFO' where id = :'tid';
+select public.support_reply(:'tid', 'kirim info tambahan lewat RPC');
+select pg_temp.assert((select state from public.support_tickets where id = :'tid') = 'DITINJAU',
+  'support_reply mengembalikan tiket ke DITINJAU');
+update public.support_tickets set state = 'SELESAI' where id = :'tid';
+do $$ begin
+  perform public.support_reply((select id from public.support_tickets where state = 'SELESAI' limit 1), 'halo');
+  raise exception 'seharusnya ditolak';
+exception when others then
+  perform pg_temp.assert(sqlerrm like '%sudah selesai%', 'tidak bisa membalas tiket SELESAI');
+end $$;
+
 \echo OWNER_SIDE_OK

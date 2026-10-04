@@ -106,6 +106,21 @@ class ProfileScreen extends ConsumerWidget {
           const SizedBox(height: 8),
 
           ListTile(
+            leading: Icon(Icons.help_outline, color: c.ink),
+            title: Text("Bantuan",
+                style: AppTypography.bodyStrong.copyWith(color: c.ink)),
+            subtitle: Text("FAQ, laporkan masalah, & status laporan",
+                style: AppTypography.caption
+                    .copyWith(color: c.ink.withValues(alpha: 0.6))),
+            trailing: const Icon(Icons.chevron_right),
+            tileColor: c.panel,
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            onTap: () => context.push("/help"),
+          ),
+          const SizedBox(height: 8),
+
+          ListTile(
             leading: Icon(Icons.lock_outline, color: c.ink),
             title: Text("Ubah Kata Sandi",
                 style: AppTypography.bodyStrong.copyWith(color: c.ink)),
