@@ -53,15 +53,19 @@ class _HomeScreenState extends State<HomeScreen> {
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text("Lokasi Kamu",
-                style: AppTypography.caption
-                    .copyWith(color: c.ink.withValues(alpha: 0.6))),
+            Text(
+              "Lokasi Kamu",
+              style: AppTypography.caption
+                  .copyWith(color: c.ink.withValues(alpha: 0.6)),
+            ),
             Row(
               children: [
                 Icon(Icons.location_on, size: 16, color: c.blue),
                 const SizedBox(width: 4),
-                Text("Jakarta Selatan",
-                    style: AppTypography.label.copyWith(color: c.ink)),
+                Text(
+                  "Jakarta Selatan",
+                  style: AppTypography.label.copyWith(color: c.ink),
+                ),
                 Icon(Icons.keyboard_arrow_down, size: 18, color: c.ink),
               ],
             ),
@@ -96,28 +100,36 @@ class _HomeScreenState extends State<HomeScreen> {
                       color: c.blue,
                       shape: BoxShape.circle,
                     ),
-                    child: const Icon(Icons.opacity,
-                        color: Colors.white, size: 24),
+                    child: const Icon(
+                      Icons.opacity,
+                      color: Colors.white,
+                      size: 24,
+                    ),
                   ),
                   const SizedBox(width: 12),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text("Pengingat Oli Motor",
-                            style: AppTypography.label.copyWith(color: c.ink)),
                         Text(
-                            "oli motor kamu sudah dekat waktunya ganti. yuk booking sekarang.",
-                            style: AppTypography.caption
-                                .copyWith(color: c.ink.withValues(alpha: 0.7))),
+                          "Pengingat Oli Motor",
+                          style: AppTypography.label.copyWith(color: c.ink),
+                        ),
+                        Text(
+                          "oli motor kamu sudah dekat waktunya ganti. yuk booking sekarang.",
+                          style: AppTypography.caption
+                              .copyWith(color: c.ink.withValues(alpha: 0.7)),
+                        ),
                       ],
                     ),
                   ),
                   const SizedBox(width: 8),
                   TextButton(
                     onPressed: () => context.go("/garage"),
-                    child: Text("Cek Oli",
-                        style: AppTypography.label.copyWith(color: c.blue)),
+                    child: Text(
+                      "Cek Oli",
+                      style: AppTypography.label.copyWith(color: c.blue),
+                    ),
                   ),
                 ],
               ),
@@ -155,23 +167,29 @@ class _HomeScreenState extends State<HomeScreen> {
               child: Row(
                 children: [
                   AppFilterChip(
-                      label: "Terdekat", selected: true, onSelected: (_) {}),
+                    label: "Terdekat",
+                    selected: true,
+                    onSelected: (_) {},
+                  ),
                   const SizedBox(width: 8),
                   AppFilterChip(
-                      label: "Rating Tinggi",
-                      selected: false,
-                      onSelected: (_) {}),
+                    label: "Rating Tinggi",
+                    selected: false,
+                    onSelected: (_) {},
+                  ),
                   const SizedBox(width: 8),
                   AppFilterChip(
-                      label: "Buka Sekarang",
-                      selected: false,
-                      onSelected: (_) {}),
+                    label: "Buka Sekarang",
+                    selected: false,
+                    onSelected: (_) {},
+                  ),
                   const SizedBox(width: 8),
                   AppFilterChip(
-                      label: "Lihat Peta",
-                      selected: false,
-                      icon: Icons.map,
-                      onSelected: (_) => context.push("/home/map")),
+                    label: "Lihat Peta",
+                    selected: false,
+                    icon: Icons.map,
+                    onSelected: (_) => context.push("/home/map"),
+                  ),
                 ],
               ),
             ),
@@ -181,12 +199,16 @@ class _HomeScreenState extends State<HomeScreen> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text("Bengkel Terdekat",
-                    style: AppTypography.h2.copyWith(color: c.ink)),
+                Text(
+                  "Bengkel Terdekat",
+                  style: AppTypography.h2.copyWith(color: c.ink),
+                ),
                 TextButton(
                   onPressed: () => context.push("/home/nearby"),
-                  child: Text("Lihat Semua",
-                      style: AppTypography.label.copyWith(color: c.blue)),
+                  child: Text(
+                    "Lihat Semua",
+                    style: AppTypography.label.copyWith(color: c.blue),
+                  ),
                 ),
               ],
             ),
@@ -264,9 +286,10 @@ class _HomeScreenState extends State<HomeScreen> {
         },
         items: [
           const BottomNavigationBarItem(
-              icon: Icon(Icons.home_outlined),
-              activeIcon: Icon(Icons.home),
-              label: "Beranda"),
+            icon: Icon(Icons.home_outlined),
+            activeIcon: Icon(Icons.home),
+            label: "Beranda",
+          ),
           BottomNavigationBarItem(
             icon: Consumer(
               builder: (context, ref, _) => _ChatIcon(
@@ -283,21 +306,25 @@ class _HomeScreenState extends State<HomeScreen> {
             label: "Chat",
           ),
           const BottomNavigationBarItem(
-              icon: Icon(Icons.two_wheeler_outlined),
-              activeIcon: Icon(Icons.two_wheeler),
-              label: "Garasi"),
+            icon: Icon(Icons.two_wheeler_outlined),
+            activeIcon: Icon(Icons.two_wheeler),
+            label: "Garasi",
+          ),
           const BottomNavigationBarItem(
-              icon: Icon(Icons.confirmation_number_outlined),
-              activeIcon: Icon(Icons.confirmation_number),
-              label: "Booking"),
+            icon: Icon(Icons.confirmation_number_outlined),
+            activeIcon: Icon(Icons.confirmation_number),
+            label: "Booking",
+          ),
           const BottomNavigationBarItem(
-              icon: Icon(Icons.favorite_outline),
-              activeIcon: Icon(Icons.favorite),
-              label: "Favorit"),
+            icon: Icon(Icons.favorite_outline),
+            activeIcon: Icon(Icons.favorite),
+            label: "Favorit",
+          ),
           const BottomNavigationBarItem(
-              icon: Icon(Icons.person_outline),
-              activeIcon: Icon(Icons.person),
-              label: "Profil"),
+            icon: Icon(Icons.person_outline),
+            activeIcon: Icon(Icons.person),
+            label: "Profil",
+          ),
         ],
       ),
     );

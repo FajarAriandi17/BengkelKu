@@ -82,13 +82,22 @@ class WorkshopServiceItem {
 }
 
 class WorkshopHour {
-  const WorkshopHour({required this.weekday, this.open, this.close, this.isClosed = false});
+  const WorkshopHour(
+      {required this.weekday, this.open, this.close, this.isClosed = false});
   final int weekday; // 0 = Minggu
   final String? open;
   final String? close;
   final bool isClosed;
 
-  static const dayNames = ["Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"];
+  static const dayNames = [
+    "Minggu",
+    "Senin",
+    "Selasa",
+    "Rabu",
+    "Kamis",
+    "Jumat",
+    "Sabtu"
+  ];
   String get dayName => dayNames[weekday.clamp(0, 6)];
   String get label {
     if (isClosed || open == null || close == null) return "Tutup";

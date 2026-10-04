@@ -357,5 +357,8 @@ final routerProvider = Provider<GoRouter>((ref) {
   );
 });
 
-List<String> _csv(String? v) =>
-    (v ?? "").split(",").map((e) => e.trim()).where((e) => e.isNotEmpty).toList();
+List<String> _csv(String? v) => (v ?? "")
+    .split(",")
+    .map((e) => e.trim())
+    .where((e) => e.isNotEmpty)
+    .toList();

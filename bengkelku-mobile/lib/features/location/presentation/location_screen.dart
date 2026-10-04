@@ -28,7 +28,8 @@ class _LocationScreenState extends State<LocationScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text(
-              "kami butuh lokasi untuk menampilkan bengkel terdekat. kamu juga bisa cari lewat nama kota."),
+            "kami butuh lokasi untuk menampilkan bengkel terdekat. kamu juga bisa cari lewat nama kota.",
+          ),
         ),
       );
     }
@@ -84,13 +85,17 @@ class _LocationScreenState extends State<LocationScreen> {
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Text("Pilih Kota Manual",
-                              style: AppTypography.h2.copyWith(color: c.ink)),
+                          Text(
+                            "Pilih Kota Manual",
+                            style: AppTypography.h2.copyWith(color: c.ink),
+                          ),
                           const SizedBox(height: 16),
                           ...LocationService.fallbackCities.map(
                             (city) => ListTile(
-                              title: Text(city["name"] as String,
-                                  style: AppTypography.bodyStrong),
+                              title: Text(
+                                city["name"] as String,
+                                style: AppTypography.bodyStrong,
+                              ),
                               onTap: () {
                                 Navigator.pop(ctx);
                                 _selectCity(city);

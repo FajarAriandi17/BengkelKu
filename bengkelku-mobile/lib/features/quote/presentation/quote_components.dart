@@ -34,8 +34,10 @@ class PriceRows extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(item.name,
-                        style: AppTypography.bodyStrong.copyWith(color: c.ink)),
+                    Text(
+                      item.name,
+                      style: AppTypography.bodyStrong.copyWith(color: c.ink),
+                    ),
                     Text(
                       isPart ? 'Sparepart' : 'Jasa',
                       style: AppTypography.caption.copyWith(color: c.ink2),
@@ -95,8 +97,10 @@ class QuoteCard extends StatelessWidget {
           PriceRows(items: quote.items),
           if ((quote.note ?? '').isNotEmpty) ...[
             const SizedBox(height: 12),
-            Text(quote.note!,
-                style: AppTypography.body.copyWith(color: c.ink2)),
+            Text(
+              quote.note!,
+              style: AppTypography.body.copyWith(color: c.ink2),
+            ),
           ],
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 12),

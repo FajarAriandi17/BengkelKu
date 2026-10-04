@@ -38,7 +38,10 @@ class AuthController extends StateNotifier<AsyncValue<void>> {
     state = const AsyncValue.loading();
     try {
       await _repo.signUpWithEmail(
-          email: email, password: password, fullName: fullName);
+        email: email,
+        password: password,
+        fullName: fullName,
+      );
       state = const AsyncValue.data(null);
       return true;
     } catch (e, st) {

@@ -18,14 +18,17 @@ class OwnerRepository {
     required double lng,
     String? description,
   }) async {
-    final res = await _client.rpc("workshop_register", params: {
-      "p_name": name,
-      "p_address": address,
-      "p_phone": phone,
-      "p_lat": lat,
-      "p_lng": lng,
-      "p_description": description,
-    });
+    final res = await _client.rpc(
+      "workshop_register",
+      params: {
+        "p_name": name,
+        "p_address": address,
+        "p_phone": phone,
+        "p_lat": lat,
+        "p_lng": lng,
+        "p_description": description,
+      },
+    );
     return (res as Map)["id"] as String;
   }
 
@@ -109,13 +112,19 @@ class OwnerRepository {
   }
 
   /// Aksi booking bengkel: confirm | reject | check_in | start | complete | no_show.
-  Future<void> bookingAction(String bookingId, String action,
-      {String? reason}) async {
-    await _client.rpc("owner_booking_action", params: {
-      "p_booking_id": bookingId,
-      "p_action": action,
-      "p_reason": reason,
-    });
+  Future<void> bookingAction(
+    String bookingId,
+    String action, {
+    String? reason,
+  }) async {
+    await _client.rpc(
+      "owner_booking_action",
+      params: {
+        "p_booking_id": bookingId,
+        "p_action": action,
+        "p_reason": reason,
+      },
+    );
   }
 
   /// Ringkasan dasbor bengkel (pendapatan hari ini, antrean). null bila

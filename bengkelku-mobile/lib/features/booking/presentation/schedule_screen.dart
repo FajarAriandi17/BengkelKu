@@ -11,7 +11,8 @@ import "../../garage/data/vehicle_model.dart";
 import "../data/booking_repository.dart";
 
 class ScheduleScreen extends StatefulWidget {
-  const ScheduleScreen({super.key, required this.workshopId, this.serviceIds = const []});
+  const ScheduleScreen(
+      {super.key, required this.workshopId, this.serviceIds = const []});
 
   final String workshopId;
   final List<String> serviceIds;
@@ -39,7 +40,8 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
   void initState() {
     super.initState();
     final today = DateTime.now();
-    _dates = List.generate(14, (i) => DateTime(today.year, today.month, today.day + i));
+    _dates = List.generate(
+        14, (i) => DateTime(today.year, today.month, today.day + i));
     _selectedDate = _dates.first;
     _loadVehicles();
     _loadSlots();
@@ -66,7 +68,8 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
       _selectedSlot = null;
     });
     try {
-      final s = await _bookingRepo.availableSlots(widget.workshopId, _selectedDate);
+      final s =
+          await _bookingRepo.availableSlots(widget.workshopId, _selectedDate);
       if (!mounted) return;
       setState(() {
         _slots = s;
@@ -85,12 +88,15 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
   void _next() {
     final slot = _selectedSlot;
     if (slot == null) return;
-    final uri = Uri(path: "/summary", queryParameters: {
-      "workshopId": widget.workshopId,
-      "services": widget.serviceIds.join(","),
-      if (_vehicleId != null) "vehicleId": _vehicleId!,
-      "slot": slot.at.toIso8601String(),
-    });
+    final uri = Uri(
+      path: "/summary",
+      queryParameters: {
+        "workshopId": widget.workshopId,
+        "services": widget.serviceIds.join(","),
+        if (_vehicleId != null) "vehicleId": _vehicleId!,
+        "slot": slot.at.toIso8601String(),
+      },
+    );
     context.push(uri.toString());
   }
 
@@ -121,8 +127,10 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text("Pilih Kendaraan",
-                  style: AppTypography.h2.copyWith(color: c.ink, fontSize: 16)),
+              Text(
+                "Pilih Kendaraan",
+                style: AppTypography.h2.copyWith(color: c.ink, fontSize: 16),
+              ),
               const SizedBox(height: 10),
               if (_loadingVehicles)
                 const LinearProgressIndicator()
@@ -147,7 +155,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                       TextButton(
                         onPressed: () async {
                           await context.push("/garage");
-                          _loadVehicles();
+                          await _loadVehicles();
                         },
                         child: const Text("Tambah"),
                       ),
@@ -169,7 +177,9 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                           color: c.panel,
                           borderRadius: BorderRadius.circular(16),
                           border: Border.all(
-                              color: selected ? c.blue : c.line, width: selected ? 1.6 : 1),
+                            color: selected ? c.blue : c.line,
+                            width: selected ? 1.6 : 1,
+                          ),
                         ),
                         child: Row(
                           children: [
@@ -179,15 +189,26 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Text("${v.brand} ${v.model}",
-                                      style: AppTypography.bodyStrong.copyWith(color: c.ink)),
-                                  Text("${v.plate ?? "-"} • ${v.odometer} km",
-                                      style: AppTypography.caption.copyWith(color: c.ink2)),
+                                  Text(
+                                    "${v.brand} ${v.model}",
+                                    style: AppTypography.bodyStrong
+                                        .copyWith(color: c.ink),
+                                  ),
+                                  Text(
+                                    "${v.plate ?? "-"} • ${v.odometer} km",
+                                    style: AppTypography.caption
+                                        .copyWith(color: c.ink2),
+                                  ),
                                 ],
                               ),
                             ),
-                            Icon(selected ? Icons.check_circle : Icons.radio_button_unchecked,
-                                color: selected ? c.blue : c.line, size: 22),
+                            Icon(
+                              selected
+                                  ? Icons.check_circle
+                                  : Icons.radio_button_unchecked,
+                              color: selected ? c.blue : c.line,
+                              size: 22,
+                            ),
                           ],
                         ),
                       ),
@@ -199,7 +220,10 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                 dates: _dates,
                 selectedDate: _selectedDate,
                 slots: _slots.map((s) => s.label).toList(),
-                disabledSlots: _slots.where((s) => !s.available).map((s) => s.label).toSet(),
+                disabledSlots: _slots
+                    .where((s) => !s.available)
+                    .map((s) => s.label)
+                    .toSet(),
                 loadingSlots: _loadingSlots,
                 selectedSlot: _selectedSlot?.label,
                 onDateSelected: (d) {
@@ -207,7 +231,9 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                   _loadSlots();
                 },
                 onSlotSelected: (label) => setState(
-                    () => _selectedSlot = _slots.firstWhere((s) => s.label == label)),
+                  () => _selectedSlot =
+                      _slots.firstWhere((s) => s.label == label),
+                ),
               ),
               if (_slotError != null) ...[
                 const SizedBox(height: 12),

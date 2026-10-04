@@ -60,7 +60,8 @@ class _WorkshopDetailScreenState extends State<WorkshopDetailScreen> {
         _hours = hours;
         _isFavorite = favs.contains(widget.workshopId);
         _loading = false;
-        if (ws == null) _error = "Bengkel tidak ditemukan atau belum terverifikasi.";
+        if (ws == null)
+          _error = "Bengkel tidak ditemukan atau belum terverifikasi.";
       });
     } catch (e) {
       if (!mounted) return;
@@ -79,21 +80,25 @@ class _WorkshopDetailScreenState extends State<WorkshopDetailScreen> {
       if (!mounted) return;
       setState(() => _isFavorite = !fav);
       ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(e.toString().replaceFirst("Exception: ", ""))));
+        SnackBar(content: Text(e.toString().replaceFirst("Exception: ", ""))),
+      );
     }
   }
 
   Future<void> _call(String phone) async {
-    final uri = Uri(scheme: "tel", path: phone.replaceAll(RegExp(r"[^0-9+]"), ""));
+    final uri =
+        Uri(scheme: "tel", path: phone.replaceAll(RegExp(r"[^0-9+]"), ""));
     await launchUrl(uri);
   }
 
   Future<void> _directions(Workshop w) async {
     final uri = (w.latitude != null && w.longitude != null)
         ? Uri.parse(
-            "https://www.google.com/maps/dir/?api=1&destination=${w.latitude},${w.longitude}")
+            "https://www.google.com/maps/dir/?api=1&destination=${w.latitude},${w.longitude}",
+          )
         : Uri.parse(
-            "https://www.google.com/maps/search/?api=1&query=${Uri.encodeComponent(w.address)}");
+            "https://www.google.com/maps/search/?api=1&query=${Uri.encodeComponent(w.address)}",
+          );
     await launchUrl(uri, mode: LaunchMode.externalApplication);
   }
 
@@ -111,8 +116,10 @@ class _WorkshopDetailScreenState extends State<WorkshopDetailScreen> {
     }
     if (_error != null || w == null) {
       return Scaffold(
-          appBar: AppBar(),
-          body: ErrorState(message: _error ?? "Bengkel tidak ditemukan", onRetry: _load));
+        appBar: AppBar(),
+        body: ErrorState(
+            message: _error ?? "Bengkel tidak ditemukan", onRetry: _load),
+      );
     }
 
     final todayIdx = DateTime.now().weekday % 7; // Minggu = 0
@@ -141,17 +148,21 @@ class _WorkshopDetailScreenState extends State<WorkshopDetailScreen> {
                 height: 180,
                 color: c.blueSoft,
                 child: w.photoUrl != null && w.photoUrl!.isNotEmpty
-                    ? Image.network(w.photoUrl!,
+                    ? Image.network(
+                        w.photoUrl!,
                         fit: BoxFit.cover,
                         errorBuilder: (_, __, ___) =>
-                            Icon(Icons.storefront, size: 64, color: c.blue))
+                            Icon(Icons.storefront, size: 64, color: c.blue),
+                      )
                     : Icon(Icons.storefront, size: 64, color: c.blue),
               ),
             ),
             const SizedBox(height: 16),
             Row(
               children: [
-                Expanded(child: Text(w.name, style: AppTypography.h1.copyWith(color: c.ink))),
+                Expanded(
+                    child: Text(w.name,
+                        style: AppTypography.h1.copyWith(color: c.ink))),
                 AppStatusBadge(
                   label: w.isOpen ? "Buka" : "Tutup",
                   color: w.isOpen ? c.ok : c.bad,
@@ -164,82 +175,113 @@ class _WorkshopDetailScreenState extends State<WorkshopDetailScreen> {
             const SizedBox(height: 8),
             InkWell(
               onTap: () => context.push("/reviews?workshopId=${w.id}"),
-              child: Row(children: [
-                RatingStars(rating: w.ratingAvg, starSize: 18),
-                const SizedBox(width: 6),
-                Text(
+              child: Row(
+                children: [
+                  RatingStars(rating: w.ratingAvg, starSize: 18),
+                  const SizedBox(width: 6),
+                  Text(
                     w.ratingCount == 0
                         ? "Belum ada ulasan"
                         : "${w.ratingAvg.toStringAsFixed(1)} (${w.ratingCount} ulasan)",
-                    style: AppTypography.label.copyWith(color: c.ink)),
-                Icon(Icons.chevron_right, size: 18, color: c.ink2),
-              ]),
+                    style: AppTypography.label.copyWith(color: c.ink),
+                  ),
+                  Icon(Icons.chevron_right, size: 18, color: c.ink2),
+                ],
+              ),
             ),
             const SizedBox(height: 12),
-            Row(children: [
-              if (w.phone != null && w.phone!.isNotEmpty)
+            Row(
+              children: [
+                if (w.phone != null && w.phone!.isNotEmpty)
+                  Expanded(
+                    child: OutlinedButton.icon(
+                      onPressed: () => _call(w.phone!),
+                      icon: const Icon(Icons.call_outlined, size: 18),
+                      label: const Text("Telepon"),
+                    ),
+                  ),
+                if (w.phone != null && w.phone!.isNotEmpty)
+                  const SizedBox(width: 8),
                 Expanded(
                   child: OutlinedButton.icon(
-                    onPressed: () => _call(w.phone!),
-                    icon: const Icon(Icons.call_outlined, size: 18),
-                    label: const Text("Telepon"),
+                    onPressed: () => _directions(w),
+                    icon: const Icon(Icons.directions_outlined, size: 18),
+                    label: const Text("Rute"),
                   ),
                 ),
-              if (w.phone != null && w.phone!.isNotEmpty) const SizedBox(width: 8),
-              Expanded(
-                child: OutlinedButton.icon(
-                  onPressed: () => _directions(w),
-                  icon: const Icon(Icons.directions_outlined, size: 18),
-                  label: const Text("Rute"),
-                ),
-              ),
-            ]),
+              ],
+            ),
             if (w.description != null && w.description!.trim().isNotEmpty) ...[
               const Divider(height: 32),
-              Text("Tentang Bengkel",
-                  style: AppTypography.h2.copyWith(color: c.ink, fontSize: 16)),
+              Text(
+                "Tentang Bengkel",
+                style: AppTypography.h2.copyWith(color: c.ink, fontSize: 16),
+              ),
               const SizedBox(height: 6),
-              Text(w.description!, style: AppTypography.body.copyWith(color: c.ink2)),
+              Text(w.description!,
+                  style: AppTypography.body.copyWith(color: c.ink2)),
             ],
             const Divider(height: 32),
-            Text("Jam Operasional",
-                style: AppTypography.h2.copyWith(color: c.ink, fontSize: 16)),
+            Text(
+              "Jam Operasional",
+              style: AppTypography.h2.copyWith(color: c.ink, fontSize: 16),
+            ),
             const SizedBox(height: 6),
             if (_hours.isEmpty)
-              Text("Jam operasional belum diatur bengkel.",
-                  style: AppTypography.body.copyWith(color: c.ink2))
+              Text(
+                "Jam operasional belum diatur bengkel.",
+                style: AppTypography.body.copyWith(color: c.ink2),
+              )
             else
-              ..._hours.map((h) => Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 2),
-                    child: Row(children: [
+              ..._hours.map(
+                (h) => Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 2),
+                  child: Row(
+                    children: [
                       SizedBox(
                         width: 90,
-                        child: Text(h.dayName,
-                            style: (h == today ? AppTypography.bodyStrong : AppTypography.body)
-                                .copyWith(color: c.ink)),
+                        child: Text(
+                          h.dayName,
+                          style: (h == today
+                                  ? AppTypography.bodyStrong
+                                  : AppTypography.body)
+                              .copyWith(color: c.ink),
+                        ),
                       ),
-                      Text(h.label,
-                          style: (h == today ? AppTypography.bodyStrong : AppTypography.body)
-                              .copyWith(color: h.isClosed ? c.bad : c.ink2)),
-                    ]),
-                  )),
+                      Text(
+                        h.label,
+                        style: (h == today
+                                ? AppTypography.bodyStrong
+                                : AppTypography.body)
+                            .copyWith(color: h.isClosed ? c.bad : c.ink2),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
             const Divider(height: 32),
-            Text("Pilih Layanan Servis",
-                style: AppTypography.h2.copyWith(color: c.ink, fontSize: 16)),
+            Text(
+              "Pilih Layanan Servis",
+              style: AppTypography.h2.copyWith(color: c.ink, fontSize: 16),
+            ),
             const SizedBox(height: 12),
             if (_services.isEmpty)
-              Text("Bengkel ini belum menambahkan layanan yang bisa dipesan online.",
-                  style: AppTypography.body.copyWith(color: c.ink2))
+              Text(
+                "Bengkel ini belum menambahkan layanan yang bisa dipesan online.",
+                style: AppTypography.body.copyWith(color: c.ink2),
+              )
             else
-              ..._services.map((s) => ServiceRow(
-                    name: s.name,
-                    priceIdr: s.priceIdr,
-                    durationMinutes: s.durationMinutes,
-                    isSelected: _selected.contains(s.id),
-                    onTap: () => setState(() {
-                      if (!_selected.remove(s.id)) _selected.add(s.id);
-                    }),
-                  )),
+              ..._services.map(
+                (s) => ServiceRow(
+                  name: s.name,
+                  priceIdr: s.priceIdr,
+                  durationMinutes: s.durationMinutes,
+                  isSelected: _selected.contains(s.id),
+                  onTap: () => setState(() {
+                    if (!_selected.remove(s.id)) _selected.add(s.id);
+                  }),
+                ),
+              ),
             const SizedBox(height: 24),
           ],
         ),
@@ -253,7 +295,8 @@ class _WorkshopDetailScreenState extends State<WorkshopDetailScreen> {
           onPressed: _selected.isEmpty
               ? null
               : () => context.push(
-                  "/schedule?workshopId=${widget.workshopId}&services=${_selected.join(",")}"),
+                    "/schedule?workshopId=${widget.workshopId}&services=${_selected.join(",")}",
+                  ),
         ),
       ),
     );

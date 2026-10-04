@@ -69,19 +69,25 @@ class _ReviewItem extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(name,
-                  style: AppTypography.bodyStrong.copyWith(color: c.ink)),
-              Text(dateStr,
-                  style: AppTypography.caption
-                      .copyWith(color: c.ink.withValues(alpha: 0.5))),
+              Text(
+                name,
+                style: AppTypography.bodyStrong.copyWith(color: c.ink),
+              ),
+              Text(
+                dateStr,
+                style: AppTypography.caption
+                    .copyWith(color: c.ink.withValues(alpha: 0.5)),
+              ),
             ],
           ),
           const SizedBox(height: 4),
           RatingStars(rating: rating, starSize: 16),
           const SizedBox(height: 8),
-          Text(comment,
-              style: AppTypography.body
-                  .copyWith(color: c.ink.withValues(alpha: 0.8))),
+          Text(
+            comment,
+            style: AppTypography.body
+                .copyWith(color: c.ink.withValues(alpha: 0.8)),
+          ),
         ],
       ),
     );

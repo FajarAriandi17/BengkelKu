@@ -15,8 +15,10 @@ class SupabaseService {
 
   /// Panggil sekali saat startup.
   static Future<void> init() async {
-    assert(_url.isNotEmpty,
-        "SUPABASE_URL kosong — jalankan dengan --dart-define-from-file=.env");
+    assert(
+      _url.isNotEmpty,
+      "SUPABASE_URL kosong — jalankan dengan --dart-define-from-file=.env",
+    );
     assert(_anonKey.isNotEmpty, "SUPABASE_ANON_KEY kosong — cek .env");
     await Supabase.initialize(
       url: _url,

@@ -54,14 +54,19 @@ class _BookingTicketScreenState extends State<BookingTicketScreen> {
   }
 
   String _hint(String status) => switch (status) {
-        "MENUNGGU_PEMBAYARAN" => "Selesaikan pembayaran sebelum batas waktu agar slot tidak hangus.",
-        "DIBAYAR_MENUNGGU_KONFIRMASI" => "Pembayaran diterima. Menunggu bengkel mengonfirmasi jadwal.",
-        "DIKONFIRMASI" => "Datang sesuai jadwal dan tunjukkan kode booking ini ke bengkel.",
+        "MENUNGGU_PEMBAYARAN" =>
+          "Selesaikan pembayaran sebelum batas waktu agar slot tidak hangus.",
+        "DIBAYAR_MENUNGGU_KONFIRMASI" =>
+          "Pembayaran diterima. Menunggu bengkel mengonfirmasi jadwal.",
+        "DIKONFIRMASI" =>
+          "Datang sesuai jadwal dan tunjukkan kode booking ini ke bengkel.",
         "CHECK_IN" => "Kamu sudah check-in. Motor akan segera dikerjakan.",
         "DIKERJAKAN" => "Motor sedang dikerjakan mekanik.",
-        "SELESAI" => "Servis selesai. Terima kasih! Beri ulasan untuk membantu pengendara lain.",
+        "SELESAI" =>
+          "Servis selesai. Terima kasih! Beri ulasan untuk membantu pengendara lain.",
         "DIBATALKAN" => "Booking dibatalkan.",
-        "DITOLAK" => "Bengkel tidak dapat menerima booking ini. Dana dikembalikan penuh.",
+        "DITOLAK" =>
+          "Bengkel tidak dapat menerima booking ini. Dana dikembalikan penuh.",
         "KEDALUWARSA" => "Batas waktu pembayaran terlewati.",
         "TIDAK_HADIR" => "Kamu tidak hadir pada jadwal yang dipesan.",
         _ => "",
@@ -79,7 +84,7 @@ class _BookingTicketScreenState extends State<BookingTicketScreen> {
         status: b.status,
       ),
     );
-    if (ok == true) _load();
+    if (ok == true) await _load();
   }
 
   @override
@@ -89,9 +94,10 @@ class _BookingTicketScreenState extends State<BookingTicketScreen> {
     Widget body;
     Widget? bottom;
     if (_loading) {
-      body = const SkeletonList(itemCount: 4);
+      body = const SkeletonList();
     } else if (_error != null || _b == null) {
-      body = ErrorState(message: _error ?? "Booking tidak ditemukan", onRetry: _load);
+      body = ErrorState(
+          message: _error ?? "Booking tidak ditemukan", onRetry: _load);
     } else {
       final b = _b!;
       body = RefreshIndicator(
@@ -118,27 +124,39 @@ class _BookingTicketScreenState extends State<BookingTicketScreen> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text("Kode Booking",
-                          style: AppTypography.caption.copyWith(color: c.ink2)),
+                      Text(
+                        "Kode Booking",
+                        style: AppTypography.caption.copyWith(color: c.ink2),
+                      ),
                       BookingStatusBadge(status: b.status),
                     ],
                   ),
                   const SizedBox(height: 6),
-                  SelectableText(b.code,
-                      style: AppTypography.display.copyWith(color: c.blue, letterSpacing: 2)),
+                  SelectableText(
+                    b.code,
+                    style: AppTypography.display
+                        .copyWith(color: c.blue, letterSpacing: 2),
+                  ),
                   if (_hint(b.status).isNotEmpty) ...[
                     const SizedBox(height: 10),
-                    Text(_hint(b.status),
-                        style: AppTypography.caption.copyWith(color: c.ink)),
+                    Text(
+                      _hint(b.status),
+                      style: AppTypography.caption.copyWith(color: c.ink),
+                    ),
                   ],
                   const Divider(height: 28),
-                  Text(b.workshopName ?? "Bengkel",
-                      style: AppTypography.h2.copyWith(color: c.ink)),
+                  Text(
+                    b.workshopName ?? "Bengkel",
+                    style: AppTypography.h2.copyWith(color: c.ink),
+                  ),
                   if (b.workshopAddress != null)
-                    Text(b.workshopAddress!,
-                        style: AppTypography.caption.copyWith(color: c.ink2)),
+                    Text(
+                      b.workshopAddress!,
+                      style: AppTypography.caption.copyWith(color: c.ink2),
+                    ),
                   const SizedBox(height: 12),
-                  _info(context, Icons.event, Formatters.dateTimeLocal(b.scheduledAt)),
+                  _info(context, Icons.event,
+                      Formatters.dateTimeLocal(b.scheduledAt)),
                   if (b.vehicleInfo != null)
                     _info(context, Icons.two_wheeler, b.vehicleInfo!),
                 ],
@@ -148,45 +166,65 @@ class _BookingTicketScreenState extends State<BookingTicketScreen> {
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                  color: c.panel, borderRadius: BorderRadius.circular(16)),
+                color: c.panel,
+                borderRadius: BorderRadius.circular(16),
+              ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text("Rincian Layanan",
-                      style: AppTypography.h2.copyWith(color: c.ink, fontSize: 16)),
+                  Text(
+                    "Rincian Layanan",
+                    style:
+                        AppTypography.h2.copyWith(color: c.ink, fontSize: 16),
+                  ),
                   const SizedBox(height: 8),
                   for (final i in b.items)
                     Padding(
                       padding: const EdgeInsets.symmetric(vertical: 3),
-                      child: Row(children: [
-                        Expanded(
-                          child: Text(
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: Text(
                               i.isAddon
                                   ? "${i.name} (tambahan${i.addonApproved == null ? ", menunggu persetujuan" : i.addonApproved! ? "" : ", ditolak"})"
                                   : i.name,
+                              style: AppTypography.body,
+                            ),
+                          ),
+                          Text(Formatters.rupiah(i.priceIdr),
                               style: AppTypography.body),
-                        ),
-                        Text(Formatters.rupiah(i.priceIdr), style: AppTypography.body),
-                      ]),
+                        ],
+                      ),
                     ),
                   const Divider(height: 20),
-                  Row(children: [
-                    Expanded(
-                        child: Text("Total",
-                            style: AppTypography.bodyStrong.copyWith(color: c.ink))),
-                    Text(Formatters.rupiah(b.totalIdr),
-                        style: AppTypography.h2.copyWith(color: c.blue)),
-                  ]),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          "Total",
+                          style:
+                              AppTypography.bodyStrong.copyWith(color: c.ink),
+                        ),
+                      ),
+                      Text(
+                        Formatters.rupiah(b.totalIdr),
+                        style: AppTypography.h2.copyWith(color: c.blue),
+                      ),
+                    ],
+                  ),
                   if (b.refundIdr != null) ...[
                     const SizedBox(height: 8),
                     Text(
-                        "Refund ${Formatters.rupiah(b.refundIdr!)} · ${b.refundStatus ?? "diproses"}",
-                        style: AppTypography.caption.copyWith(color: c.okText)),
+                      "Refund ${Formatters.rupiah(b.refundIdr!)} · ${b.refundStatus ?? "diproses"}",
+                      style: AppTypography.caption.copyWith(color: c.okText),
+                    ),
                   ],
                   if (b.cancelReason != null) ...[
                     const SizedBox(height: 6),
-                    Text("Alasan: ${b.cancelReason}",
-                        style: AppTypography.caption.copyWith(color: c.ink2)),
+                    Text(
+                      "Alasan: ${b.cancelReason}",
+                      style: AppTypography.caption.copyWith(color: c.ink2),
+                    ),
                   ],
                 ],
               ),
@@ -240,11 +278,15 @@ class _BookingTicketScreenState extends State<BookingTicketScreen> {
     final c = context.colors;
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 3),
-      child: Row(children: [
-        Icon(icon, size: 18, color: c.blue),
-        const SizedBox(width: 8),
-        Expanded(child: Text(text, style: AppTypography.body.copyWith(color: c.ink))),
-      ]),
+      child: Row(
+        children: [
+          Icon(icon, size: 18, color: c.blue),
+          const SizedBox(width: 8),
+          Expanded(
+              child:
+                  Text(text, style: AppTypography.body.copyWith(color: c.ink))),
+        ],
+      ),
     );
   }
 }

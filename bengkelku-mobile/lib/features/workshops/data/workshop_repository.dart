@@ -55,7 +55,8 @@ class WorkshopRepository {
 
   /// Ambil daftar layanan sebuah bengkel
   Future<List<WorkshopServiceItem>> getWorkshopServices(
-      String workshopId) async {
+    String workshopId,
+  ) async {
     final response = await _client
         .from("services")
         .select()
@@ -63,8 +64,9 @@ class WorkshopRepository {
         .eq("is_active", true);
 
     return (response as List<dynamic>)
-        .map((item) =>
-            WorkshopServiceItem.fromJson(item as Map<String, dynamic>))
+        .map(
+          (item) => WorkshopServiceItem.fromJson(item as Map<String, dynamic>),
+        )
         .toList();
   }
 
@@ -82,8 +84,13 @@ class WorkshopRepository {
   Future<Set<String>> favoriteIds() async {
     final uid = SupabaseService.currentUser?.id;
     if (uid == null) return {};
-    final res = await _client.from("favorites").select("workshop_id").eq("user_id", uid);
-    return (res as List<dynamic>).map((e) => e["workshop_id"] as String).toSet();
+    final res = await _client
+        .from("favorites")
+        .select("workshop_id")
+        .eq("user_id", uid);
+    return (res as List<dynamic>)
+        .map((e) => e["workshop_id"] as String)
+        .toSet();
   }
 
   Future<List<Workshop>> favoriteWorkshops() async {
@@ -96,7 +103,8 @@ class WorkshopRepository {
         .order("created_at", ascending: false);
     return (res as List<dynamic>)
         .where((e) => e["workshops"] != null)
-        .map((e) => Workshop.fromJson(Map<String, dynamic>.from(e["workshops"] as Map)))
+        .map((e) =>
+            Workshop.fromJson(Map<String, dynamic>.from(e["workshops"] as Map)))
         .toList();
   }
 
@@ -104,9 +112,15 @@ class WorkshopRepository {
     final uid = SupabaseService.currentUser?.id;
     if (uid == null) throw Exception("Silakan masuk terlebih dahulu");
     if (favorite) {
-      await _client.from("favorites").upsert({"user_id": uid, "workshop_id": workshopId});
+      await _client
+          .from("favorites")
+          .upsert({"user_id": uid, "workshop_id": workshopId});
     } else {
-      await _client.from("favorites").delete().eq("user_id", uid).eq("workshop_id", workshopId);
+      await _client
+          .from("favorites")
+          .delete()
+          .eq("user_id", uid)
+          .eq("workshop_id", workshopId);
     }
   }
 }

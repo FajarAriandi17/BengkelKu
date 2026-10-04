@@ -131,7 +131,10 @@ class _SosDoneScreenState extends ConsumerState<SosDoneScreen> {
                   if ((req.workshopName ?? '').isNotEmpty)
                     _row(context, 'Bengkel', req.workshopName!),
                   _row(
-                      context, 'Biaya panggilan', Formatters.rupiah(req.total)),
+                    context,
+                    'Biaya panggilan',
+                    Formatters.rupiah(req.total),
+                  ),
                 ],
               ),
             ),

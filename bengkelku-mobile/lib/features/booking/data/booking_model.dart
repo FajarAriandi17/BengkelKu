@@ -77,7 +77,8 @@ class Booking {
       cancelReason: json["cancel_reason"] as String?,
       paymentDeadline: _date(json["payment_deadline"]),
       workshopName: (json["workshops"] as Map?)?["name"] as String?,
-      vehicleInfo: v is Map ? "${v["brand"] ?? ""} ${v["model"] ?? ""}".trim() : null,
+      vehicleInfo:
+          v is Map ? "${v["brand"] ?? ""} ${v["model"] ?? ""}".trim() : null,
     );
   }
 
@@ -106,7 +107,8 @@ class Booking {
       workshopAddress: w?["address"] as String?,
       vehicleInfo: v == null
           ? null
-          : "${v["brand"] ?? ""} ${v["model"] ?? ""} · ${v["plate"] ?? ""}".trim(),
+          : "${v["brand"] ?? ""} ${v["model"] ?? ""} · ${v["plate"] ?? ""}"
+              .trim(),
       items: items,
       refundIdr: r == null ? null : _int(r["amount_idr"]),
       refundStatus: r?["status"] as String?,

@@ -4,7 +4,8 @@ import "../../../core/network/supabase_client.dart";
 import "booking_model.dart";
 
 class BookingSlot {
-  const BookingSlot({required this.at, required this.label, required this.remaining});
+  const BookingSlot(
+      {required this.at, required this.label, required this.remaining});
   final DateTime at;
   final String label;
   final int remaining;
@@ -35,11 +36,14 @@ String bookingErrorMessage(Object e) {
 class BookingRepository {
   SupabaseClient get _client => SupabaseService.client;
 
-  Future<List<BookingSlot>> availableSlots(String workshopId, DateTime date) async {
+  Future<List<BookingSlot>> availableSlots(
+      String workshopId, DateTime date) async {
     final d = "${date.year.toString().padLeft(4, "0")}-"
         "${date.month.toString().padLeft(2, "0")}-${date.day.toString().padLeft(2, "0")}";
-    final res = await _client.rpc("booking_available_slots",
-        params: {"p_workshop_id": workshopId, "p_date": d});
+    final res = await _client.rpc(
+      "booking_available_slots",
+      params: {"p_workshop_id": workshopId, "p_date": d},
+    );
     return (res as List)
         .map((e) => BookingSlot.fromJson(Map<String, dynamic>.from(e as Map)))
         .toList();
@@ -52,25 +56,31 @@ class BookingRepository {
     required DateTime scheduledAt,
     String? note,
   }) async {
-    final res = await _client.rpc("booking_create", params: {
-      "p_workshop_id": workshopId,
-      "p_vehicle_id": vehicleId,
-      "p_service_ids": serviceIds,
-      "p_scheduled_at": scheduledAt.toUtc().toIso8601String(),
-      "p_note": note,
-    });
+    final res = await _client.rpc(
+      "booking_create",
+      params: {
+        "p_workshop_id": workshopId,
+        "p_vehicle_id": vehicleId,
+        "p_service_ids": serviceIds,
+        "p_scheduled_at": scheduledAt.toUtc().toIso8601String(),
+        "p_note": note,
+      },
+    );
     return Booking.fromJson(Map<String, dynamic>.from(res as Map));
   }
 
   Future<Booking> getBooking(String id) async {
-    final res = await _client.rpc("booking_detail", params: {"p_booking_id": id});
+    final res =
+        await _client.rpc("booking_detail", params: {"p_booking_id": id});
     if (res == null) throw Exception("Booking tidak ditemukan");
     return Booking.fromDetail(Map<String, dynamic>.from(res as Map));
   }
 
   Future<void> sandboxPay(String id, String method) async {
-    await _client.rpc("booking_sandbox_pay",
-        params: {"p_booking_id": id, "p_method": method});
+    await _client.rpc(
+      "booking_sandbox_pay",
+      params: {"p_booking_id": id, "p_method": method},
+    );
   }
 
   Future<bool> isSandboxPayments() async {
@@ -100,8 +110,10 @@ class BookingRepository {
   }
 
   Future<CancelResult> cancelBooking(String bookingId, String reason) async {
-    final res = await _client.rpc("booking_cancel",
-        params: {"p_booking_id": bookingId, "p_reason": reason});
+    final res = await _client.rpc(
+      "booking_cancel",
+      params: {"p_booking_id": bookingId, "p_reason": reason},
+    );
     final m = Map<String, dynamic>.from(res as Map);
     return CancelResult(
       refundPct: (m["refund_pct"] as num?)?.toInt() ?? 0,

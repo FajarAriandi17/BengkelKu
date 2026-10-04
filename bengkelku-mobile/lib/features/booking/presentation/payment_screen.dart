@@ -34,7 +34,11 @@ class _PaymentScreenState extends State<PaymentScreen> {
   static const _methods = [
     ("qris", "QRIS (semua bank & e-wallet)", Icons.qr_code_2),
     ("ewallet", "E-Wallet (GoPay / OVO / DANA)", Icons.account_balance_wallet),
-    ("va", "Virtual Account (BCA / Mandiri / BRI / BNI)", Icons.account_balance),
+    (
+      "va",
+      "Virtual Account (BCA / Mandiri / BRI / BNI)",
+      Icons.account_balance
+    ),
   ];
 
   @override
@@ -122,13 +126,16 @@ class _PaymentScreenState extends State<PaymentScreen> {
 
     if (_loading) {
       return Scaffold(
-          appBar: AppBar(title: const Text("Pembayaran")),
-          body: const SkeletonList(itemCount: 4));
+        appBar: AppBar(title: const Text("Pembayaran")),
+        body: const SkeletonList(),
+      );
     }
     if (_error != null || _booking == null) {
       return Scaffold(
-          appBar: AppBar(title: const Text("Pembayaran")),
-          body: ErrorState(message: _error ?? "Booking tidak ditemukan", onRetry: _load));
+        appBar: AppBar(title: const Text("Pembayaran")),
+        body: ErrorState(
+            message: _error ?? "Booking tidak ditemukan", onRetry: _load),
+      );
     }
     final b = _booking!;
 
@@ -142,14 +149,18 @@ class _PaymentScreenState extends State<PaymentScreen> {
             Container(
               padding: const EdgeInsets.all(14),
               decoration: BoxDecoration(
-                  color: c.warnSoft, borderRadius: BorderRadius.circular(12)),
+                color: c.warnSoft,
+                borderRadius: BorderRadius.circular(12),
+              ),
               child: Row(
                 children: [
                   Icon(Icons.timer_outlined, color: c.warnText, size: 20),
                   const SizedBox(width: 10),
                   Expanded(
-                    child: Text("Selesaikan pembayaran dalam $_countdown",
-                        style: AppTypography.label.copyWith(color: c.warnText)),
+                    child: Text(
+                      "Selesaikan pembayaran dalam $_countdown",
+                      style: AppTypography.label.copyWith(color: c.warnText),
+                    ),
                   ),
                 ],
               ),
@@ -158,47 +169,70 @@ class _PaymentScreenState extends State<PaymentScreen> {
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                  color: c.panel, borderRadius: BorderRadius.circular(16)),
+                color: c.panel,
+                borderRadius: BorderRadius.circular(16),
+              ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(b.code, style: AppTypography.caption.copyWith(color: c.ink2)),
-                  const SizedBox(height: 2),
-                  Text(b.workshopName ?? "Bengkel",
-                      style: AppTypography.h2.copyWith(color: c.ink)),
-                  Text(Formatters.dateTimeLocal(b.scheduledAt),
+                  Text(b.code,
                       style: AppTypography.caption.copyWith(color: c.ink2)),
+                  const SizedBox(height: 2),
+                  Text(
+                    b.workshopName ?? "Bengkel",
+                    style: AppTypography.h2.copyWith(color: c.ink),
+                  ),
+                  Text(
+                    Formatters.dateTimeLocal(b.scheduledAt),
+                    style: AppTypography.caption.copyWith(color: c.ink2),
+                  ),
                   const Divider(height: 24),
                   for (final i in b.items)
                     Padding(
                       padding: const EdgeInsets.symmetric(vertical: 3),
-                      child: Row(children: [
-                        Expanded(child: Text(i.name, style: AppTypography.body)),
-                        Text(Formatters.rupiah(i.priceIdr), style: AppTypography.body),
-                      ]),
+                      child: Row(
+                        children: [
+                          Expanded(
+                              child: Text(i.name, style: AppTypography.body)),
+                          Text(Formatters.rupiah(i.priceIdr),
+                              style: AppTypography.body),
+                        ],
+                      ),
                     ),
                   if (b.totalIdr != b.subtotalIdr)
                     Padding(
                       padding: const EdgeInsets.symmetric(vertical: 3),
-                      child: Row(children: [
-                        const Expanded(child: Text("Biaya layanan")),
-                        Text(Formatters.rupiah(b.totalIdr - b.subtotalIdr)),
-                      ]),
+                      child: Row(
+                        children: [
+                          const Expanded(child: Text("Biaya layanan")),
+                          Text(Formatters.rupiah(b.totalIdr - b.subtotalIdr)),
+                        ],
+                      ),
                     ),
                   const Divider(height: 20),
-                  Row(children: [
-                    Expanded(
-                        child: Text("Total Bayar",
-                            style: AppTypography.bodyStrong.copyWith(color: c.ink))),
-                    Text(Formatters.rupiah(b.totalIdr),
-                        style: AppTypography.h2.copyWith(color: c.blue)),
-                  ]),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          "Total Bayar",
+                          style:
+                              AppTypography.bodyStrong.copyWith(color: c.ink),
+                        ),
+                      ),
+                      Text(
+                        Formatters.rupiah(b.totalIdr),
+                        style: AppTypography.h2.copyWith(color: c.blue),
+                      ),
+                    ],
+                  ),
                 ],
               ),
             ),
             const SizedBox(height: 20),
-            Text("Metode Pembayaran",
-                style: AppTypography.h2.copyWith(color: c.ink, fontSize: 16)),
+            Text(
+              "Metode Pembayaran",
+              style: AppTypography.h2.copyWith(color: c.ink, fontSize: 16),
+            ),
             const SizedBox(height: 10),
             for (final m in _methods)
               Padding(
@@ -213,19 +247,23 @@ class _PaymentScreenState extends State<PaymentScreen> {
                       color: c.panel,
                       borderRadius: BorderRadius.circular(12),
                       border: Border.all(
-                          color: _method == m.$1 ? c.blue : c.line,
-                          width: _method == m.$1 ? 1.6 : 1),
+                        color: _method == m.$1 ? c.blue : c.line,
+                        width: _method == m.$1 ? 1.6 : 1,
+                      ),
                     ),
-                    child: Row(children: [
-                      Icon(m.$3, color: c.blue),
-                      const SizedBox(width: 12),
-                      Expanded(child: Text(m.$2, style: AppTypography.body)),
-                      Icon(
+                    child: Row(
+                      children: [
+                        Icon(m.$3, color: c.blue),
+                        const SizedBox(width: 12),
+                        Expanded(child: Text(m.$2, style: AppTypography.body)),
+                        Icon(
                           _method == m.$1
                               ? Icons.radio_button_checked
                               : Icons.radio_button_unchecked,
-                          color: _method == m.$1 ? c.blue : c.line),
-                    ]),
+                          color: _method == m.$1 ? c.blue : c.line,
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),
@@ -234,7 +272,9 @@ class _PaymentScreenState extends State<PaymentScreen> {
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                    color: c.blueSoft, borderRadius: BorderRadius.circular(12)),
+                  color: c.blueSoft,
+                  borderRadius: BorderRadius.circular(12),
+                ),
                 child: Text(
                   "Mode uji coba (sandbox): pembayaran disimulasikan dan tidak ada dana yang ditarik.",
                   style: AppTypography.caption.copyWith(color: c.blueText),

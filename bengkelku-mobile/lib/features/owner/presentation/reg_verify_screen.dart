@@ -146,15 +146,24 @@ class _RegVerifyScreenState extends State<RegVerifyScreen> {
       );
       if (_ktpFile != null) {
         await _repo.uploadVerificationDoc(
-            workshopId: wsId, docType: "ktp", file: _ktpFile!);
+          workshopId: wsId,
+          docType: "ktp",
+          file: _ktpFile!,
+        );
       }
       if (_selfieFile != null) {
         await _repo.uploadVerificationDoc(
-            workshopId: wsId, docType: "selfie", file: _selfieFile!);
+          workshopId: wsId,
+          docType: "selfie",
+          file: _selfieFile!,
+        );
       }
       if (_locationFile != null) {
         await _repo.uploadVerificationDoc(
-            workshopId: wsId, docType: "location", file: _locationFile!);
+          workshopId: wsId,
+          docType: "location",
+          file: _locationFile!,
+        );
       }
       await _repo.submitForVerification(wsId);
 
@@ -162,7 +171,8 @@ class _RegVerifyScreenState extends State<RegVerifyScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text(
-              "berkas terkirim. tim kami meninjau maksimal 2×24 jam kerja."),
+            "berkas terkirim. tim kami meninjau maksimal 2×24 jam kerja.",
+          ),
         ),
       );
       context.pushReplacement("/owner/status");
@@ -183,7 +193,8 @@ class _RegVerifyScreenState extends State<RegVerifyScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-            resubmit ? "Ajukan Ulang Verifikasi" : "Registrasi Usaha Bengkel"),
+          resubmit ? "Ajukan Ulang Verifikasi" : "Registrasi Usaha Bengkel",
+        ),
         elevation: 0,
       ),
       body: _prefilling
@@ -207,8 +218,10 @@ class _RegVerifyScreenState extends State<RegVerifyScreen> {
                           style: AppTypography.body.copyWith(color: c.badText),
                         ),
                       ),
-                    Text("Profil Bengkel",
-                        style: AppTypography.h2.copyWith(color: c.ink)),
+                    Text(
+                      "Profil Bengkel",
+                      style: AppTypography.h2.copyWith(color: c.ink),
+                    ),
                     const SizedBox(height: 12),
                     AppTextField(
                       controller: _nameController,
@@ -237,8 +250,10 @@ class _RegVerifyScreenState extends State<RegVerifyScreen> {
                       onTap: _locating ? null : _useCurrentLocation,
                     ),
                     const Divider(height: 32),
-                    Text("Dokumen Verifikasi (Maks 2 MB Per File)",
-                        style: AppTypography.h2.copyWith(color: c.ink)),
+                    Text(
+                      "Dokumen Verifikasi (Maks 2 MB Per File)",
+                      style: AppTypography.h2.copyWith(color: c.ink),
+                    ),
                     const SizedBox(height: 6),
                     Text(
                       "foto KTP, selfie, dan foto depan bengkel wajib asli & jelas. dokumen hanya dilihat tim verifikasi. NIB tidak wajib.",
@@ -328,15 +343,19 @@ class _LocationCard extends StatelessWidget {
       ),
       child: Row(
         children: [
-          Icon(has ? Icons.where_to_vote : Icons.add_location_alt_outlined,
-              color: has ? c.ok : c.ink2),
+          Icon(
+            has ? Icons.where_to_vote : Icons.add_location_alt_outlined,
+            color: has ? c.ok : c.ink2,
+          ),
           const SizedBox(width: 12),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text("Titik lokasi bengkel",
-                    style: AppTypography.bodyStrong.copyWith(color: c.ink)),
+                Text(
+                  "Titik lokasi bengkel",
+                  style: AppTypography.bodyStrong.copyWith(color: c.ink),
+                ),
                 Text(
                   has
                       ? "${lat!.toStringAsFixed(5)}, ${lng!.toStringAsFixed(5)}"
@@ -352,7 +371,8 @@ class _LocationCard extends StatelessWidget {
                 ? const SizedBox(
                     width: 18,
                     height: 18,
-                    child: CircularProgressIndicator(strokeWidth: 2))
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  )
                 : Text(has ? "Perbarui" : "Pakai lokasi saat ini"),
           ),
         ],

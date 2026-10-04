@@ -222,7 +222,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                   side: BorderSide(color: c.blueSoft),
                   minimumSize: const Size.fromHeight(48),
                   shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12)),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
                 ),
                 icon:
                     const Icon(Icons.g_mobiledata, size: 28, color: Colors.red),
@@ -237,7 +238,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                     side: BorderSide(color: c.blueSoft),
                     minimumSize: const Size.fromHeight(48),
                     shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12)),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
                   ),
                   icon: const Icon(Icons.apple, size: 22),
                   label: const Text("Sign in with Apple"),

@@ -59,23 +59,25 @@ class _BookingListScreenState extends State<BookingListScreen>
   }
 
   Widget _list(List<Booking> items, {required bool active}) {
-    if (_loading) return const SkeletonList(itemCount: 4);
+    if (_loading) return const SkeletonList();
     if (_error != null) return ErrorState(message: _error!, onRetry: _load);
     if (items.isEmpty) {
       return RefreshIndicator(
         onRefresh: _load,
-        child: ListView(children: [
-          const SizedBox(height: 60),
-          EmptyState(
-            title: active ? "Belum ada booking aktif" : "Belum ada riwayat",
-            message: active
-                ? "Cari bengkel terdekat dan pesan servis tanpa antre."
-                : "Booking yang selesai atau dibatalkan akan muncul di sini.",
-            icon: Icons.receipt_long_outlined,
-            actionLabel: active ? "Cari Bengkel" : null,
-            onAction: active ? () => context.go("/home") : null,
-          ),
-        ]),
+        child: ListView(
+          children: [
+            const SizedBox(height: 60),
+            EmptyState(
+              title: active ? "Belum ada booking aktif" : "Belum ada riwayat",
+              message: active
+                  ? "Cari bengkel terdekat dan pesan servis tanpa antre."
+                  : "Booking yang selesai atau dibatalkan akan muncul di sini.",
+              icon: Icons.receipt_long_outlined,
+              actionLabel: active ? "Cari Bengkel" : null,
+              onAction: active ? () => context.go("/home") : null,
+            ),
+          ],
+        ),
       );
     }
     return RefreshIndicator(
@@ -88,7 +90,7 @@ class _BookingListScreenState extends State<BookingListScreen>
           booking: items[i],
           onTap: () async {
             await context.push("/ticket?bookingId=${items[i].id}");
-            _load();
+            await _load();
           },
         ),
       ),
@@ -149,23 +151,32 @@ class _BookingCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Row(children: [
-              Expanded(
-                child: Text(b.workshopName ?? "Bengkel",
+            Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    b.workshopName ?? "Bengkel",
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: AppTypography.bodyStrong.copyWith(color: c.ink)),
-              ),
-              BookingStatusBadge(status: b.status),
-            ]),
+                    style: AppTypography.bodyStrong.copyWith(color: c.ink),
+                  ),
+                ),
+                BookingStatusBadge(status: b.status),
+              ],
+            ),
             const SizedBox(height: 6),
-            Text("${b.code} · ${Formatters.dateTimeLocal(b.scheduledAt)}",
-                style: AppTypography.caption.copyWith(color: c.ink2)),
+            Text(
+              "${b.code} · ${Formatters.dateTimeLocal(b.scheduledAt)}",
+              style: AppTypography.caption.copyWith(color: c.ink2),
+            ),
             if (b.vehicleInfo != null && b.vehicleInfo!.isNotEmpty)
-              Text(b.vehicleInfo!, style: AppTypography.caption.copyWith(color: c.ink2)),
+              Text(b.vehicleInfo!,
+                  style: AppTypography.caption.copyWith(color: c.ink2)),
             const SizedBox(height: 8),
-            Text(Formatters.rupiah(b.totalIdr),
-                style: AppTypography.bodyStrong.copyWith(color: c.blue)),
+            Text(
+              Formatters.rupiah(b.totalIdr),
+              style: AppTypography.bodyStrong.copyWith(color: c.blue),
+            ),
           ],
         ),
       ),

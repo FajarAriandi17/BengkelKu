@@ -32,8 +32,10 @@ class _BankAccountScreenState extends State<BankAccountScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text("Pengaturan Rekening Bank",
-                style: AppTypography.h1.copyWith(color: c.ink)),
+            Text(
+              "Pengaturan Rekening Bank",
+              style: AppTypography.h1.copyWith(color: c.ink),
+            ),
             const SizedBox(height: 6),
             Text(
               "Dana hasil transaksi booking akan dicairkan otomatis H+1 ke rekening ini.",

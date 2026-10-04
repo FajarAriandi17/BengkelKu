@@ -86,8 +86,10 @@ class _MediaPickerTileState extends State<MediaPickerTile> {
               const SizedBox(height: 16),
               ListTile(
                 leading: Icon(Icons.camera_alt, color: c.blue),
-                title: const Text("Kamera In-App",
-                    style: AppTypography.bodyStrong),
+                title: const Text(
+                  "Kamera In-App",
+                  style: AppTypography.bodyStrong,
+                ),
                 onTap: () {
                   Navigator.pop(ctx);
                   _pickImage(ImageSource.camera);
@@ -148,8 +150,11 @@ class _MediaPickerTileState extends State<MediaPickerTile> {
                           color: Colors.black.withValues(alpha: 0.6),
                           shape: BoxShape.circle,
                         ),
-                        child: const Icon(Icons.close,
-                            color: Colors.white, size: 18),
+                        child: const Icon(
+                          Icons.close,
+                          color: Colors.white,
+                          size: 18,
+                        ),
                       ),
                     ),
                   ),

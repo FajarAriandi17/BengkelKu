@@ -126,9 +126,11 @@ class _BookingSummaryScreenState extends State<BookingSummaryScreen> {
             child: Text(k, style: AppTypography.body.copyWith(color: c.ink2)),
           ),
           Expanded(
-            child: Text(v,
-                textAlign: TextAlign.right,
-                style: AppTypography.bodyStrong.copyWith(color: c.ink)),
+            child: Text(
+              v,
+              textAlign: TextAlign.right,
+              style: AppTypography.bodyStrong.copyWith(color: c.ink),
+            ),
           ),
         ],
       ),
@@ -142,7 +144,7 @@ class _BookingSummaryScreenState extends State<BookingSummaryScreen> {
 
     Widget body;
     if (_loading) {
-      body = const SkeletonList(itemCount: 4);
+      body = const SkeletonList();
     } else if (_error != null) {
       body = ErrorState(message: _error!, onRetry: _load);
     } else if (slot == null || _services.isEmpty) {
@@ -162,33 +164,43 @@ class _BookingSummaryScreenState extends State<BookingSummaryScreen> {
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                  color: c.panel, borderRadius: BorderRadius.circular(16)),
+                color: c.panel,
+                borderRadius: BorderRadius.circular(16),
+              ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(_workshop!.name, style: AppTypography.h2.copyWith(color: c.ink)),
+                  Text(_workshop!.name,
+                      style: AppTypography.h2.copyWith(color: c.ink)),
                   const SizedBox(height: 4),
-                  Text(_workshop!.address,
-                      style: AppTypography.caption.copyWith(color: c.ink2)),
+                  Text(
+                    _workshop!.address,
+                    style: AppTypography.caption.copyWith(color: c.ink2),
+                  ),
                   const Divider(height: 24),
                   _row(context, "Jadwal", Formatters.dateTimeLocal(slot)),
                   _row(
-                      context,
-                      "Kendaraan",
-                      _vehicle == null
-                          ? "Tidak dipilih"
-                          : "${_vehicle!.brand} ${_vehicle!.model} (${_vehicle!.plate ?? "-"})"),
+                    context,
+                    "Kendaraan",
+                    _vehicle == null
+                        ? "Tidak dipilih"
+                        : "${_vehicle!.brand} ${_vehicle!.model} (${_vehicle!.plate ?? "-"})",
+                  ),
                 ],
               ),
             ),
             const SizedBox(height: 20),
-            Text("Layanan Dipesan",
-                style: AppTypography.h2.copyWith(color: c.ink, fontSize: 16)),
+            Text(
+              "Layanan Dipesan",
+              style: AppTypography.h2.copyWith(color: c.ink, fontSize: 16),
+            ),
             const SizedBox(height: 10),
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                  color: c.panel, borderRadius: BorderRadius.circular(16)),
+                color: c.panel,
+                borderRadius: BorderRadius.circular(16),
+              ),
               child: Column(
                 children: [
                   for (final s in _services)
@@ -219,16 +231,17 @@ class _BookingSummaryScreenState extends State<BookingSummaryScreen> {
     return Scaffold(
       appBar: AppBar(title: const Text("Ringkasan Pemesanan"), elevation: 0),
       body: body,
-      bottomNavigationBar: (!_loading && _error == null && slot != null && _services.isNotEmpty)
-          ? SafeArea(
-              minimum: const EdgeInsets.all(16),
-              child: AppButton(
-                label: "Buat Pesanan",
-                onPressed: _submitting ? null : _submit,
-                loading: _submitting,
-              ),
-            )
-          : null,
+      bottomNavigationBar:
+          (!_loading && _error == null && slot != null && _services.isNotEmpty)
+              ? SafeArea(
+                  minimum: const EdgeInsets.all(16),
+                  child: AppButton(
+                    label: "Buat Pesanan",
+                    onPressed: _submitting ? null : _submit,
+                    loading: _submitting,
+                  ),
+                )
+              : null,
     );
   }
 }

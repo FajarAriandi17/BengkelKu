@@ -52,8 +52,11 @@ class ServiceRow extends StatelessWidget {
                     const SizedBox(height: 2),
                     Row(
                       children: [
-                        Icon(Icons.schedule,
-                            size: 14, color: c.ink.withValues(alpha: 0.5)),
+                        Icon(
+                          Icons.schedule,
+                          size: 14,
+                          color: c.ink.withValues(alpha: 0.5),
+                        ),
                         const SizedBox(width: 4),
                         Text(
                           "$durationMinutes menit",

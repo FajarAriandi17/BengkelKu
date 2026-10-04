@@ -34,8 +34,10 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-              content: Text(
-                  "Instruksi reset kata sandi telah dikirim ke email kamu")),
+            content: Text(
+              "Instruksi reset kata sandi telah dikirim ke email kamu",
+            ),
+          ),
         );
         Navigator.pop(context);
       }

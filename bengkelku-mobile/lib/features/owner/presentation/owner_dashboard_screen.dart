@@ -67,10 +67,12 @@ class _OwnerDashboardScreenState extends State<OwnerDashboardScreen> {
       await _load();
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          content: Text(e is PostgrestException ? e.message : "$e"),
-          backgroundColor: context.colors.bad,
-        ));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(e is PostgrestException ? e.message : "$e"),
+            backgroundColor: context.colors.bad,
+          ),
+        );
       }
     } finally {
       if (mounted) setState(() => _busyId = null);
@@ -98,7 +100,9 @@ class _OwnerDashboardScreenState extends State<OwnerDashboardScreen> {
     Widget body;
     if (_loading) {
       body = const Padding(
-          padding: EdgeInsets.all(16), child: SkeletonList(itemCount: 4));
+        padding: EdgeInsets.all(16),
+        child: SkeletonList(),
+      );
     } else if (_error != null) {
       body = ErrorState(message: _error!, onRetry: _load);
     } else if (_d == null) {
@@ -161,8 +165,10 @@ class _OwnerDashboardScreenState extends State<OwnerDashboardScreen> {
               ],
             ),
             const SizedBox(height: 24),
-            Text("Antrean Booking",
-                style: AppTypography.h2.copyWith(color: c.ink)),
+            Text(
+              "Antrean Booking",
+              style: AppTypography.h2.copyWith(color: c.ink),
+            ),
             const SizedBox(height: 12),
             if (queue.isEmpty)
               const EmptyState(
@@ -174,8 +180,11 @@ class _OwnerDashboardScreenState extends State<OwnerDashboardScreen> {
               _BookingCard(
                 booking: b,
                 busy: _busyId == b["id"],
-                onConfirm: () => _act(b["id"] as String, "confirm",
-                    "booking dikonfirmasi. pelanggan sudah diberi tahu."),
+                onConfirm: () => _act(
+                  b["id"] as String,
+                  "confirm",
+                  "booking dikonfirmasi. pelanggan sudah diberi tahu.",
+                ),
                 onReject: () => _reject(b["id"] as String),
                 onCheckIn: () =>
                     _act(b["id"] as String, "check_in", "check-in dicatat"),
@@ -237,8 +246,10 @@ class _SummaryCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text("Pendapatan bersih hari ini",
-              style: AppTypography.caption.copyWith(color: Colors.white70)),
+          Text(
+            "Pendapatan bersih hari ini",
+            style: AppTypography.caption.copyWith(color: Colors.white70),
+          ),
           const SizedBox(height: 4),
           TweenAnimationBuilder<double>(
             tween: Tween(end: revenue.toDouble()),
@@ -276,8 +287,10 @@ class _Stat extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(value, style: AppTypography.h2.copyWith(color: Colors.white)),
-        Text(label,
-            style: AppTypography.caption.copyWith(color: Colors.white70)),
+        Text(
+          label,
+          style: AppTypography.caption.copyWith(color: Colors.white70),
+        ),
       ],
     );
   }
@@ -323,9 +336,10 @@ class _BookingCard extends StatelessWidget {
           Row(
             children: [
               Expanded(
-                child: Text(code,
-                    style:
-                        AppTypography.h2.copyWith(color: c.ink, fontSize: 16)),
+                child: Text(
+                  code,
+                  style: AppTypography.h2.copyWith(color: c.ink, fontSize: 16),
+                ),
               ),
               BookingStatusBadge(status: status),
             ],
@@ -337,8 +351,10 @@ class _BookingCard extends StatelessWidget {
             style: AppTypography.body.copyWith(color: c.ink),
           ),
           if (booking["services"] != null)
-            Text(booking["services"] as String,
-                style: AppTypography.caption.copyWith(color: c.ink2)),
+            Text(
+              booking["services"] as String,
+              style: AppTypography.caption.copyWith(color: c.ink2),
+            ),
           const SizedBox(height: 4),
           Text(
             "${Formatters.dateTimeLocal(at)} · ${Formatters.rupiah((booking["total_idr"] as num?) ?? 0)}",

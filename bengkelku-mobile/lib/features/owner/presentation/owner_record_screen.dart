@@ -46,8 +46,10 @@ class _OwnerRecordScreenState extends State<OwnerRecordScreen> {
         Navigator.pop(context);
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-              content: Text(
-                  "Riwayat servis disimpan & status oli pelanggan diperbarui!")),
+            content: Text(
+              "Riwayat servis disimpan & status oli pelanggan diperbarui!",
+            ),
+          ),
         );
       }
     } catch (e) {
@@ -55,7 +57,8 @@ class _OwnerRecordScreenState extends State<OwnerRecordScreen> {
         Navigator.pop(context);
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-              content: Text("Servis ditandai SELESAI & odometer diperbarui")),
+            content: Text("Servis ditandai SELESAI & odometer diperbarui"),
+          ),
         );
       }
     } finally {
@@ -77,8 +80,10 @@ class _OwnerRecordScreenState extends State<OwnerRecordScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text("Pengerjaan Servis Selesai",
-                style: AppTypography.h1.copyWith(color: c.ink)),
+            Text(
+              "Pengerjaan Servis Selesai",
+              style: AppTypography.h1.copyWith(color: c.ink),
+            ),
             const SizedBox(height: 6),
             Text(
               "Input odometer terkini untuk otomatis memperbarui status & pengingat oli di aplikasi pelanggan.",
@@ -96,16 +101,20 @@ class _OwnerRecordScreenState extends State<OwnerRecordScreen> {
             SwitchListTile(
               value: _oilChanged,
               onChanged: (val) => setState(() => _oilChanged = val),
-              title: Text("Oli Mesin Diganti?",
-                  style: AppTypography.bodyStrong.copyWith(color: c.ink)),
+              title: Text(
+                "Oli Mesin Diganti?",
+                style: AppTypography.bodyStrong.copyWith(color: c.ink),
+              ),
               subtitle: Text(
-                  "Nyalakan jika oli mesin diganti dalam pengerjaan ini",
-                  style: AppTypography.caption
-                      .copyWith(color: c.ink.withValues(alpha: 0.6))),
+                "Nyalakan jika oli mesin diganti dalam pengerjaan ini",
+                style: AppTypography.caption
+                    .copyWith(color: c.ink.withValues(alpha: 0.6)),
+              ),
               activeThumbColor: c.blue,
               tileColor: c.panel,
               shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12)),
+                borderRadius: BorderRadius.circular(12),
+              ),
             ),
             const SizedBox(height: 16),
             AppTextField(

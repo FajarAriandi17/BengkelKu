@@ -56,7 +56,8 @@ class _SosPayScreenState extends ConsumerState<SosPayScreen> {
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
-          content: Text('Waktu pembayaran habis. Permintaan dibatalkan.')),
+        content: Text('Waktu pembayaran habis. Permintaan dibatalkan.'),
+      ),
     );
     ref.read(activeSosProvider.notifier).clear();
     context.go('/home');

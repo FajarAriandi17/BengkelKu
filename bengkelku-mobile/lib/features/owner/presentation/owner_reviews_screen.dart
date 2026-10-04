@@ -31,20 +31,25 @@ class OwnerReviewsScreen extends StatelessWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text("Budi Santoso",
-                        style: AppTypography.bodyStrong.copyWith(color: c.ink)),
-                    Text("Kemarin",
-                        style: AppTypography.caption
-                            .copyWith(color: c.ink.withValues(alpha: 0.5))),
+                    Text(
+                      "Budi Santoso",
+                      style: AppTypography.bodyStrong.copyWith(color: c.ink),
+                    ),
+                    Text(
+                      "Kemarin",
+                      style: AppTypography.caption
+                          .copyWith(color: c.ink.withValues(alpha: 0.5)),
+                    ),
                   ],
                 ),
                 const SizedBox(height: 4),
                 const RatingStars(rating: 5, starSize: 16),
                 const SizedBox(height: 8),
                 Text(
-                    "Servis sangat cepat dan mekanik ramah. Oli yang dipakai terjamin orisinal.",
-                    style: AppTypography.body
-                        .copyWith(color: c.ink.withValues(alpha: 0.8))),
+                  "Servis sangat cepat dan mekanik ramah. Oli yang dipakai terjamin orisinal.",
+                  style: AppTypography.body
+                      .copyWith(color: c.ink.withValues(alpha: 0.8)),
+                ),
               ],
             ),
           ),

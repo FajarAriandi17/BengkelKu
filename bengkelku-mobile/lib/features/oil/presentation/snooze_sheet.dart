@@ -25,8 +25,10 @@ class _SnoozeSheetState extends State<SnoozeSheet> {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text("Tunda Pengingat Oli",
-              style: AppTypography.h1.copyWith(color: c.ink)),
+          Text(
+            "Tunda Pengingat Oli",
+            style: AppTypography.h1.copyWith(color: c.ink),
+          ),
           const SizedBox(height: 8),
           Text(
             "Pilih berapa lama kamu ingin menunda notifikasi pengingat oli motor ini.",
@@ -70,7 +72,8 @@ class _SnoozeSheetState extends State<SnoozeSheet> {
               Navigator.pop(context);
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
-                    content: Text("Pengingat oli ditunda $_selectedDays hari")),
+                  content: Text("Pengingat oli ditunda $_selectedDays hari"),
+                ),
               );
             },
           ),

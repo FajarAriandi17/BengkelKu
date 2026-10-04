@@ -34,8 +34,10 @@ class SlotPicker extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text("Pilih Tanggal",
-            style: AppTypography.h2.copyWith(color: c.ink, fontSize: 16)),
+        Text(
+          "Pilih Tanggal",
+          style: AppTypography.h2.copyWith(color: c.ink, fontSize: 16),
+        ),
         const SizedBox(height: 10),
         SizedBox(
           height: 70,
@@ -88,8 +90,10 @@ class SlotPicker extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 18),
-        Text("Pilih Slot Jam",
-            style: AppTypography.h2.copyWith(color: c.ink, fontSize: 16)),
+        Text(
+          "Pilih Slot Jam",
+          style: AppTypography.h2.copyWith(color: c.ink, fontSize: 16),
+        ),
         const SizedBox(height: 10),
         if (loadingSlots)
           const Padding(
@@ -99,32 +103,34 @@ class SlotPicker extends StatelessWidget {
         else if (slots.isEmpty)
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 12),
-            child: Text("Tidak ada slot tersedia di tanggal ini.",
-                style: AppTypography.body.copyWith(color: c.ink2)),
+            child: Text(
+              "Tidak ada slot tersedia di tanggal ini.",
+              style: AppTypography.body.copyWith(color: c.ink2),
+            ),
           )
         else
-        Wrap(
-          spacing: 8,
-          runSpacing: 8,
-          children: slots.map((slot) {
-            final isSelected = slot == selectedSlot;
-            final full = disabledSlots.contains(slot);
-            return ChoiceChip(
-              label: Text(full ? "$slot · penuh" : slot),
-              selected: isSelected,
-              onSelected: full ? null : (_) => onSlotSelected(slot),
-              selectedColor: c.blue,
-              backgroundColor: c.panel,
-              labelStyle: AppTypography.label.copyWith(
-                color: isSelected ? Colors.white : c.ink,
-              ),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10),
-                side: BorderSide(color: isSelected ? c.blue : c.blueSoft),
-              ),
-            );
-          }).toList(),
-        ),
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: slots.map((slot) {
+              final isSelected = slot == selectedSlot;
+              final full = disabledSlots.contains(slot);
+              return ChoiceChip(
+                label: Text(full ? "$slot · penuh" : slot),
+                selected: isSelected,
+                onSelected: full ? null : (_) => onSlotSelected(slot),
+                selectedColor: c.blue,
+                backgroundColor: c.panel,
+                labelStyle: AppTypography.label.copyWith(
+                  color: isSelected ? Colors.white : c.ink,
+                ),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                  side: BorderSide(color: isSelected ? c.blue : c.blueSoft),
+                ),
+              );
+            }).toList(),
+          ),
       ],
     );
   }

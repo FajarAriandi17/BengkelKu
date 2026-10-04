@@ -68,7 +68,7 @@ String relativeTimeId(DateTime t, {DateTime? now}) {
     "Sep",
     "Okt",
     "Nov",
-    "Des"
+    "Des",
   ];
   final l = t.toLocal();
   return "${l.day} ${m[l.month - 1]}${l.year != n.year ? " ${l.year}" : ""}";
@@ -159,7 +159,9 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
         await _db
             .from("notifications")
             .update({"read_at": DateTime.now().toUtc().toIso8601String()}).eq(
-                "id", n.id);
+          "id",
+          n.id,
+        );
       } catch (_) {}
     }
     if (!mounted) return;
@@ -182,15 +184,17 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     } else if (_error != null) {
       body = ErrorState(message: _error!, onRetry: _load);
     } else if (_items.isEmpty) {
-      body = ListView(children: const [
-        SizedBox(height: 80),
-        EmptyState(
-          icon: Icons.notifications_none,
-          title: "belum ada notifikasi",
-          message:
-              "info booking, pengingat oli, dan status verifikasi muncul di sini.",
-        ),
-      ]);
+      body = ListView(
+        children: const [
+          SizedBox(height: 80),
+          EmptyState(
+            icon: Icons.notifications_none,
+            title: "belum ada notifikasi",
+            message:
+                "info booking, pengingat oli, dan status verifikasi muncul di sini.",
+          ),
+        ],
+      );
     } else {
       body = ListView.builder(
         padding: const EdgeInsets.all(16),
@@ -273,19 +277,25 @@ class NotificationTile extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(n.title,
-                            style: AppTypography.bodyStrong
-                                .copyWith(color: c.ink)),
+                        Text(
+                          n.title,
+                          style:
+                              AppTypography.bodyStrong.copyWith(color: c.ink),
+                        ),
                         if ((n.body ?? "").isNotEmpty) ...[
                           const SizedBox(height: 2),
-                          Text(n.body!,
-                              style: AppTypography.caption
-                                  .copyWith(color: c.ink2)),
+                          Text(
+                            n.body!,
+                            style:
+                                AppTypography.caption.copyWith(color: c.ink2),
+                          ),
                         ],
                         const SizedBox(height: 6),
-                        Text(relativeTimeId(n.createdAt),
-                            style: AppTypography.caption
-                                .copyWith(color: c.ink2, fontSize: 11)),
+                        Text(
+                          relativeTimeId(n.createdAt),
+                          style: AppTypography.caption
+                              .copyWith(color: c.ink2, fontSize: 11),
+                        ),
                       ],
                     ),
                   ),

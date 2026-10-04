@@ -38,7 +38,9 @@ class ChatRepository {
 
   // Ambil pesan dalam thread
   Future<List<ChatMessage>> getMessages(
-      String threadId, String currentUserId) async {
+    String threadId,
+    String currentUserId,
+  ) async {
     try {
       final response = await _supabase
           .from('chat_messages')
@@ -48,8 +50,9 @@ class ChatRepository {
           .limit(100);
 
       return (response as List)
-          .map((json) =>
-              ChatMessage.fromJson(json, currentUserId: currentUserId))
+          .map(
+            (json) => ChatMessage.fromJson(json, currentUserId: currentUserId),
+          )
           .toList();
     } catch (e) {
       throw Exception('Gagal memuat pesan: $e');
@@ -119,9 +122,10 @@ class ChatRepository {
           schema: 'public',
           table: 'chat_messages',
           filter: PostgresChangeFilter(
-              type: PostgresChangeFilterType.eq,
-              column: 'thread_id',
-              value: threadId),
+            type: PostgresChangeFilterType.eq,
+            column: 'thread_id',
+            value: threadId,
+          ),
           callback: (payload) {
             final userId = _supabase.auth.currentUser?.id ?? '';
             final message = ChatMessage.fromJson(
@@ -160,7 +164,10 @@ class ChatRepository {
 
   // Broadcast status "sedang mengetik"
   Future<void> broadcastTyping(
-      String threadId, String userId, bool isTyping) async {
+    String threadId,
+    String userId,
+    bool isTyping,
+  ) async {
     try {
       final channel = _supabase.channel('typing:$threadId');
       await channel.sendBroadcastMessage(

@@ -41,11 +41,16 @@ class OwnerScanScreen extends StatelessWidget {
                 child: const Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(Icons.qr_code_scanner,
-                        size: 80, color: Colors.white70),
+                    Icon(
+                      Icons.qr_code_scanner,
+                      size: 80,
+                      color: Colors.white70,
+                    ),
                     SizedBox(height: 8),
-                    Text("Area Scan QR",
-                        style: TextStyle(color: Colors.white70)),
+                    Text(
+                      "Area Scan QR",
+                      style: TextStyle(color: Colors.white70),
+                    ),
                   ],
                 ),
               ),
@@ -57,7 +62,8 @@ class OwnerScanScreen extends StatelessWidget {
                   Navigator.pop(context);
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
-                        content: Text("Check-In Budi Santoso Berhasil!")),
+                      content: Text("Check-In Budi Santoso Berhasil!"),
+                    ),
                   );
                 },
               ),

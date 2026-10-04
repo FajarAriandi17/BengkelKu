@@ -26,7 +26,7 @@ class _OwnerRejectSheetState extends State<OwnerRejectSheet> {
   static const _quick = [
     "slot sudah penuh",
     "bengkel libur",
-    "sparepart tidak tersedia"
+    "sparepart tidak tersedia",
   ];
 
   @override
@@ -53,8 +53,8 @@ class _OwnerRejectSheetState extends State<OwnerRejectSheet> {
       Navigator.pop(context, true);
       messenger.showSnackBar(
         const SnackBar(
-            content:
-                Text("booking ditolak. refund 100% diproses ke pelanggan.")),
+          content: Text("booking ditolak. refund 100% diproses ke pelanggan."),
+        ),
       );
     } catch (e) {
       setState(() {

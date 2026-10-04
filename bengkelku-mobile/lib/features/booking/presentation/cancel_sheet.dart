@@ -55,7 +55,8 @@ class _CancelSheetState extends State<CancelSheet> {
     final reason = _reasonController.text.trim();
     if (reason.length < 3) {
       ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Tuliskan alasan pembatalan.")));
+        const SnackBar(content: Text("Tuliskan alasan pembatalan.")),
+      );
       return;
     }
     setState(() => _submitting = true);
@@ -64,11 +65,15 @@ class _CancelSheetState extends State<CancelSheet> {
       if (!mounted) return;
       final messenger = ScaffoldMessenger.of(context);
       Navigator.pop(context, true);
-      messenger.showSnackBar(SnackBar(
-        content: Text(r.refundIdr > 0
-            ? "Booking dibatalkan. Refund ${Formatters.rupiah(r.refundIdr)} (${r.refundPct}%) diproses."
-            : "Booking dibatalkan."),
-      ));
+      messenger.showSnackBar(
+        SnackBar(
+          content: Text(
+            r.refundIdr > 0
+                ? "Booking dibatalkan. Refund ${Formatters.rupiah(r.refundIdr)} (${r.refundPct}%) diproses."
+                : "Booking dibatalkan.",
+          ),
+        ),
+      );
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context)
@@ -92,31 +97,44 @@ class _CancelSheetState extends State<CancelSheet> {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text("Batalkan Booking", style: AppTypography.h1.copyWith(color: c.ink)),
+          Text("Batalkan Booking",
+              style: AppTypography.h1.copyWith(color: c.ink)),
           const SizedBox(height: 12),
           Container(
             padding: const EdgeInsets.all(14),
             decoration: BoxDecoration(
-                color: c.blueSoft, borderRadius: BorderRadius.circular(12)),
+              color: c.blueSoft,
+              borderRadius: BorderRadius.circular(12),
+            ),
             child: _unpaid
-                ? Text("Booking belum dibayar, pembatalan tidak dikenai biaya.",
-                    style: AppTypography.caption.copyWith(color: c.ink))
+                ? Text(
+                    "Booking belum dibayar, pembatalan tidak dikenai biaya.",
+                    style: AppTypography.caption.copyWith(color: c.ink),
+                  )
                 : Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text("Kebijakan Pengembalian Dana",
-                          style: AppTypography.label.copyWith(color: c.blueText)),
+                      Text(
+                        "Kebijakan Pengembalian Dana",
+                        style: AppTypography.label.copyWith(color: c.blueText),
+                      ),
                       const SizedBox(height: 4),
-                      Text(_refund.explanation,
-                          style: AppTypography.caption.copyWith(color: c.ink)),
+                      Text(
+                        _refund.explanation,
+                        style: AppTypography.caption.copyWith(color: c.ink),
+                      ),
                       const Divider(height: 16),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Text("Estimasi refund:",
-                              style: AppTypography.body.copyWith(color: c.ink)),
-                          Text(Formatters.rupiah(_refund.refundAmountIdr),
-                              style: AppTypography.h2.copyWith(color: c.blueText)),
+                          Text(
+                            "Estimasi refund:",
+                            style: AppTypography.body.copyWith(color: c.ink),
+                          ),
+                          Text(
+                            Formatters.rupiah(_refund.refundAmountIdr),
+                            style: AppTypography.h2.copyWith(color: c.blueText),
+                          ),
                         ],
                       ),
                     ],

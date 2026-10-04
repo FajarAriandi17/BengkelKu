@@ -441,7 +441,9 @@ class _LocationCard extends StatelessWidget {
                       ),
                     ),
                     TextButton(
-                        onPressed: onRetry, child: const Text('Coba lagi')),
+                      onPressed: onRetry,
+                      child: const Text('Coba lagi'),
+                    ),
                   ],
                 )
               : Row(

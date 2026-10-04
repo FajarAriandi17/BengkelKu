@@ -101,7 +101,8 @@ class _RegStatusScreenState extends State<RegStatusScreen> {
       final status = s["status"] as String? ?? "draft";
       final submitted = s["submitted_at"] != null
           ? Formatters.dateTimeLocal(
-              DateTime.parse(s["submitted_at"] as String))
+              DateTime.parse(s["submitted_at"] as String),
+            )
           : null;
       final (title, message, icon, color) = switch (status) {
         "verified" => (
@@ -146,18 +147,24 @@ class _RegStatusScreenState extends State<RegStatusScreen> {
             const SizedBox(height: 32),
             Icon(icon, size: 72, color: color, semanticLabel: title),
             const SizedBox(height: 24),
-            Text(title,
-                style: AppTypography.display.copyWith(color: c.ink),
-                textAlign: TextAlign.center),
+            Text(
+              title,
+              style: AppTypography.display.copyWith(color: c.ink),
+              textAlign: TextAlign.center,
+            ),
             const SizedBox(height: 12),
-            Text(message,
-                style: AppTypography.body.copyWith(color: c.ink2),
-                textAlign: TextAlign.center),
+            Text(
+              message,
+              style: AppTypography.body.copyWith(color: c.ink2),
+              textAlign: TextAlign.center,
+            ),
             if (submitted != null && status == "pending") ...[
               const SizedBox(height: 8),
-              Text("diajukan $submitted",
-                  style: AppTypography.caption.copyWith(color: c.ink2),
-                  textAlign: TextAlign.center),
+              Text(
+                "diajukan $submitted",
+                style: AppTypography.caption.copyWith(color: c.ink2),
+                textAlign: TextAlign.center,
+              ),
             ],
             const SizedBox(height: 32),
             if (status == "rejected" || status == "draft")

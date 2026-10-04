@@ -65,7 +65,9 @@ class _NearbyScreenState extends State<NearbyScreen> {
                       filled: true,
                       fillColor: c.panel,
                       contentPadding: const EdgeInsets.symmetric(
-                          horizontal: 16, vertical: 10),
+                        horizontal: 16,
+                        vertical: 10,
+                      ),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
                         borderSide: BorderSide(color: c.blueSoft),

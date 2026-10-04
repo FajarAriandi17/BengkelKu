@@ -54,8 +54,8 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
     } catch (_) {
       if (!mounted) return;
       setState(() => _items.insert(idx, w));
-      ScaffoldMessenger.of(context)
-          .showSnackBar(const SnackBar(content: Text("Gagal menghapus favorit.")));
+      ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Gagal menghapus favorit.")));
     }
   }
 
@@ -69,7 +69,8 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
     } else if (_items.isEmpty) {
       body = EmptyState(
         title: "Belum ada bengkel favorit",
-        message: "Ketuk ikon hati di halaman bengkel untuk menyimpannya di sini.",
+        message:
+            "Ketuk ikon hati di halaman bengkel untuk menyimpannya di sini.",
         icon: Icons.favorite_border,
         actionLabel: "Cari Bengkel",
         onAction: () => context.go("/home"),

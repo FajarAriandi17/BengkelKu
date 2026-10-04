@@ -36,8 +36,10 @@ class _RateFormScreenState extends State<RateFormScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text("Bagaimana Pengalaman Servis Kamu?",
-                style: AppTypography.h1.copyWith(color: c.ink)),
+            Text(
+              "Bagaimana Pengalaman Servis Kamu?",
+              style: AppTypography.h1.copyWith(color: c.ink),
+            ),
             const SizedBox(height: 8),
             Text(
               "Ulasan kamu membantu pengguna lain memilih bengkel terpercaya.",
@@ -66,8 +68,10 @@ class _RateFormScreenState extends State<RateFormScreen> {
             ),
             const SizedBox(height: 16),
 
-            Text("Foto Ulasan (Opsional, Maks 2 MB)",
-                style: AppTypography.label.copyWith(color: c.ink)),
+            Text(
+              "Foto Ulasan (Opsional, Maks 2 MB)",
+              style: AppTypography.label.copyWith(color: c.ink),
+            ),
             const SizedBox(height: 8),
             MediaPickerTile(
               title: "Unggah Foto Ulasan",
