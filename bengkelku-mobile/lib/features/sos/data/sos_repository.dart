@@ -185,18 +185,21 @@ class SosRepository {
 
   // ===== WORKSHOP SIDE =====
 
-  // Toggle siaga darurat (untuk pemilik bengkel)
+  // Toggle siaga darurat (untuk pemilik bengkel). Memakai
+  // sos_update_standby_settings (0018) yang memeriksa status DISETUJUI.
+  // Layar ownerStandby memakai OwnerSosRepository.
   Future<void> toggleEmergencyReady({
     required String workshopId,
     required bool ready,
     int radiusTierMax = 4,
+    bool afterHours = false,
   }) async {
     try {
       await _supabase.rpc(
-        'sos_toggle_standby',
+        'sos_update_standby_settings',
         params: {
-          'p_workshop_id': workshopId,
           'p_ready': ready,
+          'p_after_hours': afterHours,
           'p_radius_tier_max': radiusTierMax,
         },
       );
@@ -225,19 +228,32 @@ class SosRepository {
     }
   }
 
-  // Tandai mekanik sudah tiba
-  Future<String> markArrived(String requestId) async {
+  // Tandai mekanik sudah tiba. Kode kedatangan TIDAK dikembalikan ke mekanik
+  // (0019); pengendara membacanya via [getArrivalCode].
+  Future<void> markArrived(String requestId) async {
     try {
-      final response = await _supabase.rpc(
+      await _supabase.rpc(
         'sos_mark_arrived',
         params: {
           'p_request_id': requestId,
         },
       );
-
-      return response['arrival_code'] as String;
     } catch (e) {
       throw Exception('Gagal menandai kedatangan: $e');
+    }
+  }
+
+  /// Kode kedatangan 4 digit — hanya bisa dibaca pengendara pemilik permintaan.
+  Future<String?> getArrivalCode(String requestId) async {
+    try {
+      final res = await _supabase.rpc(
+        'sos_rider_arrival_code',
+        params: {'p_request_id': requestId},
+      );
+      return res as String?;
+    } catch (e) {
+      debugPrint('Gagal memuat kode kedatangan: $e');
+      return null;
     }
   }
 

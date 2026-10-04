@@ -1,3 +1,4 @@
+import "package:flutter/material.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:go_router/go_router.dart";
 
@@ -56,6 +57,12 @@ import "../features/sos/presentation/sos_searching_screen.dart";
 import "../features/sos/presentation/sos_tracking_screen.dart";
 import "../features/sos/presentation/sos_quote_screen.dart";
 import "../features/sos/presentation/sos_done_screen.dart";
+
+// Bantuan Darurat sisi bengkel (v1.3)
+import "../features/sos/presentation/owner_quote_form_screen.dart";
+import "../features/sos/presentation/owner_sos_offer_screen.dart";
+import "../features/sos/presentation/owner_sos_route_screen.dart";
+import "../features/sos/presentation/owner_standby_screen.dart";
 
 /// Router lengkap go_router untuk seluruh layar BengkelKu Mobile (Rider & Owner).
 final routerProvider = Provider<GoRouter>((ref) {
@@ -218,6 +225,32 @@ final routerProvider = Provider<GoRouter>((ref) {
           GoRoute(
             path: "bank-account",
             builder: (c, s) => const BankAccountScreen(),
+          ),
+          // Bantuan Darurat sisi bengkel — PRD v1.3 Bagian 3.3 & 3.9
+          GoRoute(
+            path: "standby",
+            builder: (c, s) => const OwnerStandbyScreen(),
+          ),
+          GoRoute(
+            path: "sos/offer/:offerId",
+            pageBuilder: (c, s) => MaterialPage(
+              fullscreenDialog: true,
+              child: OwnerSosOfferScreen(
+                offerId: s.pathParameters["offerId"] ?? "",
+              ),
+            ),
+          ),
+          GoRoute(
+            path: "sos/:requestId/route",
+            builder: (c, s) => OwnerSosRouteScreen(
+              requestId: s.pathParameters["requestId"] ?? "",
+            ),
+          ),
+          GoRoute(
+            path: "sos/:requestId/quote",
+            builder: (c, s) => OwnerQuoteFormScreen(
+              requestId: s.pathParameters["requestId"] ?? "",
+            ),
           ),
         ],
       ),

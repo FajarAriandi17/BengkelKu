@@ -5,6 +5,7 @@ import "../../../core/theme/app_colors.dart";
 import "../../../core/theme/app_typography.dart";
 import "../../../design/components/app_button.dart";
 import "../../../design/components/booking_status_badge.dart";
+import "../../sos/presentation/owner_standby_screen.dart";
 import "reject_sheet.dart";
 
 class OwnerDashboardScreen extends StatefulWidget {
@@ -71,7 +72,11 @@ class _OwnerDashboardScreenState extends State<OwnerDashboardScreen> {
                 ],
               ),
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 16),
+
+            // Bantuan Darurat (v1.3)
+            const OwnerStandbyTile(),
+            const SizedBox(height: 16),
 
             // Quick Menu
             Row(

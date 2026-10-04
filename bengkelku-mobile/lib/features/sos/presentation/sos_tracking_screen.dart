@@ -36,6 +36,7 @@ class _SosTrackingScreenState extends ConsumerState<SosTrackingScreen> {
   String? _error;
   bool _reduceMotion = false;
   MechanicLocation? _mechanicLocation;
+  String? _arrivalCode;
 
   RealtimeChannel? _requestChannel;
   RealtimeChannel? _locationChannel;
@@ -71,6 +72,7 @@ class _SosTrackingScreenState extends ConsumerState<SosTrackingScreen> {
         _request = req;
         _loading = false;
       });
+      _loadArrivalCode(req);
       // Bila sudah ada penawaran menunggu, langsung ke layar penawaran.
       try {
         final quotes =
@@ -100,9 +102,18 @@ class _SosTrackingScreenState extends ConsumerState<SosTrackingScreen> {
       (req) {
         if (!mounted) return;
         setState(() => _request = req);
+        _loadArrivalCode(req);
         _routeFor(req);
       },
     );
+  }
+
+  /// Kode kedatangan hanya lewat RPC khusus pengendara (0019).
+  Future<void> _loadArrivalCode(SosRequest req) async {
+    if (req.status != SosStatus.TIBA || _arrivalCode != null) return;
+    final code = await ref.read(sosRepositoryProvider).getArrivalCode(req.id);
+    if (!mounted || code == null) return;
+    setState(() => _arrivalCode = code);
   }
 
   void _subscribeLocation() {
@@ -271,10 +282,10 @@ class _SosTrackingScreenState extends ConsumerState<SosTrackingScreen> {
             ),
           ),
           if (req.status == SosStatus.TIBA &&
-              (req.arrivalCode ?? '').isNotEmpty) ...[
+              (_arrivalCode ?? '').isNotEmpty) ...[
             const SizedBox(height: 12),
             ArrivalCodeCard(
-              code: req.arrivalCode!,
+              code: _arrivalCode!,
               reduceMotion: _reduceMotion,
             ),
           ],

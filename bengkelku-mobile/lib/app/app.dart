@@ -3,6 +3,7 @@ import "package:flutter_localizations/flutter_localizations.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 
 import "../core/theme/app_theme.dart";
+import "../features/sos/presentation/owner_sos_host.dart";
 import "router.dart";
 
 /// Root aplikasi BengkelKu.
@@ -19,6 +20,10 @@ class BengkelKuApp extends ConsumerWidget {
       theme: AppTheme.light(),
       darkTheme: AppTheme.dark(),
       routerConfig: router,
+      builder: (context, child) => OwnerSosHost(
+        router: router,
+        child: child ?? const SizedBox.shrink(),
+      ),
       locale: const Locale("id", "ID"),
       supportedLocales: const [Locale("id", "ID")],
       localizationsDelegates: const [

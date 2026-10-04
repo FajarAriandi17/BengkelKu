@@ -237,3 +237,37 @@ drop trigger if exists trg_support_user_message on public.support_messages;
 create trigger trg_support_user_message
   after insert on public.support_messages
   for each row execute function public.support_on_user_message();
+
+-- ===========================================================================
+-- 3) sos_toggle_standby (lama) melewati syarat "bengkel DISETUJUI" (PRD 3.3).
+--    Sekarang memakai validasi yang sama dengan sos_update_standby_settings.
+-- ===========================================================================
+
+create or replace function public.sos_toggle_standby(
+  p_workshop_id uuid,
+  p_ready boolean,
+  p_radius_tier_max int default 4
+)
+returns void
+language plpgsql
+security definer set search_path = public, extensions
+as $$
+declare
+  v_owner uuid;
+  v_after_hours boolean;
+begin
+  select owner_id into v_owner from public.workshops where id = p_workshop_id;
+  if v_owner is null or v_owner <> auth.uid() then
+    raise exception 'Bukan bengkelmu';
+  end if;
+  if p_workshop_id is distinct from public.sos_my_workshop_id() then
+    raise exception 'Siaga darurat hanya untuk bengkel utama akunmu';
+  end if;
+
+  select after_hours into v_after_hours
+  from public.workshop_standby where workshop_id = p_workshop_id;
+
+  perform public.sos_update_standby_settings(
+    p_ready, coalesce(v_after_hours, false), p_radius_tier_max
+  );
+end$$;
