@@ -14,6 +14,8 @@ class SlotPicker extends StatelessWidget {
     required this.selectedSlot,
     required this.onDateSelected,
     required this.onSlotSelected,
+    this.disabledSlots = const {},
+    this.loadingSlots = false,
   });
 
   final List<DateTime> dates;
@@ -22,6 +24,8 @@ class SlotPicker extends StatelessWidget {
   final String? selectedSlot;
   final ValueChanged<DateTime> onDateSelected;
   final ValueChanged<String> onSlotSelected;
+  final Set<String> disabledSlots;
+  final bool loadingSlots;
 
   @override
   Widget build(BuildContext context) {
@@ -87,15 +91,28 @@ class SlotPicker extends StatelessWidget {
         Text("Pilih Slot Jam",
             style: AppTypography.h2.copyWith(color: c.ink, fontSize: 16)),
         const SizedBox(height: 10),
+        if (loadingSlots)
+          const Padding(
+            padding: EdgeInsets.symmetric(vertical: 16),
+            child: Center(child: CircularProgressIndicator()),
+          )
+        else if (slots.isEmpty)
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 12),
+            child: Text("Tidak ada slot tersedia di tanggal ini.",
+                style: AppTypography.body.copyWith(color: c.ink2)),
+          )
+        else
         Wrap(
           spacing: 8,
           runSpacing: 8,
           children: slots.map((slot) {
             final isSelected = slot == selectedSlot;
+            final full = disabledSlots.contains(slot);
             return ChoiceChip(
-              label: Text(slot),
+              label: Text(full ? "$slot · penuh" : slot),
               selected: isSelected,
-              onSelected: (_) => onSlotSelected(slot),
+              onSelected: full ? null : (_) => onSlotSelected(slot),
               selectedColor: c.blue,
               backgroundColor: c.panel,
               labelStyle: AppTypography.label.copyWith(

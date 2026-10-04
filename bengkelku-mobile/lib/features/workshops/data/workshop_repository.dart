@@ -67,4 +67,46 @@ class WorkshopRepository {
             WorkshopServiceItem.fromJson(item as Map<String, dynamic>))
         .toList();
   }
+
+  Future<List<WorkshopHour>> getWorkshopHours(String workshopId) async {
+    final res = await _client
+        .from("workshop_hours")
+        .select()
+        .eq("workshop_id", workshopId)
+        .order("weekday");
+    return (res as List<dynamic>)
+        .map((e) => WorkshopHour.fromJson(e as Map<String, dynamic>))
+        .toList();
+  }
+
+  Future<Set<String>> favoriteIds() async {
+    final uid = SupabaseService.currentUser?.id;
+    if (uid == null) return {};
+    final res = await _client.from("favorites").select("workshop_id").eq("user_id", uid);
+    return (res as List<dynamic>).map((e) => e["workshop_id"] as String).toSet();
+  }
+
+  Future<List<Workshop>> favoriteWorkshops() async {
+    final uid = SupabaseService.currentUser?.id;
+    if (uid == null) return [];
+    final res = await _client
+        .from("favorites")
+        .select("created_at, workshops(*)")
+        .eq("user_id", uid)
+        .order("created_at", ascending: false);
+    return (res as List<dynamic>)
+        .where((e) => e["workshops"] != null)
+        .map((e) => Workshop.fromJson(Map<String, dynamic>.from(e["workshops"] as Map)))
+        .toList();
+  }
+
+  Future<void> setFavorite(String workshopId, bool favorite) async {
+    final uid = SupabaseService.currentUser?.id;
+    if (uid == null) throw Exception("Silakan masuk terlebih dahulu");
+    if (favorite) {
+      await _client.from("favorites").upsert({"user_id": uid, "workshop_id": workshopId});
+    } else {
+      await _client.from("favorites").delete().eq("user_id", uid).eq("workshop_id", workshopId);
+    }
+  }
 }

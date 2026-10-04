@@ -121,12 +121,16 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: "/schedule",
         builder: (c, s) => ScheduleScreen(
           workshopId: s.uri.queryParameters["workshopId"] ?? "",
+          serviceIds: _csv(s.uri.queryParameters["services"]),
         ),
       ),
       GoRoute(
         path: "/summary",
         builder: (c, s) => BookingSummaryScreen(
           workshopId: s.uri.queryParameters["workshopId"] ?? "",
+          serviceIds: _csv(s.uri.queryParameters["services"]),
+          vehicleId: s.uri.queryParameters["vehicleId"],
+          slot: DateTime.tryParse(s.uri.queryParameters["slot"] ?? "")?.toUtc(),
         ),
       ),
       GoRoute(
@@ -140,6 +144,10 @@ final routerProvider = Provider<GoRouter>((ref) {
         builder: (c, s) => PaymentSuccessScreen(
           bookingId: s.uri.queryParameters["bookingId"] ?? "",
         ),
+      ),
+      GoRoute(
+        path: "/payment-failed",
+        builder: (c, s) => const PaymentFailedScreen(),
       ),
       GoRoute(
         path: "/ticket",
@@ -348,3 +356,6 @@ final routerProvider = Provider<GoRouter>((ref) {
     ],
   );
 });
+
+List<String> _csv(String? v) =>
+    (v ?? "").split(",").map((e) => e.trim()).where((e) => e.isNotEmpty).toList();

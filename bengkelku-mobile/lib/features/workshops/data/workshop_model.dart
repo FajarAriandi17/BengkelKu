@@ -40,11 +40,11 @@ class Workshop {
       description: json["description"] as String?,
       phone: json["phone"] as String?,
       address: json["address"] as String? ?? "",
-      latitude: (json["lat"] ?? json["latitude"]) as double?,
-      longitude: (json["lng"] ?? json["longitude"]) as double?,
+      latitude: ((json["lat"] ?? json["latitude"]) as num?)?.toDouble(),
+      longitude: ((json["lng"] ?? json["longitude"]) as num?)?.toDouble(),
       status: json["status"] as String? ?? "verified",
       ratingAvg: ((json["rating_avg"] ?? 0) as num).toDouble(),
-      ratingCount: (json["rating_count"] ?? 0) as int,
+      ratingCount: ((json["rating_count"] ?? 0) as num).toInt(),
       distanceMeters: ((json["distance_m"] ?? 0) as num).toDouble(),
       photoUrl: json["photo_url"] as String?,
       isOpen: json["is_open"] as bool? ?? true,
@@ -74,9 +74,32 @@ class WorkshopServiceItem {
       id: json["id"] as String,
       workshopId: json["workshop_id"] as String? ?? "",
       name: json["name"] as String? ?? "",
-      priceIdr: (json["price_idr"] ?? 0) as int,
-      durationMinutes: (json["duration_minutes"] ?? 60) as int,
+      priceIdr: ((json["price_idr"] ?? 0) as num).toInt(),
+      durationMinutes: ((json["duration_minutes"] ?? 60) as num).toInt(),
       isActive: json["is_active"] as bool? ?? true,
     );
   }
+}
+
+class WorkshopHour {
+  const WorkshopHour({required this.weekday, this.open, this.close, this.isClosed = false});
+  final int weekday; // 0 = Minggu
+  final String? open;
+  final String? close;
+  final bool isClosed;
+
+  static const dayNames = ["Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"];
+  String get dayName => dayNames[weekday.clamp(0, 6)];
+  String get label {
+    if (isClosed || open == null || close == null) return "Tutup";
+    String t(String v) => v.length >= 5 ? v.substring(0, 5) : v;
+    return "${t(open!)} - ${t(close!)}";
+  }
+
+  factory WorkshopHour.fromJson(Map<String, dynamic> j) => WorkshopHour(
+        weekday: ((j["weekday"] ?? 0) as num).toInt(),
+        open: j["open_time"] as String?,
+        close: j["close_time"] as String?,
+        isClosed: j["is_closed"] as bool? ?? false,
+      );
 }
