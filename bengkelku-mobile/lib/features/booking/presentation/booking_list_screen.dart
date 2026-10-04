@@ -3,7 +3,11 @@ import "package:go_router/go_router.dart";
 
 import "../../../core/theme/app_colors.dart";
 import "../../../core/theme/app_typography.dart";
+import "../../../core/utils/formatters.dart";
 import "../../../design/components/booking_status_badge.dart";
+import "../../../design/components/state_views.dart";
+import "../data/booking_model.dart";
+import "../data/booking_repository.dart";
 
 class BookingListScreen extends StatefulWidget {
   const BookingListScreen({super.key});
@@ -14,141 +18,155 @@ class BookingListScreen extends StatefulWidget {
 
 class _BookingListScreenState extends State<BookingListScreen>
     with SingleTickerProviderStateMixin {
-  late TabController _tabController;
+  late final TabController _tabController;
+  final _repo = BookingRepository();
+  List<Booking> _items = [];
+  bool _loading = true;
+  String? _error;
 
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
+    _load();
+  }
+
+  @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _load() async {
+    setState(() {
+      _loading = true;
+      _error = null;
+    });
+    try {
+      final list = await _repo.getRiderBookings();
+      if (!mounted) return;
+      setState(() {
+        _items = list;
+        _loading = false;
+      });
+    } catch (e) {
+      if (!mounted) return;
+      setState(() {
+        _error = bookingErrorMessage(e);
+        _loading = false;
+      });
+    }
+  }
+
+  Widget _list(List<Booking> items, {required bool active}) {
+    if (_loading) return const SkeletonList(itemCount: 4);
+    if (_error != null) return ErrorState(message: _error!, onRetry: _load);
+    if (items.isEmpty) {
+      return RefreshIndicator(
+        onRefresh: _load,
+        child: ListView(children: [
+          const SizedBox(height: 60),
+          EmptyState(
+            title: active ? "Belum ada booking aktif" : "Belum ada riwayat",
+            message: active
+                ? "Cari bengkel terdekat dan pesan servis tanpa antre."
+                : "Booking yang selesai atau dibatalkan akan muncul di sini.",
+            icon: Icons.receipt_long_outlined,
+            actionLabel: active ? "Cari Bengkel" : null,
+            onAction: active ? () => context.go("/home") : null,
+          ),
+        ]),
+      );
+    }
+    return RefreshIndicator(
+      onRefresh: _load,
+      child: ListView.separated(
+        padding: const EdgeInsets.all(16),
+        itemCount: items.length,
+        separatorBuilder: (_, __) => const SizedBox(height: 10),
+        itemBuilder: (context, i) => _BookingCard(
+          booking: items[i],
+          onTap: () async {
+            await context.push("/ticket?bookingId=${items[i].id}");
+            _load();
+          },
+        ),
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     final c = context.colors;
+    final active = _items.where((b) => b.isActive).toList();
+    final history = _items.where((b) => !b.isActive).toList();
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Daftar Booking Servis"),
+        title: const Text("Booking Saya"),
+        elevation: 0,
         bottom: TabBar(
           controller: _tabController,
           labelColor: c.blue,
-          unselectedLabelColor: c.ink.withValues(alpha: 0.5),
+          unselectedLabelColor: c.ink2,
           indicatorColor: c.blue,
-          tabs: const [
-            Tab(text: "Aktif"),
-            Tab(text: "Selesai / Batal"),
+          tabs: [
+            Tab(text: "Aktif${active.isEmpty ? "" : " (${active.length})"}"),
+            const Tab(text: "Riwayat"),
           ],
         ),
-        elevation: 0,
       ),
       body: TabBarView(
         controller: _tabController,
         children: [
-          // Tab Aktif
-          ListView(
-            padding: const EdgeInsets.all(16),
-            children: [
-              _BookingCardItem(
-                id: "bk-1",
-                workshopName: "Bengkel Jaya Motor",
-                dateTimeStr: "Besok, 09.00 WIB",
-                vehicleInfo: "Honda Vario 160",
-                status: "DIKONFIRMASI",
-                onTap: () => context.push("/ticket?bookingId=bk-1"),
-              ),
-            ],
-          ),
-          // Tab Selesai
-          ListView(
-            padding: const EdgeInsets.all(16),
-            children: [
-              _BookingCardItem(
-                id: "bk-0",
-                workshopName: "Honda AHASS Sentosa",
-                dateTimeStr: "12 Sep 2026, 10.00 WIB",
-                vehicleInfo: "Honda Vario 160",
-                status: "SELESAI",
-                onTap: () => context.push("/ticket?bookingId=bk-0"),
-              ),
-            ],
-          ),
+          _list(active, active: true),
+          _list(history, active: false),
         ],
       ),
     );
   }
 }
 
-class _BookingCardItem extends StatelessWidget {
-  const _BookingCardItem({
-    required this.id,
-    required this.workshopName,
-    required this.dateTimeStr,
-    required this.vehicleInfo,
-    required this.status,
-    this.onTap,
-  });
-
-  final String id;
-  final String workshopName;
-  final String dateTimeStr;
-  final String vehicleInfo;
-  final String status;
-  final VoidCallback? onTap;
+class _BookingCard extends StatelessWidget {
+  const _BookingCard({required this.booking, required this.onTap});
+  final Booking booking;
+  final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
     final c = context.colors;
-
-    return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      decoration: BoxDecoration(
-        color: c.panel,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.04),
-            blurRadius: 6,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(16),
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(workshopName,
-                      style: AppTypography.h2
-                          .copyWith(color: c.ink, fontSize: 16)),
-                  BookingStatusBadge(status: status),
-                ],
+    final b = booking;
+    return InkWell(
+      borderRadius: BorderRadius.circular(16),
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.all(14),
+        decoration: BoxDecoration(
+          color: c.panel,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: c.line),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(children: [
+              Expanded(
+                child: Text(b.workshopName ?? "Bengkel",
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: AppTypography.bodyStrong.copyWith(color: c.ink)),
               ),
-              const SizedBox(height: 8),
-              Row(
-                children: [
-                  Icon(Icons.calendar_today_outlined,
-                      size: 14, color: c.ink.withValues(alpha: 0.6)),
-                  const SizedBox(width: 6),
-                  Text(dateTimeStr,
-                      style: AppTypography.caption
-                          .copyWith(color: c.ink.withValues(alpha: 0.7))),
-                  const SizedBox(width: 16),
-                  Icon(Icons.two_wheeler,
-                      size: 14, color: c.ink.withValues(alpha: 0.6)),
-                  const SizedBox(width: 6),
-                  Text(vehicleInfo,
-                      style: AppTypography.caption
-                          .copyWith(color: c.ink.withValues(alpha: 0.7))),
-                ],
-              ),
-            ],
-          ),
+              BookingStatusBadge(status: b.status),
+            ]),
+            const SizedBox(height: 6),
+            Text("${b.code} · ${Formatters.dateTimeLocal(b.scheduledAt)}",
+                style: AppTypography.caption.copyWith(color: c.ink2)),
+            if (b.vehicleInfo != null && b.vehicleInfo!.isNotEmpty)
+              Text(b.vehicleInfo!, style: AppTypography.caption.copyWith(color: c.ink2)),
+            const SizedBox(height: 8),
+            Text(Formatters.rupiah(b.totalIdr),
+                style: AppTypography.bodyStrong.copyWith(color: c.blue)),
+          ],
         ),
       ),
     );

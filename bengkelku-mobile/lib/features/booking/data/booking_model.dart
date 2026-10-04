@@ -58,9 +58,8 @@ class Booking {
         "MENUNGGU_PEMBAYARAN",
         "DIBAYAR_MENUNGGU_KONFIRMASI",
         "DIKONFIRMASI",
+        "CHECK_IN",
         "DIKERJAKAN",
-        "MENUNGGU_PERSETUJUAN_ADDON",
-        "SELESAI_MENUNGGU_KONFIRMASI",
       }.contains(status);
 
   factory Booking.fromJson(Map<String, dynamic> json) {
