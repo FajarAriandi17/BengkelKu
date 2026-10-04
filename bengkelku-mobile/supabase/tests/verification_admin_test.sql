@@ -18,7 +18,7 @@ exception when others then
   raise notice 'pesan tak terduga: %', sqlerrm; return false;
 end $$;
 
-grant usage on schema public, extensions to authenticated;
+grant usage on schema public, extensions, auth to authenticated;
 grant select, insert, update on all tables in schema public to authenticated;
 
 insert into auth.users(id,email) values
@@ -142,5 +142,46 @@ select pg_temp.assert((public.admin_dashboard_stats()->>'verified_workshops')::i
 select pg_temp.assert((select count(*) from public.admin_sos_live()) = 0, 'pemantauan SOS');
 select pg_temp.as_user('00000000-0000-0000-0000-0000000000c2');
 select pg_temp.assert(public.admin_dashboard_stats() is null, 'non-admin tidak melihat statistik');
+
+-- ---------------------------------------------------------------------------
+-- 0022: aksi booking bengkel & dasbor.
+-- ---------------------------------------------------------------------------
+select set_config('bengkelku.allow_status_change','on',false);
+insert into public.bookings(id,rider_id,workshop_id,status,scheduled_at,total_idr)
+values ('30000000-0000-0000-0000-000000000002','00000000-0000-0000-0000-0000000000c2',:'wid','DIBAYAR_MENUNGGU_KONFIRMASI',now()+interval '1 hour',75000),
+       ('30000000-0000-0000-0000-000000000003','00000000-0000-0000-0000-0000000000c2',:'wid','DIBAYAR_MENUNGGU_KONFIRMASI',now()+interval '2 hour',50000);
+select set_config('bengkelku.allow_status_change','',false);
+
+select pg_temp.as_user('00000000-0000-0000-0000-0000000000c1');
+select pg_temp.assert(jsonb_array_length(public.owner_dashboard()->'queue') = 2
+  and (public.owner_dashboard()->>'waiting_confirmation')::int = 2, 'dasbor bengkel menampilkan antrean nyata');
+set role authenticated;
+update public.bookings set status = 'SELESAI', total_idr = 1 where id = '30000000-0000-0000-0000-000000000002';
+reset role;
+select pg_temp.assert((select status from public.bookings where id='30000000-0000-0000-0000-000000000002') = 'DIBAYAR_MENUNGGU_KONFIRMASI',
+  'pemilik tidak bisa mengubah booking langsung');
+do $$ begin
+  perform public.owner_booking_action('30000000-0000-0000-0000-000000000002','complete');
+  raise exception 'seharusnya ditolak';
+exception when others then
+  perform pg_temp.assert(sqlerrm like '%tidak bisa dilakukan%', 'transisi status tidak valid ditolak');
+end $$;
+select public.owner_booking_action('30000000-0000-0000-0000-000000000002','confirm');
+select public.owner_booking_action('30000000-0000-0000-0000-000000000002','start');
+select public.owner_booking_action('30000000-0000-0000-0000-000000000002','complete');
+select pg_temp.assert((select status from public.bookings where id='30000000-0000-0000-0000-000000000002') = 'SELESAI', 'konfirmasi → kerjakan → selesai');
+select public.owner_booking_action('30000000-0000-0000-0000-000000000003','reject','slot penuh, hubungi 081234567890');
+select pg_temp.assert((select amount_idr from public.refunds where booking_id='30000000-0000-0000-0000-000000000003') = 50000,
+  'tolak booking → refund 100% dicatat');
+select pg_temp.assert((select cancel_reason from public.bookings where id='30000000-0000-0000-0000-000000000003') not like '%0812%',
+  'nomor telepon di alasan penolakan disembunyikan');
+select pg_temp.assert((public.owner_dashboard()->>'today_revenue')::int = 69000, 'pendapatan bersih hari ini (75.000 − 8%)');
+select pg_temp.as_user('00000000-0000-0000-0000-0000000000c2');
+do $$ begin
+  perform public.owner_booking_action('30000000-0000-0000-0000-000000000003','confirm');
+  raise exception 'seharusnya ditolak';
+exception when others then
+  perform pg_temp.assert(sqlerrm like '%tidak ditemukan%', 'pengendara tidak bisa memakai aksi bengkel');
+end $$;
 
 \echo VERIFICATION_ADMIN_OK
