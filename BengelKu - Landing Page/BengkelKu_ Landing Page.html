@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>BengkelKu: servis motor tanpa ribet, oli tak pernah telat</title>
+<meta name="description" content="Booking bengkel terverifikasi, pengingat ganti oli, dan bantuan saat motor mogok. Unduh BengkelKu untuk Android dan iOS.">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#F7F8FF;--card:#fff;--ink:#0F172A;--ink2:#566078;--line:#E3E8F5;--brand:#1F4FD8;--brand2:#7C9BFF;--soft:#E8EEFF;--band1:#2B5BF0;--band2:#6F8CFF;--amber:#F59E0B;--ok:#16A34A;--okSoft:#DCFCE7;--shadow:0 18px 50px rgba(31,79,216,.14);
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0A1022;--card:#121A30;--ink:#E8ECF8;--ink2:#9AA6BF;--line:#25304D;--brand:#4C74F5;--soft:#18265A;--band1:#1B3FB8;--band2:#3A5BD6;--okSoft:#10341F;--shadow:0 18px 50px rgba(0,0,0,.45)}}
+:root[data-theme="dark"]{--bg:#0A1022;--card:#121A30;--ink:#E8ECF8;--ink2:#9AA6BF;--line:#25304D;--brand:#4C74F5;--soft:#18265A;--band1:#1B3FB8;--band2:#3A5BD6;--okSoft:#10341F;--shadow:0 18px 50px rgba(0,0,0,.45)}
+*{box-sizing:border-box}html{scroll-behavior:smooth;scroll-padding-top:calc(env(safe-area-inset-top,0px) + 72px)}
+body{margin:0;background:var(--bg);color:var(--ink);font:500 16px/1.6 "Plus Jakarta Sans",system-ui,sans-serif;overflow-x:hidden}
+a{color:inherit;text-decoration:none}:focus-visible{outline:3px solid var(--brand);outline-offset:3px}
+.w{max-width:1120px;margin:auto;padding:0 22px}
+h1,h2,h3{margin:0;line-height:1.15;letter-spacing:-.02em;font-weight:800}h1{font-size:clamp(34px,5.4vw,56px)}h2{font-size:clamp(26px,3.6vw,38px)}
+.hl{color:var(--brand)}p{margin:0}.m{color:var(--ink2)}
+nav{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
+nav .w{display:flex;align-items:center;gap:26px;height:68px}nav b{font-size:22px;font-weight:800;margin-right:auto}nav b span{color:var(--brand)}
+nav a.l{font-weight:600;font-size:14.5px;color:var(--ink2)}nav a.l:hover{color:var(--ink)}
+.btn{display:inline-flex;align-items:center;gap:8px;height:50px;padding:0 26px;border-radius:99px;font-weight:700;font-size:15px;border:0;cursor:pointer;color:#fff;background:linear-gradient(135deg,var(--band1),var(--brand2));box-shadow:0 10px 24px rgba(31,79,216,.3);transition:transform .2s cubic-bezier(.22,1,.36,1)}
+.btn:hover{transform:translateY(-2px)}.btn:active{transform:scale(.97)}.btn.s{height:42px;padding:0 20px;font-size:14px}.btn.o{background:var(--card);color:var(--ink);box-shadow:none;border:1.5px solid var(--line)}
+.btn.am{background:var(--amber);color:#1b1200;box-shadow:0 10px 24px rgba(245,158,11,.35)}
+.hero{position:relative;padding:54px 0 24px}.hero .w{display:grid;grid-template-columns:1.05fr .95fr;gap:30px;align-items:center}
+.hero p.lead{font-size:18px;color:var(--ink2);margin:18px 0 26px;max-width:480px}.row{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+.proof{display:flex;align-items:center;gap:12px;margin-top:26px;font-size:13.5px;color:var(--ink2);font-weight:600}.avs{display:flex}.avs i{width:34px;height:34px;border-radius:50%;border:3px solid var(--bg);margin-left:-9px;background:var(--brand2)}.avs i:nth-child(2){background:#F59E0B}.avs i:nth-child(3){background:#16A34A}.avs i:nth-child(1){margin-left:0}
+.stage{position:relative;height:520px;display:grid;place-items:center}
+.blob{position:absolute;inset:40px 0 0;border-radius:44px;background:linear-gradient(150deg,var(--band2),var(--band1));transform:rotate(-5deg);opacity:.95}
+.phone{position:relative;width:250px;height:500px;background:var(--card);border:8px solid #0F172A;border-radius:40px;box-shadow:var(--shadow);overflow:hidden;padding:16px 14px}
+.phone h4{margin:6px 0 10px;font-size:15px}.gauge{background:var(--soft);border-radius:18px;padding:12px;margin-bottom:10px}
+.bar{height:9px;border-radius:9px;background:var(--line);overflow:hidden;margin-top:8px}.bar i{display:block;height:100%;width:62%;background:var(--ok);border-radius:9px;transform-origin:left;animation:fill 1.6s .4s cubic-bezier(.22,1,.36,1) both}
+@keyframes fill{from{transform:scaleX(0)}}
+.ws{display:flex;gap:10px;align-items:center;padding:9px 0;border-top:1px solid var(--line);font-size:12.5px;font-weight:700}.ws span{width:34px;height:34px;border-radius:11px;background:var(--soft);color:var(--brand);display:grid;place-items:center;font-weight:800}.ws small{display:block;color:var(--ink2);font-weight:500}
+.fc{position:absolute;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:10px 14px;box-shadow:var(--shadow);font-size:12.5px;font-weight:700;animation:bob 5s ease-in-out infinite}.fc small{display:block;color:var(--ink2);font-weight:500}
+.fc.a{left:-4%;top:18%}.fc.b{right:-2%;top:50%;animation-delay:-2s}.fc.c{left:2%;bottom:6%;animation-delay:-3.5s}
+@keyframes bob{50%{transform:translateY(-10px)}}
+.band{margin-top:34px;position:relative}.band .in{background:linear-gradient(120deg,var(--band1),var(--band2));border-radius:34px;padding:40px;color:#fff;display:grid;grid-template-columns:repeat(3,1fr);gap:26px}
+.band h3{font-size:18px;margin-bottom:6px}.band p{opacity:.88;font-size:14.5px}.ico{width:44px;height:44px;border-radius:14px;background:rgba(255,255,255,.2);display:grid;place-items:center;margin-bottom:12px}
+section{padding:84px 0}.ctr{text-align:center;max-width:640px;margin:0 auto 44px}.ctr p{margin-top:12px;color:var(--ink2)}
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:50px;align-items:center}
+.sg{display:grid;grid-template-columns:1fr 1fr;gap:18px}.st{background:var(--card);border:1px solid var(--line);border-radius:22px;padding:22px}.st b{font-size:38px;font-weight:800;color:var(--brand);display:block;line-height:1.1}
+.feat{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}.fe{background:var(--card);border:1px solid var(--line);border-radius:24px;padding:26px;transition:transform .3s cubic-bezier(.22,1,.36,1),box-shadow .3s}.fe:hover{transform:translateY(-6px);box-shadow:var(--shadow)}
+.fe .ico{background:var(--soft);color:var(--brand)}.fe h3{font-size:18px;margin-bottom:6px}.fe p{color:var(--ink2);font-size:14.5px}.tag{display:inline-block;margin-top:12px;font-size:11.5px;font-weight:800;padding:3px 10px;border-radius:99px;background:var(--okSoft);color:var(--ok)}
+.steps{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;counter-reset:s}.sp{position:relative;padding:22px;border-radius:22px;background:var(--card);border:1px solid var(--line)}.sp:before{counter-increment:s;content:counter(s);display:grid;place-items:center;width:34px;height:34px;border-radius:50%;background:var(--brand);color:#fff;font-weight:800;margin-bottom:12px}
+.cta{background:linear-gradient(120deg,var(--band1),var(--band2));border-radius:36px;color:#fff;padding:54px 48px;display:grid;grid-template-columns:1.2fr .8fr;gap:30px;align-items:center;overflow:hidden}.cta p{opacity:.9;margin:12px 0 24px}
+.cta .btn.o{background:#fff;color:#0F172A;border:0}.qr{justify-self:center;width:170px;height:170px;border-radius:24px;background:#fff;display:grid;place-items:center;color:#0F172A;font-weight:800;font-size:13px;text-align:center;padding:14px}
+.tw{display:grid;grid-template-columns:1fr 1fr;gap:20px}.tq{background:var(--card);border:1px solid var(--line);border-radius:24px;padding:28px}.tq q{display:block;font-size:17px;font-weight:600;margin-bottom:16px}.tq span{color:var(--ink2);font-size:13.5px}
+details{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:16px 20px;margin-bottom:10px}summary{font-weight:700;cursor:pointer}details p{margin-top:8px;color:var(--ink2);font-size:15px}
+footer{border-top:1px solid var(--line);padding:46px 0 36px}footer .w{display:grid;grid-template-columns:1.4fr 1fr 1fr 1.2fr;gap:28px;font-size:14px}footer h5{margin:0 0 10px;font-size:14px}footer a{display:block;color:var(--ink2);padding:3px 0}
+.nl{display:flex;gap:8px}.nl input{flex:1;min-width:0;height:44px;border-radius:99px;border:1.5px solid var(--line);background:var(--card);color:var(--ink);padding:0 16px;font:inherit}
+.copy{text-align:center;color:var(--ink2);font-size:12.5px;margin-top:30px}
+.rv{opacity:0;transform:translateY(24px);transition:opacity .7s cubic-bezier(.22,1,.36,1),transform .7s cubic-bezier(.22,1,.36,1);transition-delay:calc(var(--d,0)*90ms)}.rv.on{opacity:1;transform:none}
+@media (max-width:900px){.hero .w,.stats,.cta,.tw{grid-template-columns:1fr}.feat,.steps,.band .in{grid-template-columns:1fr 1fr}footer .w{grid-template-columns:1fr 1fr}nav .l{display:none}.stage{height:480px}}
+@media (max-width:560px){.feat,.steps,.band .in,.sg{grid-template-columns:1fr}.fc.a{left:0}.fc.b{right:0}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important;scroll-behavior:auto!important}.rv{opacity:1;transform:none}}
+</style>
+</head>
+<body>
+<nav><div class="w"><b>Bengkel<span>Ku</span></b><a class="l" href="#fitur">Fitur</a><a class="l" href="#cara-kerja">Cara kerja</a><a class="l" href="#bengkel">Untuk bengkel</a><a class="l" href="#faq">FAQ</a><a class="btn s" href="#unduh">Unduh</a></div></nav>
+
+<header class="hero"><div class="w">
+ <div class="rv"><h1>Servis motor <span class="hl">tanpa ribet</span>, oli tak pernah telat</h1>
+ <p class="lead">Booking bengkel terverifikasi, bayar di aplikasi, dan dapat pengingat ganti oli otomatis. Motor mogok di jalan? Bengkel terdekat datang ke lokasimu.</p>
+ <div class="row"><a class="btn" href="#unduh">Unduh gratis</a><a class="btn o" href="#cara-kerja">Lihat cara kerja</a></div>
+ <div class="proof"><div class="avs"><i></i><i></i><i></i></div><span>Dipercaya pengendara dan bengkel di seluruh Indonesia</span></div></div>
+ <div class="stage rv" style="--d:2"><div class="blob"></div>
+  <div class="phone" aria-label="Contoh tampilan aplikasi BengkelKu"><h4>Halo, Rina 👋</h4>
+   <div class="gauge"><small class="m">Vario 125 · Ganti oli</small><div style="font-weight:800;font-size:17px">1.150 km lagi</div><div class="bar"><i></i></div></div>
+   <b style="font-size:13px">Bengkel terdekat</b>
+   <div class="ws"><span>MJ</span><div>Maju Jaya<small>1,2 km · ★ 4,8 · Buka</small></div></div>
+   <div class="ws"><span>SM</span><div>Sinar Motor<small>2,0 km · ★ 4,7 · Buka</small></div></div>
+   <div class="ws"><span>BP</span><div>Barokah Piston<small>3,4 km · ★ 4,9 · Buka</small></div></div></div>
+  <div class="fc a">Booking dikonfirmasi ✓<small>Kam, 09.00 · Maju Jaya</small></div>
+  <div class="fc b">Ganti oli segera<small>Tinggal 280 km</small></div>
+  <div class="fc c" style="color:#B45309">🛵 Mekanik tiba ±8 menit<small>Bantuan motor mogok</small></div></div>
+</div></header>
+
+<div class="w band rv"><div class="in">
+ <div><div class="ico">⏰</div><h3>Pengingat oli pintar</h3><p>Dihitung dari odometer dan tanggal servis terakhir, bukan sekadar kalender.</p></div>
+ <div><div class="ico">✅</div><h3>Bengkel terverifikasi</h3><p>Setiap bengkel melewati pemeriksaan KTP, selfie, dan lokasi sebelum tayang.</p></div>
+ <div><div class="ico">🛟</div><h3>Bantuan motor mogok</h3><p>Biaya panggilan tetap dan jelas sebelum bayar. Tidak ada tawar-menawar di jalan.</p></div>
+</div></div>
+
+<section id="fitur"><div class="w"><div class="ctr rv"><h2>Semua yang dibutuhkan <span class="hl">pengendara</span> ada di sini</h2><p>Dari cari bengkel sampai riwayat servis, rapi dalam satu aplikasi.</p></div>
+<div class="feat">
+ <div class="fe rv"><div class="ico">📍</div><h3>Cari bengkel terdekat</h3><p>Filter buka sekarang, rating, dan harga. Lihat layanan serta harga sebelum datang.</p></div>
+ <div class="fe rv" style="--d:1"><div class="ico">📅</div><h3>Booking dan bayar</h3><p>Pilih jam, bayar lewat QRIS, e-wallet, atau VA, lalu tunjukkan tiket QR di bengkel.</p></div>
+ <div class="fe rv" style="--d:2"><div class="ico">🛟</div><h3>Bantuan motor mogok</h3><p>Bengkel terdekat menerima panggilan dan menuju lokasimu. Pantau posisinya langsung.</p><span class="tag">Baru</span></div>
+ <div class="fe rv"><div class="ico">💬</div><h3>Chat dengan bengkel</h3><p>Tanya kondisi motor atau kirim foto kerusakan sebelum berangkat.</p><span class="tag">Baru</span></div>
+ <div class="fe rv" style="--d:1"><div class="ico">🧾</div><h3>Penawaran transparan</h3><p>Biaya tambahan hanya berlaku setelah kamu setujui di aplikasi.</p></div>
+ <div class="fe rv" style="--d:2"><div class="ico">📒</div><h3>Buku servis digital</h3><p>Riwayat servis dan odometer tercatat otomatis oleh bengkel setiap selesai.</p></div>
+</div></div></section>
+
+<section id="cara-kerja" style="padding-top:0"><div class="w"><div class="stats">
+ <div class="rv"><h2>Empat langkah, <span class="hl">selesai</span></h2><p class="m" style="margin:12px 0 22px">Tanpa antre, tanpa menebak harga.</p>
+ <div class="sg"><div class="st"><b data-n="12" data-s="K+">12K+</b><span class="m">Bengkel (contoh angka)</span></div><div class="st"><b data-n="100" data-s="K+">100K+</b><span class="m">Servis selesai (contoh angka)</span></div></div></div>
+ <div class="steps" style="grid-template-columns:1fr 1fr">
+  <div class="sp rv"><b>Pilih bengkel</b><p class="m">Terdekat dan terverifikasi.</p></div><div class="sp rv" style="--d:1"><b>Booking dan bayar</b><p class="m">Dana aman sampai bengkel menerima.</p></div>
+  <div class="sp rv" style="--d:2"><b>Datang, tunjukkan QR</b><p class="m">Check-in cepat tanpa antre.</p></div><div class="sp rv" style="--d:3"><b>Servis selesai</b><p class="m">Riwayat dan pengingat otomatis.</p></div></div>
+</div></div></section>
+
+<section id="bengkel" style="padding-top:0"><div class="w"><div class="cta rv" style="background:linear-gradient(120deg,#0F2A8A,var(--band1))"><div><h2>Punya bengkel? <span style="color:#BBD0FF">Tayang di BengkelKu</span></h2><p>Daftar dengan KTP, selfie, dan foto lokasi. Tim kami meninjau, lalu bengkelmu muncul di peta pengendara sekitar. Pencairan otomatis H+1.</p><a class="btn o" href="#unduh">Daftarkan bengkel</a></div>
+ <div class="ws" style="background:var(--card);color:var(--ink);border-radius:22px;padding:18px;display:block;border:0"><b>Status pendaftaran</b><div class="bar" style="margin:10px 0"><i style="width:70%;background:var(--brand)"></i></div><small class="m">Dokumen lengkap · menunggu tinjauan</small></div></div></div></section>
+
+<section style="padding-top:0"><div class="w"><div class="ctr rv"><h2>Kata <span class="hl">pengguna</span></h2><p>Contoh testimoni; ganti dengan ulasan nyata sebelum rilis.</p></div>
+<div class="tw"><div class="tq rv"><q>“Dulu sering lupa ganti oli. Sekarang diingatkan sebelum telat, dan tinggal booking.”</q><span><b>Rina</b> · Pengendara Vario</span></div>
+<div class="tq rv" style="--d:1"><q>“Pelanggan datang sesuai jam booking, pembayaran jelas. Pencairan juga rapi.”</q><span><b>Pak Budi</b> · Pemilik bengkel</span></div></div></div></section>
+
+<section id="faq" style="padding-top:0"><div class="w" style="max-width:760px"><div class="ctr rv"><h2>Pertanyaan umum</h2></div>
+<details class="rv"><summary>Apakah BengkelKu gratis?</summary><p>Mengunduh dan mencari bengkel gratis. Kamu hanya membayar layanan servis yang dipesan.</p></details>
+<details class="rv"><summary>Bagaimana jika bengkel membatalkan?</summary><p>Dana dikembalikan penuh secara otomatis ke metode pembayaranmu.</p></details>
+<details class="rv"><summary>Berapa biaya bantuan motor mogok?</summary><p>Biaya panggilan ditampilkan tetap sebelum kamu membayar, mengikuti jarak bengkel. Biaya perbaikan di tempat hanya berlaku setelah kamu setujui.</p></details>
+<details class="rv"><summary>Apakah data KTP bengkel aman?</summary><p>Dokumen disimpan di penyimpanan privat dan hanya dilihat tim verifikasi.</p></details></div></section>
+
+<section id="unduh" style="padding-top:0"><div class="w"><div class="cta rv"><div><h2>Siap servis tanpa ribet?</h2><p>Unduh BengkelKu dan atur pengingat oli motormu hari ini.</p>
+ <div class="row"><a class="btn o" href="#">Google Play</a><a class="btn o" href="#">App Store</a></div></div><div class="qr">Pindai QR untuk mengunduh (placeholder)</div></div></div></section>
+
+<footer><div class="w"><div><b style="font-size:20px">Bengkel<span class="hl">Ku</span></b><p class="m" style="margin-top:8px">Servis motor tanpa ribet.</p></div>
+<div><h5>Produk</h5><a href="#fitur">Fitur</a><a href="#cara-kerja">Cara kerja</a><a href="#bengkel">Untuk bengkel</a></div>
+<div><h5>Bantuan</h5><a href="#faq">FAQ</a><a href="#">Kebijakan privasi</a><a href="#">Syarat dan ketentuan</a></div>
+<div><h5>Kabar terbaru</h5><div class="nl"><input type="email" placeholder="Email kamu" aria-label="Email"><button class="btn s">Kirim</button></div></div></div>
+<p class="copy">© 2026 BengkelKu. Semua hak dilindungi.</p></footer>
+
+<script>
+const io=new IntersectionObserver(e=>e.forEach(x=>{if(x.isIntersecting){x.target.classList.add('on');io.unobserve(x.target)}}),{threshold:.15});
+document.querySelectorAll('.rv').forEach(el=>io.observe(el));
+const rm=matchMedia('(prefers-reduced-motion:reduce)').matches;
+document.querySelectorAll('[data-n]').forEach(el=>{if(rm)return;const n=+el.dataset.n,s=el.dataset.s;let t0;const o=new IntersectionObserver(([x])=>{if(!x.isIntersecting)return;o.disconnect();const f=t=>{t0??=t;const p=Math.min((t-t0)/1200,1);el.textContent=Math.round(n*(1-Math.pow(1-p,3)))+s;if(p<1)requestAnimationFrame(f)};requestAnimationFrame(f)});o.observe(el)});
+</script>
+</body>
+</html>
