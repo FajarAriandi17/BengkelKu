@@ -72,7 +72,7 @@ declare
   v_wave_seconds int;
   v_eta_speed float;
   v_min_rate numeric;
-  v_point geography;
+  v_point extensions.geography;
   v_sent int := 0;
   v_c record;
 begin
@@ -86,11 +86,11 @@ begin
                     coalesce((public.app_config_value('sos_wave_seconds') #>> '{}')::int, 60));
   v_eta_speed := coalesce((public.app_config_value('sos_eta_speed_kmh') #>> '{}')::float, 25.0);
   v_min_rate := coalesce((public.app_config_value('sos_min_accept_rate') #>> '{}')::numeric, 0.7);
-  v_point := st_setsrid(st_makepoint(v_req.lng, v_req.lat), 4326)::geography;
+  v_point := extensions.st_setsrid(extensions.st_makepoint(v_req.lng, v_req.lat), 4326)::extensions.geography;
 
   for v_c in
     select w.id,
-           st_distance(w.location, v_point) as dist_m
+           extensions.st_distance(w.location, v_point) as dist_m
     from public.workshops w
     join public.workshop_standby s on s.workshop_id = w.id
     where s.emergency_ready = true
@@ -98,8 +98,8 @@ begin
       and w.location is not null
       and w.owner_id <> v_req.rider_id
       and s.last_seen_at > now() - interval '60 seconds'
-      and public.sos_tier_for_distance(st_distance(w.location, v_point)) <= v_req.tier
-      and public.sos_tier_for_distance(st_distance(w.location, v_point)) <= s.radius_tier_max
+      and public.sos_tier_for_distance(extensions.st_distance(w.location, v_point)) <= v_req.tier
+      and public.sos_tier_for_distance(extensions.st_distance(w.location, v_point)) <= s.radius_tier_max
       and (s.after_hours or public.workshop_is_open(w.id, now()))
       and not exists (
         select 1 from public.sos_offers o
@@ -111,7 +111,7 @@ begin
           and r.status = any (public.sos_active_job_statuses())
       )
     order by (s.accept_rate < v_min_rate) asc,
-             st_distance(w.location, v_point) asc,
+             extensions.st_distance(w.location, v_point) asc,
              w.rating_avg desc,
              s.accept_rate desc
     limit v_wave_size

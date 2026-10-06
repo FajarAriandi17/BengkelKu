@@ -1,0 +1,125 @@
+-- Uji alur pembayaran Xendit (0024): intent, idempotensi, webhook mark, escrow.
+\set ON_ERROR_STOP 1
+\set QUIET 1
+\o /dev/null
+
+create or replace function pg_temp.assert(ok boolean, msg text) returns void
+language plpgsql as $$ begin
+  if ok is not true then raise exception 'GAGAL: %', msg; end if;
+  raise notice 'ok - %', msg;
+end $$;
+create or replace function pg_temp.as_user(uid text) returns void
+language sql as $$ select set_config('request.jwt.claim.sub', uid, false) $$;
+create or replace function pg_temp.fails(q text, pat text) returns boolean
+language plpgsql as $$ begin
+  execute q; return false;
+exception when others then
+  if sqlerrm like pat then return true; end if;
+  raise notice 'pesan tak terduga: %', sqlerrm; return false;
+end $$;
+
+grant usage on schema public, extensions, auth to authenticated;
+grant select, insert, update, delete on all tables in schema public to authenticated;
+
+insert into auth.users(id,email) values
+  ('00000000-0000-0000-0000-0000000000b1','owner@x'),
+  ('00000000-0000-0000-0000-0000000000b2','rider@x'),
+  ('00000000-0000-0000-0000-0000000000b3','rider2@x');
+
+select set_config('bengkelku.allow_status_change','on',false);
+insert into public.workshops(id, owner_id, name, status, location)
+values ('50000000-0000-0000-0000-000000000001','00000000-0000-0000-0000-0000000000b1','Bengkel Uji','verified',
+        st_setsrid(st_makepoint(106.81,-6.26),4326)::geography);
+select set_config('bengkelku.allow_status_change','',false);
+insert into public.services(id, workshop_id, name, price_idr) values
+  ('51000000-0000-0000-0000-000000000001','50000000-0000-0000-0000-000000000001','Servis ringan',55000);
+insert into public.vehicles(id, user_id, brand, model, plate) values
+  ('52000000-0000-0000-0000-000000000001','00000000-0000-0000-0000-0000000000b2','Honda','Vario 160','B 1234 XYZ');
+
+-- Aktifkan Xendit (nonaktifkan sandbox) seperti konfigurasi produksi.
+update public.app_config set value = 'false'::jsonb where key = 'payments_sandbox';
+update public.app_config set value = 'true'::jsonb  where key = 'xendit_enabled';
+
+select pg_temp.as_user('00000000-0000-0000-0000-0000000000b2');
+select (current_date + 3) as d \gset
+select slot_at as s from public.booking_available_slots('50000000-0000-0000-0000-000000000001', :'d') where label = '09:00' \gset
+select (public.booking_create('50000000-0000-0000-0000-000000000001','52000000-0000-0000-0000-000000000001',
+  array['51000000-0000-0000-0000-000000000001']::uuid[], :'s')->>'id') as bid \gset
+
+-- booking_create_payment: harus ditolak saat xendit_enabled false.
+update public.app_config set value = 'false'::jsonb where key = 'xendit_enabled';
+select pg_temp.assert(pg_temp.fails(format('select public.booking_create_payment(%L,''qris'')', :'bid'), '%tidak tersedia%'),
+  'gateway nonaktif menolak intent');
+update public.app_config set value = 'true'::jsonb where key = 'xendit_enabled';
+
+-- Kepemilikan: rider lain tidak bisa membuat intent untuk booking ini.
+select pg_temp.as_user('00000000-0000-0000-0000-0000000000b3');
+select pg_temp.assert(pg_temp.fails(format('select public.booking_create_payment(%L,''qris'')', :'bid'), '%tidak ditemukan%'),
+  'rider lain ditolak');
+select pg_temp.as_user('00000000-0000-0000-0000-0000000000b2');
+
+-- Metode tidak valid.
+select pg_temp.assert(pg_temp.fails(format('select public.booking_create_payment(%L,''kripto'')', :'bid'), '%tidak didukung%'),
+  'metode tidak dikenal ditolak');
+
+-- Intent pertama: nominal diambil server (55.000), status pending, provider xendit.
+select (public.booking_create_payment(:'bid','qris')->>'provider_ref') as ref \gset
+select pg_temp.assert((select amount_idr from public.payments where provider_ref = :'ref') = 55000, 'nominal intent dari server');
+select pg_temp.assert((select status from public.payments where provider_ref = :'ref') = 'pending', 'intent berstatus pending');
+select pg_temp.assert((select provider from public.payments where provider_ref = :'ref') = 'xendit', 'provider xendit');
+select pg_temp.assert((select method from public.payments where provider_ref = :'ref') = 'qris', 'metode tersimpan');
+
+-- Idempotensi: panggilan ulang mengembalikan provider_ref yang sama.
+select pg_temp.assert((public.booking_create_payment(:'bid','va')->>'provider_ref') = :'ref', 'intent idempoten');
+
+-- Simulasi Edge Function menyimpan invoice.
+select public.payment_set_invoice(:'ref','https://xendit.co/i/1','00020101QRIS', now() + interval '30 minutes');
+select pg_temp.assert((select invoice_url from public.payments where provider_ref = :'ref') = 'https://xendit.co/i/1', 'invoice_url tersimpan');
+select pg_temp.assert((select qr_string from public.payments where provider_ref = :'ref') = '00020101QRIS', 'qr_string tersimpan');
+
+-- payment_mark: HANYA service role. Klien biasa harus ditolak.
+set role authenticated;
+select pg_temp.assert(pg_temp.fails(format('select public.payment_mark(%L,''paid'')', :'ref'), '%permission%'),
+  'rider tidak bisa menandai lunas');
+reset role;
+
+set role service_role;
+-- Webhook pertama: lunas → booking menunggu konfirmasi + notif owner + thread chat.
+select public.payment_mark(:'ref','paid','QRIS', now());
+select pg_temp.assert((select status from public.payments where provider_ref = :'ref') = 'paid', 'webhook menandai paid');
+select pg_temp.assert((select paid_at is not null from public.payments where provider_ref = :'ref'), 'paid_at tercatat');
+select pg_temp.assert((select status from public.bookings where id = :'bid') = 'DIBAYAR_MENUNGGU_KONFIRMASI',
+  'booking lanjut ke menunggu konfirmasi');
+select pg_temp.assert(exists(select 1 from public.chat_threads where booking_id = :'bid'), 'thread chat dibuat saat lunas');
+select pg_temp.assert(exists(select 1 from public.notifications where user_id='00000000-0000-0000-0000-0000000000b1' and kind='booking'),
+  'owner dapat notifikasi pembayaran');
+
+-- Pengiriman ulang webhook tidak menggandakan efek.
+select public.payment_mark(:'ref','expired');
+select pg_temp.assert((select status from public.payments where provider_ref = :'ref') = 'paid', 'webhook ulang idempoten');
+select pg_temp.assert((select status from public.bookings where id = :'bid') = 'DIBAYAR_MENUNGGU_KONFIRMASI',
+  'status booking tidak mundur');
+reset role;
+
+-- Alur kedaluwarsa: booking baru, deadline lewat → intent ditolak & booking hangus.
+select slot_at as s2 from public.booking_available_slots('50000000-0000-0000-0000-000000000001', :'d') where label = '10:00' \gset
+select (public.booking_create('50000000-0000-0000-0000-000000000001',null,
+  array['51000000-0000-0000-0000-000000000001']::uuid[], :'s2')->>'id') as bid2 \gset
+update public.bookings set payment_deadline = now() - interval '5 minutes' where id = :'bid2';
+select pg_temp.assert(pg_temp.fails(format('select public.booking_create_payment(%L,''qris'')', :'bid2'), '%sudah lewat%'),
+  'intent setelah batas bayar ditolak');
+select pg_temp.assert((select status from public.bookings where id = :'bid2') = 'KEDALUWARSA', 'booking kedaluwarsa otomatis');
+
+-- Alur gagal: pembayaran gagal → booking tetap menunggu, bisa coba lagi.
+select slot_at as s3 from public.booking_available_slots('50000000-0000-0000-0000-000000000001', :'d') where label = '11:00' \gset
+select (public.booking_create('50000000-0000-0000-0000-000000000001',null,
+  array['51000000-0000-0000-0000-000000000001']::uuid[], :'s3')->>'id') as bid3 \gset
+select (public.booking_create_payment(:'bid3','va')->>'provider_ref') as ref3 \gset
+set role service_role;
+select public.payment_mark(:'ref3','failed','BCA');
+reset role;
+select pg_temp.assert((select status from public.payments where provider_ref = :'ref3') = 'failed', 'pembayaran gagal tercatat');
+select pg_temp.assert((select status from public.bookings where id = :'bid3') = 'MENUNGGU_PEMBAYARAN', 'booking tetap bisa dibayar ulang');
+select pg_temp.assert((public.booking_create_payment(:'bid3','qris')->>'provider_ref') <> :'ref3', 'intent baru setelah gagal');
+
+\echo XENDIT_PAYMENT_OK

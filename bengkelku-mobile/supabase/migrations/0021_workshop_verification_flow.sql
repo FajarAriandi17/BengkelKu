@@ -121,7 +121,7 @@ begin
     insert into public.workshops (owner_id, name, address, phone, description, location, status)
     values (v_uid, trim(p_name), trim(p_address), nullif(trim(coalesce(p_phone, '')), ''),
             nullif(trim(coalesce(p_description, '')), ''),
-            st_setsrid(st_makepoint(p_lng, p_lat), 4326)::geography, 'draft')
+            extensions.st_setsrid(extensions.st_makepoint(p_lng, p_lat), 4326)::extensions.geography, 'draft')
     returning * into v_ws;
   else
     if v_ws.status = 'pending' then
@@ -134,7 +134,7 @@ begin
     set name = trim(p_name), address = trim(p_address),
         phone = nullif(trim(coalesce(p_phone, '')), ''),
         description = coalesce(nullif(trim(coalesce(p_description, '')), ''), description),
-        location = st_setsrid(st_makepoint(p_lng, p_lat), 4326)::geography,
+        location = extensions.st_setsrid(extensions.st_makepoint(p_lng, p_lat), 4326)::extensions.geography,
         updated_at = now()
     where id = v_ws.id
     returning * into v_ws;
@@ -201,8 +201,8 @@ as $$
     'submitted_at', w.submitted_at,
     'verified_at', w.verified_at,
     'submission_count', w.submission_count,
-    'lat', st_y(w.location::geometry),
-    'lng', st_x(w.location::geometry),
+    'lat', extensions.st_y(w.location::extensions.geometry),
+    'lng', extensions.st_x(w.location::extensions.geometry),
     'documents', coalesce((
       select jsonb_agg(jsonb_build_object('type', d.type, 'status', d.status, 'created_at', d.created_at)
                        order by d.created_at desc)

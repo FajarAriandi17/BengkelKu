@@ -7,7 +7,7 @@ create table if not exists public.workshops (
   description text,
   phone text,
   address text,
-  location geography(Point, 4326),            -- lng/lat untuk ST_DWithin
+  location extensions.geography(Point, 4326),    -- lng/lat untuk ST_DWithin
   timezone text not null default 'Asia/Jakarta',
   status workshop_status not null default 'draft',
   rejected_reason text,

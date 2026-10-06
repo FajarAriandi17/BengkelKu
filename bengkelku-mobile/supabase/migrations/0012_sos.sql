@@ -217,7 +217,7 @@ declare
 begin
   -- Bengkel siaga darurat terdekat.
   select w.id,
-         st_distance(w.location, st_setsrid(st_makepoint(p_lng, p_lat), 4326)::geography) as dist_m
+         extensions.st_distance(w.location, extensions.st_setsrid(extensions.st_makepoint(p_lng, p_lat), 4326)::extensions.geography) as dist_m
   into v_nearest
   from public.workshops w
   join public.workshop_standby s on s.workshop_id = w.id
@@ -343,7 +343,7 @@ begin
   -- Gelombang 1: kirim ke bengkel siaga dalam radius tier.
   for v_candidates in
     select w.id, w.location,
-           st_distance(w.location, st_setsrid(st_makepoint(p_lng, p_lat), 4326)::geography) as dist_m
+           extensions.st_distance(w.location, extensions.st_setsrid(extensions.st_makepoint(p_lng, p_lat), 4326)::extensions.geography) as dist_m
     from public.workshops w
     join public.workshop_standby s on s.workshop_id = w.id
     where s.emergency_ready = true
@@ -351,7 +351,7 @@ begin
       and w.location is not null
       and s.last_seen_at > now() - interval '60 seconds'
       and public.sos_tier_for_distance(
-            st_distance(w.location, st_setsrid(st_makepoint(p_lng, p_lat), 4326)::geography)
+            extensions.st_distance(w.location, extensions.st_setsrid(extensions.st_makepoint(p_lng, p_lat), 4326)::extensions.geography)
           ) <= v_tier
       and w.id not in (
         select workshop_id from public.sos_offers where request_id = v_request.id
@@ -423,7 +423,7 @@ begin
     -- Kirim gelombang berikutnya.
     for v_candidates in
       select w.id, w.location,
-             st_distance(w.location, st_setsrid(st_makepoint(v_req.lng, v_req.lat), 4326)::geography) as dist_m
+             extensions.st_distance(w.location, extensions.st_setsrid(extensions.st_makepoint(v_req.lng, v_req.lat), 4326)::extensions.geography) as dist_m
       from public.workshops w
       join public.workshop_standby s on s.workshop_id = w.id
       where s.emergency_ready = true
@@ -431,7 +431,7 @@ begin
         and w.location is not null
         and s.last_seen_at > now() - interval '60 seconds'
         and public.sos_tier_for_distance(
-              st_distance(w.location, st_setsrid(st_makepoint(v_req.lng, v_req.lat), 4326)::geography)
+              extensions.st_distance(w.location, extensions.st_setsrid(extensions.st_makepoint(v_req.lng, v_req.lat), 4326)::extensions.geography)
             ) <= v_req.tier
         and w.id not in (select workshop_id from public.sos_offers where request_id = v_req.id)
       order by dist_m asc
@@ -667,9 +667,9 @@ begin
     order by recorded_at desc limit 1;
 
     if v_last.lat is not null then
-      v_moved_m := st_distance(
-        st_setsrid(st_makepoint(v_last.lng, v_last.lat), 4326)::geography,
-        st_setsrid(st_makepoint(v_request.lng, v_request.lat), 4326)::geography
+      v_moved_m := extensions.st_distance(
+        extensions.st_setsrid(extensions.st_makepoint(v_last.lng, v_last.lat), 4326)::extensions.geography,
+        extensions.st_setsrid(extensions.st_makepoint(v_request.lng, v_request.lat), 4326)::extensions.geography
       );
     end if;
 

@@ -1,5 +1,9 @@
 -- 0001_extensions.sql — ekstensi dasar
 -- PostGIS untuk query geospasial "bengkel terdekat"; pgcrypto untuk UUID.
+--
+-- Postgis di-install di schema `extensions`. Karena db push menjalankan migrasi
+-- dengan search_path yang hanya memuat `public`, semua tipe/fungsi PostGIS di
+-- migrasi berikutnya HARUS schema-qualified: extensions.geography, extensions.st_*.
 
 create extension if not exists postgis with schema extensions;
 create extension if not exists pgcrypto with schema extensions;

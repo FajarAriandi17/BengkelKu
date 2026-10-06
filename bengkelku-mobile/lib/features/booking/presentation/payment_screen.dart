@@ -10,6 +10,7 @@ import "../../../design/components/app_button.dart";
 import "../../../design/components/state_views.dart";
 import "../data/booking_model.dart";
 import "../data/booking_repository.dart";
+import "payment_instruction_sheet.dart";
 
 class PaymentScreen extends StatefulWidget {
   const PaymentScreen({super.key, required this.bookingId});
@@ -24,6 +25,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
   final _repo = BookingRepository();
   Booking? _booking;
   bool _sandbox = false;
+  bool _xendit = false;
   bool _loading = true;
   bool _paying = false;
   String? _error;
@@ -61,6 +63,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
     try {
       final b = await _repo.getBooking(widget.bookingId);
       final sb = await _repo.isSandboxPayments();
+      final xd = await _repo.isXenditEnabled();
       if (!mounted) return;
       if (b.status != "MENUNGGU_PEMBAYARAN") {
         context.go("/ticket?bookingId=${b.id}");
@@ -69,6 +72,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
       setState(() {
         _booking = b;
         _sandbox = sb;
+        _xendit = xd;
         _loading = false;
       });
       _startTimer();
@@ -102,9 +106,35 @@ class _PaymentScreenState extends State<PaymentScreen> {
   Future<void> _pay() async {
     setState(() => _paying = true);
     try {
-      await _repo.sandboxPay(widget.bookingId, _method);
+      if (_sandbox) {
+        await _repo.sandboxPay(widget.bookingId, _method);
+        if (!mounted) return;
+        context.go("/payment-success?bookingId=${widget.bookingId}");
+        return;
+      }
+
+      // Alur produksi: buat invoice Xendit, lalu tampilkan instruksi pembayaran
+      // sambil menunggu webhook menandai lunas.
+      final intent = await _repo.createPayment(widget.bookingId, _method);
       if (!mounted) return;
-      context.go("/payment-success?bookingId=${widget.bookingId}");
+      _timer?.cancel();
+      final paid = await showModalBottomSheet<bool>(
+        context: context,
+        isScrollControlled: true,
+        showDragHandle: true,
+        builder: (ctx) => PaymentInstructionSheet(
+          bookingId: widget.bookingId,
+          intent: intent,
+        ),
+      );
+      if (!mounted) return;
+      if (paid == true) {
+        context.go("/payment-success?bookingId=${widget.bookingId}");
+      } else {
+        // Cek status terbaru (mungkin sudah dibayar saat sheet ditutup, atau
+        // kedaluwarsa). _load memulai ulang hitung mundur bila masih menunggu.
+        await _load();
+      }
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context)
@@ -120,6 +150,10 @@ class _PaymentScreenState extends State<PaymentScreen> {
     return _left.inHours > 0 ? "${_left.inHours}:$m:$s" : "$m:$s";
   }
 
+  /// true bila salah satu mode pembayaran aktif (sandbox untuk demo, Xendit
+  /// untuk produksi).
+  bool get _canPay => _sandbox || _xendit;
+
   @override
   Widget build(BuildContext context) {
     final c = context.colors;
@@ -134,7 +168,9 @@ class _PaymentScreenState extends State<PaymentScreen> {
       return Scaffold(
         appBar: AppBar(title: const Text("Pembayaran")),
         body: ErrorState(
-            message: _error ?? "Booking tidak ditemukan", onRetry: _load),
+          message: _error ?? "Booking tidak ditemukan",
+          onRetry: _load,
+        ),
       );
     }
     final b = _booking!;
@@ -175,8 +211,12 @@ class _PaymentScreenState extends State<PaymentScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(b.code,
-                      style: AppTypography.caption.copyWith(color: c.ink2)),
+                  Text(
+                    b.code,
+                    style: AppTypography.caption.copyWith(
+                      color: c.ink2,
+                    ),
+                  ),
                   const SizedBox(height: 2),
                   Text(
                     b.workshopName ?? "Bengkel",
@@ -193,9 +233,12 @@ class _PaymentScreenState extends State<PaymentScreen> {
                       child: Row(
                         children: [
                           Expanded(
-                              child: Text(i.name, style: AppTypography.body)),
-                          Text(Formatters.rupiah(i.priceIdr),
-                              style: AppTypography.body),
+                            child: Text(i.name, style: AppTypography.body),
+                          ),
+                          Text(
+                            Formatters.rupiah(i.priceIdr),
+                            style: AppTypography.body,
+                          ),
                         ],
                       ),
                     ),
@@ -280,16 +323,28 @@ class _PaymentScreenState extends State<PaymentScreen> {
                   style: AppTypography.caption.copyWith(color: c.blueText),
                 ),
               ),
+            if (!_sandbox && !_xendit)
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: c.warnSoft,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Text(
+                  "Pembayaran online belum diaktifkan. Sementara ini hubungi bengkel langsung untuk konfirmasi booking.",
+                  style: AppTypography.caption.copyWith(color: c.warnText),
+                ),
+              ),
           ],
         ),
       ),
       bottomNavigationBar: SafeArea(
         minimum: const EdgeInsets.all(16),
         child: AppButton(
-          label: _sandbox
+          label: _canPay
               ? "Bayar ${Formatters.rupiah(b.totalIdr)}"
               : "Pembayaran online segera hadir",
-          onPressed: (_sandbox && !_paying) ? _pay : null,
+          onPressed: (_canPay && !_paying) ? _pay : null,
           loading: _paying,
         ),
       ),

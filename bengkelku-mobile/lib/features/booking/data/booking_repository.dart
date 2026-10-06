@@ -3,9 +3,44 @@ import "package:supabase_flutter/supabase_flutter.dart";
 import "../../../core/network/supabase_client.dart";
 import "booking_model.dart";
 
+/// Intent pembayaran Xendit yang aktif untuk sebuah booking.
+class PaymentIntent {
+  const PaymentIntent({
+    required this.providerRef,
+    required this.amountIdr,
+    required this.method,
+    this.invoiceUrl,
+    this.qrString,
+    this.expiresAt,
+  });
+
+  final String providerRef;
+  final int amountIdr;
+  final String method;
+  final String? invoiceUrl;
+  final String? qrString;
+  final DateTime? expiresAt;
+
+  /// QRIS bisa dirender langsung di aplikasi dari qr_string.
+  bool get showsQr => method == "qris" && (qrString?.isNotEmpty ?? false);
+  factory PaymentIntent.fromJson(Map<String, dynamic> j) => PaymentIntent(
+        providerRef: j["provider_ref"] as String? ?? "",
+        amountIdr: (j["amount_idr"] as num?)?.toInt() ?? 0,
+        method: j["method"] as String? ?? "qris",
+        invoiceUrl: j["invoice_url"] as String?,
+        qrString: j["qr_string"] as String?,
+        expiresAt: j["expires_at"] is String
+            ? DateTime.tryParse(j["expires_at"] as String)?.toLocal()
+            : null,
+      );
+}
+
 class BookingSlot {
-  const BookingSlot(
-      {required this.at, required this.label, required this.remaining});
+  const BookingSlot({
+    required this.at,
+    required this.label,
+    required this.remaining,
+  });
   final DateTime at;
   final String label;
   final int remaining;
@@ -27,6 +62,14 @@ class CancelResult {
 /// Pesan error ramah pengguna dari exception Supabase/RPC.
 String bookingErrorMessage(Object e) {
   if (e is PostgrestException) return e.message;
+  // Edge Function mengembalikan {"error": "..."} saat gateway menolak;
+  // functions.invoke melempar FunctionException (details = body respons).
+  if (e is FunctionException) {
+    final details = e.details;
+    if (details is Map && details["error"] is String) {
+      return details["error"] as String;
+    }
+  }
   final s = e.toString();
   return s.startsWith("Exception: ") ? s.substring(11) : s;
 }
@@ -37,7 +80,9 @@ class BookingRepository {
   SupabaseClient get _client => SupabaseService.client;
 
   Future<List<BookingSlot>> availableSlots(
-      String workshopId, DateTime date) async {
+    String workshopId,
+    DateTime date,
+  ) async {
     final d = "${date.year.toString().padLeft(4, "0")}-"
         "${date.month.toString().padLeft(2, "0")}-${date.day.toString().padLeft(2, "0")}";
     final res = await _client.rpc(
@@ -94,6 +139,40 @@ class BookingRepository {
     } catch (_) {
       return false;
     }
+  }
+
+  /// Apakah gateway produksi (Xendit) sudah diaktifkan admin. Klien memakai ini
+  /// untuk memilih antara alur sandbox dan alur Xendit yang sebenarnya.
+  Future<bool> isXenditEnabled() async {
+    try {
+      final row = await _client
+          .from("app_config")
+          .select("value")
+          .eq("key", "xendit_enabled")
+          .maybeSingle();
+      return row?["value"] == true;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  /// Membuat invoice Xendit lewat Edge Function `xendit-pay`. JWT pengendara
+  /// dikirim otomatis oleh functions.invoke; nominal & validasi dihitung server.
+  /// Idempoten: memanggil dua kali mengembalikan invoice yang sama.
+  Future<PaymentIntent> createPayment(String bookingId, String method) async {
+    final res = await _client.functions.invoke(
+      "xendit-pay",
+      body: {"booking_id": bookingId, "method": method},
+    );
+    final data = res.data;
+    if (data is! Map) {
+      throw Exception("Respons pembayaran tidak valid");
+    }
+    final j = Map<String, dynamic>.from(data);
+    if (j["error"] is String) {
+      throw Exception(j["error"] as String);
+    }
+    return PaymentIntent.fromJson(j);
   }
 
   Future<List<Booking>> getRiderBookings() async {

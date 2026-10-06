@@ -61,13 +61,14 @@ Status booking memakai Supabase Realtime (postgres changes pada `bookings`). Tik
 
 | Function | Pemicu | Tugas |
 |---|---|---|
-| `payment-webhook` | Webhook gateway | Verifikasi tanda tangan, update `payments` + `bookings` (idempoten). |
+| `xendit-pay` | App (JWT pengendara) | Buat invoice Xendit via RPC `booking_create_payment`; simpan `invoice_url`+`qr_string`. |
+| `payment-webhook` | Webhook Xendit | Verifikasi `X-Callback-Token`; update `payments` + `bookings` (idempoten). |
 | `oil-reminder-cron` | Cron harian | Hitung ulang status oli, buat `notifications`, kirim push. |
 | `payout-batch` | Cron harian | Agregasi booking SELESAI H-1, potong komisi 8%, buat `payouts` + disbursement. |
 
 ## 7. Pembayaran (escrow)
 
-Pengendara bayar penuh → dana ditahan platform → saat SELESAI, H+1 payout ke bengkel dikurangi komisi. Refund mengikuti kebijakan pembatalan (PRD Bagian 7). Webhook harus idempoten (gunakan `payment ref` unik).
+Pengendara bayar penuh → dana ditahan platform → saat SELESAI, H+1 payout ke bengkel dikurangi komisi. Refund mengikuti kebijakan pembatalan (PRD Bagian 7). Webhook harus idempoten (gunakan `payment ref` unik). Detail setup & arus Xendit: `docs/PAYMENTS_XENDIT.md`.
 
 ## 8. Zona waktu & format
 

@@ -17,9 +17,11 @@ supabase/
 │   ├── 0006_reviews_social.sql   # reviews, favorites, notifications
 │   ├── 0007_rls_policies.sql
 │   ├── 0008_storage_buckets.sql  # bucket + batas 2 MB
-│   └── 0009_functions_rpc.sql    # nearby_workshops RPC, trigger odometer→oli
+│   ├── 0009_functions_rpc.sql    # nearby_workshops RPC, trigger odometer→oli
+│   └── 0024_xendit_payments.sql  # RPC pembayaran Xendit (intent, invoice, mark)
 └── functions/
-    ├── payment-webhook/index.ts
+    ├── xendit-pay/index.ts         # buat invoice Xendit (JWT pengendara)
+    ├── payment-webhook/index.ts    # terima webhook Xendit (X-Callback-Token)
     ├── oil-reminder-cron/index.ts
     └── payout-batch/index.ts
 ```
@@ -65,11 +67,12 @@ Akses dokumen privat untuk admin memakai signed URL ≤ 60 dtk (dibuat Edge Func
 
 | Function | Pemicu | Ringkas |
 |---|---|---|
-| `payment-webhook` | HTTP webhook gateway | Verifikasi signature; update `payments`+`bookings`; idempoten pakai ref. |
+| `xendit-pay` | HTTP POST dari app (JWT pengendara) | Buat invoice Xendit via RPC `booking_create_payment`; simpan `invoice_url`+`qr_string`. |
+| `payment-webhook` | Webhook Xendit (`--no-verify-jwt`) | Verifikasi `X-Callback-Token`; `payment_mark` update `payments`+`bookings`; idempoten. |
 | `oil-reminder-cron` | Cron harian | Recompute status oli; buat `notifications`; push. |
 | `payout-batch` | Cron harian | Agregasi SELESAI H-1; potong komisi 8%; buat `payouts`; disbursement. |
 
-Rahasia (`SERVICE_ROLE_KEY`, gateway secret, FCM key) disimpan sebagai secret Edge Functions, tidak pernah di klien.
+Rahasia (`SERVICE_ROLE_KEY`, gateway secret, FCM key) disimpan sebagai secret Edge Functions, tidak pernah di klien. Setup Xendit lengkap: `docs/PAYMENTS_XENDIT.md`.
 
 ## 8. Trigger odometer → oli
 

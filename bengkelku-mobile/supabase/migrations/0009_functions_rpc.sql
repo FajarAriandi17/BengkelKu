@@ -25,13 +25,13 @@ as $$
     w.address,
     w.rating_avg,
     w.rating_count,
-    st_distance(w.location, st_setsrid(st_makepoint(lng, lat), 4326)::geography) as distance_m
+    extensions.st_distance(w.location, extensions.st_setsrid(extensions.st_makepoint(lng, lat), 4326)::extensions.geography) as distance_m
   from public.workshops w
   where w.status = 'verified'
     and w.location is not null
-    and st_dwithin(
+    and extensions.st_dwithin(
       w.location,
-      st_setsrid(st_makepoint(lng, lat), 4326)::geography,
+      extensions.st_setsrid(extensions.st_makepoint(lng, lat), 4326)::extensions.geography,
       radius_m
     )
   order by distance_m asc

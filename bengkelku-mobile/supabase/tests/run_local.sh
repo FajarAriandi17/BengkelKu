@@ -28,9 +28,9 @@ fresh_db() {
   psql -q -v ON_ERROR_STOP=1 -d "$DB" -f supabase/seed.sql >/dev/null
 }
 
-for t in sos_flow_smoke.sql sos_owner_side_test.sql verification_admin_test.sql booking_flow_test.sql; do
+for t in sos_flow_smoke.sql sos_owner_side_test.sql verification_admin_test.sql booking_flow_test.sql xendit_payment_test.sql; do
   fresh_db
   out=$(psql -v ON_ERROR_STOP=1 -d "$DB" -f "supabase/tests/$t" 2>&1) || { echo "$out" | tail -20; echo "UJI GAGAL: $t"; exit 1; }
-  echo "$out" | grep -E "SMOKE_OK|OWNER_SIDE_OK|VERIFICATION_ADMIN_OK|BOOKING_FLOW_OK"
+  echo "$out" | grep -E "SMOKE_OK|OWNER_SIDE_OK|VERIFICATION_ADMIN_OK|BOOKING_FLOW_OK|XENDIT_PAYMENT_OK"
 done
 echo "SEMUA UJI SQL LULUS"

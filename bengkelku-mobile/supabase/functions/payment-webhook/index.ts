@@ -1,13 +1,21 @@
 // payment-webhook — Supabase Edge Function (Deno)
 //
-// Menerima webhook dari gateway (Midtrans/Xendit), memverifikasi tanda tangan,
-// lalu memperbarui tabel `payments` + `bookings`. HARUS idempoten: pakai
-// `provider_ref` sebagai kunci unik sehingga pengiriman ganda tidak menggandakan efek.
+// Menerima webhook Xendit (invoice.paid / invoice.expired / payment.*), memverifikasi
+// X-Callback-Token, lalu memperbarui payments + bookings via RPC payment_mark.
+// HARUS idempoten: Xendit mengirim ulang webhook, dan payment_mark menolak mengubah
+// transaksi yang sudah paid/refunded.
+//
+// Verifikasi: header `X-Callback-Token` dibandingkan dengan XENDIT_WEBHOOK_TOKEN
+// (Verification Token di dashboard Xendit → Settings → Callbacks).
 //
 // Secret (set via `supabase secrets set`):
-//   SUPABASE_URL, SERVICE_ROLE_KEY, PAYMENT_WEBHOOK_SECRET
+//   SUPABASE_URL, SERVICE_ROLE_KEY, XENDIT_WEBHOOK_TOKEN
 //
 // Deploy: supabase functions deploy payment-webhook --no-verify-jwt
+//
+// URL webhook daftarkan di dashboard Xendit:
+//   https://<project>.functions.supabase.co/payment-webhook
+// Centang: invoice.paid, invoice.expired (dan opsional payment.succeeded/failed).
 
 import { createClient } from "jsr:@supabase/supabase-js@2";
 
@@ -16,76 +24,93 @@ const supabase = createClient(
   Deno.env.get("SERVICE_ROLE_KEY")!, // service role: bypass RLS
 );
 
-const WEBHOOK_SECRET = Deno.env.get("PAYMENT_WEBHOOK_SECRET") ?? "";
+const WEBHOOK_TOKEN = Deno.env.get("XENDIT_WEBHOOK_TOKEN") ?? "";
 
-interface WebhookPayload {
-  provider_ref: string; // id transaksi gateway (unik)
-  booking_id: string;
-  status: "paid" | "failed" | "expired";
-  method?: string;
-  amount_idr: number;
-  signature?: string;
+// Status invoice Xendit → status internal kita.
+// SETTLED & PAID keduanya berarti dana diterima; untuk escrow kita pakai PAID
+// (dana baru benar-benar dicairkan ke bengkel saat SELESAI via payout-batch).
+const STATUS_MAP: Record<string, "paid" | "expired" | "failed"> = {
+  PAID: "paid",
+  SETTLED: "paid",
+  SUCCEEDED: "paid",
+  EXPIRED: "expired",
+  VOIDED: "expired",
+  CANCELED: "expired",
+  FAILED: "failed",
+};
+
+function json(status: number, body: unknown) {
+  return new Response(JSON.stringify(body), {
+    status,
+    headers: { "content-type": "application/json" },
+  });
 }
 
 Deno.serve(async (req) => {
-  if (req.method !== "POST") {
-    return new Response("Method Not Allowed", { status: 405 });
+  if (req.method !== "POST") return json(405, { error: "Method Not Allowed" });
+
+  // Verifikasi token: Xendit merekomendasikan pengecekan X-Callback-Token.
+  const callbackToken = req.headers.get("x-callback-token") ?? "";
+  if (!WEBHOOK_TOKEN || callbackToken !== WEBHOOK_TOKEN) {
+    console.error("X-Callback-Token tidak valid");
+    return json(401, { error: "Invalid callback token" });
   }
 
-  let body: WebhookPayload;
+  let payload: {
+    event?: string;
+    data?: {
+      // Schema invoice webhook (external_id).
+      external_id?: string;
+      status?: string;
+      payment_method?: string;
+      paid_at?: string;
+      // Schema Payments-API webhook (reference_id).
+      reference_id?: string;
+    };
+  };
   try {
-    body = await req.json();
+    payload = await req.json();
   } catch {
-    return new Response("Bad Request", { status: 400 });
+    return json(400, { error: "Bad Request" });
   }
 
-  // Verifikasi tanda tangan sederhana (ganti sesuai gateway nyata).
-  if (WEBHOOK_SECRET && body.signature !== WEBHOOK_SECRET) {
-    return new Response("Invalid signature", { status: 401 });
+  const event = payload.event ?? "";
+  const data = payload.data ?? {};
+  // Cocokkan kedua schema webhook Xendit (invoice.* memakai external_id,
+  // payment.* memakai reference_id).
+  const providerRef = data.external_id ?? data.reference_id;
+  if (!providerRef) {
+    console.error("webhook tanpa reference transaksi", event);
+    return json(400, { error: "Reference transaksi tidak ditemukan" });
   }
 
-  // Idempoten: jika payment dengan provider_ref ini sudah 'paid', hentikan.
-  const { data: existing } = await supabase
-    .from("payments")
-    .select("id,status")
-    .eq("provider_ref", body.provider_ref)
-    .maybeSingle();
-
-  if (existing?.status === "paid") {
-    return new Response(JSON.stringify({ ok: true, idempotent: true }), {
-      headers: { "content-type": "application/json" },
-    });
+  // Status diambil dari payload; bila kosong, ambil dari nama event.
+  let status: "paid" | "expired" | "failed" | undefined =
+    STATUS_MAP[data.status?.toUpperCase() ?? ""];
+  if (!status) {
+    if (event.endsWith(".paid") || event === "payment.succeeded") status = "paid";
+    else if (event.endsWith(".expired") || event === "payment.failed") {
+      status = event === "payment.failed" ? "failed" : "expired";
+    }
+  }
+  if (!status) {
+    console.error("status webhook tidak dikenal", event, data.status);
+    return json(200, { ok: true, ignored: true, reason: "status tidak dikenal" });
   }
 
-  // Upsert payment berdasarkan provider_ref.
-  const paymentStatus = body.status === "paid"
-    ? "paid"
-    : body.status === "expired"
-    ? "expired"
-    : "failed";
-
-  await supabase.from("payments").upsert({
-    provider_ref: body.provider_ref,
-    booking_id: body.booking_id,
-    method: body.method ?? null,
-    amount_idr: body.amount_idr,
-    status: paymentStatus,
-    paid_at: body.status === "paid" ? new Date().toISOString() : null,
-  }, { onConflict: "provider_ref" });
-
-  // Perbarui status booking sesuai hasil pembayaran.
-  const bookingStatus = body.status === "paid"
-    ? "DIBAYAR_MENUNGGU_KONFIRMASI"
-    : body.status === "expired"
-    ? "KEDALUWARSA"
-    : "MENUNGGU_PEMBAYARAN";
-
-  await supabase
-    .from("bookings")
-    .update({ status: bookingStatus, updated_at: new Date().toISOString() })
-    .eq("id", body.booking_id);
-
-  return new Response(JSON.stringify({ ok: true }), {
-    headers: { "content-type": "application/json" },
+  const { error } = await supabase.rpc("payment_mark", {
+    p_provider_ref: providerRef,
+    p_status: status,
+    p_method: data.payment_method ?? null,
+    p_paid_at: data.paid_at ?? null,
   });
+
+  if (error) {
+    console.error("payment_mark gagal", providerRef, error.message);
+    // Kembalikan error agar Xendit mengirim ulang (providerRef mungkin belum ada
+    // bila webhook tiba sebelum payment_set_invoice selesai).
+    return json(500, { error: error.message });
+  }
+
+  return json(200, { ok: true });
 });
