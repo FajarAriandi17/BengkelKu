@@ -1,0 +1,17 @@
+# Berkas yang tidak perlu masuk ke build context agar build cepat & image kecil.
+node_modules
+.next
+.git
+.gitignore
+.env
+.env.local
+.env.*.local
+npm-debug.log*
+README.md
+CLAUDE.md
+Dockerfile
+.dockerignore
+docker-compose*.yml
+Dockerfile.*
+docs
+supabase/.temp

@@ -2,6 +2,8 @@
 const nextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
+  // Bundle produksi mandiri (tanpa node_modules) untuk image Docker sekecil mungkin.
+  output: "standalone",
   // Header keamanan dasar untuk panel admin internal.
   async headers() {
     return [

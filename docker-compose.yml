@@ -1,0 +1,46 @@
+# BengkelKu — orkestrasi Docker lokal.
+#
+# Server default menjalankan panel admin (Next.js). Jalankan dengan:
+#     docker compose up -d --build
+#
+# Env: salin .env.example root ke .env dan isi. Compose membaca .env otomatis.
+# PERHATIAN: NEXT_PUBLIC_* disisipkan saat BUILD (build-args di bawah),
+# sedangkan SUPABASE_SERVICE_ROLE_KEY baru dibaca saat RUNTIME.
+
+services:
+  admin-web:
+    container_name: bengkelku-admin-web
+    build:
+      context: "./BengkelKu - Admin Web/bengkelku-admin-web"
+      dockerfile: Dockerfile
+      args:
+        # Harus ada saat build agar terisi ke client bundle.
+        NEXT_PUBLIC_SUPABASE_URL: ${NEXT_PUBLIC_SUPABASE_URL:?NEXT_PUBLIC_SUPABASE_URL wajib di-set di .env}
+        NEXT_PUBLIC_SUPABASE_ANON_KEY: ${NEXT_PUBLIC_SUPABASE_ANON_KEY:?NEXT_PUBLIC_SUPABASE_ANON_KEY wajib di-set di .env}
+    ports:
+      - "${ADMIN_WEB_PORT:-3000}:3000"
+    environment:
+      NODE_ENV: production
+      # Rahasia: hanya dibaca server saat runtime, tidak ikut di-build.
+      SUPABASE_SERVICE_ROLE_KEY: ${SUPABASE_SERVICE_ROLE_KEY:?SUPABASE_SERVICE_ROLE_KEY wajib di-set di .env}
+      ADMIN_JWT_AUD: ${ADMIN_JWT_AUD:-admin}
+      ADMIN_IP_ALLOWLIST: ${ADMIN_IP_ALLOWLIST:-}
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:3000/login"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 20s
+
+  landing-page:
+    container_name: bengkelku-landing-page
+    image: nginx:alpine
+    volumes:
+      # Folder landing page statis (HTML + gambar) dilayankan langsung oleh nginx.
+      # Catatan: nama folder di repo memakai ejaan "BengelKu" (typo asli).
+      - "./BengelKu - Landing Page:/usr/share/nginx/html:ro"
+    ports:
+      - "${LANDING_PAGE_PORT:-8080}:80"
+    restart: unless-stopped
+    profiles: ["full"] # hanya aktif jika: docker compose --profile full up
