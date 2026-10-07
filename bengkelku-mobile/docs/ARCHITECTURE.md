@@ -18,8 +18,8 @@ Bagaimana aplikasi dibangun di atas **Supabase**. Lihat `docs/PRD.md` untuk *apa
 └───────────────────────────────────────────────────────┘
          │                 │                 │
          ▼                 ▼                 ▼
-   Midtrans/Xendit     FCM / APNs       Google Maps
-   (bayar + payout)    (push)           (peta)
+   Mayar (bayar)       FCM / APNs       Google Maps
+   + payout-batch      (push)           (peta)
 ```
 
 Kedua aplikasi memakai **satu project Supabase**. Skema kanonik ada di repo mobile (`supabase/`). Admin web hanya menambah migrasi khusus admin (roles, audit, RLS admin).
@@ -61,14 +61,14 @@ Status booking memakai Supabase Realtime (postgres changes pada `bookings`). Tik
 
 | Function | Pemicu | Tugas |
 |---|---|---|
-| `xendit-pay` | App (JWT pengendara) | Buat invoice Xendit via RPC `booking_create_payment`; simpan `invoice_url`+`qr_string`. |
-| `payment-webhook` | Webhook Xendit | Verifikasi `X-Callback-Token`; update `payments` + `bookings` (idempoten). |
+| `mayar-pay` | App (JWT pengendara) | Buat invoice Mayar via RPC `booking_create_payment`; simpan `invoice_url`+`gateway_txn_id`. |
+| `payment-webhook` | Webhook Mayar | Verifikasi token query string; update `payments` + `bookings` (idempoten). |
 | `oil-reminder-cron` | Cron harian | Hitung ulang status oli, buat `notifications`, kirim push. |
 | `payout-batch` | Cron harian | Agregasi booking SELESAI H-1, potong komisi 8%, buat `payouts` + disbursement. |
 
 ## 7. Pembayaran (escrow)
 
-Pengendara bayar penuh → dana ditahan platform → saat SELESAI, H+1 payout ke bengkel dikurangi komisi. Refund mengikuti kebijakan pembatalan (PRD Bagian 7). Webhook harus idempoten (gunakan `payment ref` unik). Detail setup & arus Xendit: `docs/PAYMENTS_XENDIT.md`.
+Pengendara bayar penuh → dana ditahan platform → saat SELESAI, H+1 payout ke bengkel dikurangi komisi. Refund mengikuti kebijakan pembatalan (PRD Bagian 7). Webhook harus idempoten (gunakan `gateway_txn_id` unik). Detail setup & alur Mayar: `docs/PAYMENTS_MAYAR.md`.
 
 ## 8. Zona waktu & format
 

@@ -5,7 +5,7 @@ Repo ini adalah aplikasi **Flutter** (Android & iOS) untuk BengkelKu. Backend & 
 ## Sumber kebenaran
 1. `docs/PRD.md` — apa yang dibangun & kenapa.
 2. `docs/ARCHITECTURE.md` — bagaimana (Supabase, keamanan, aturan 2 MB).
-3. `docs/PAYMENTS_XENDIT.md` — alur & setup gateway pembayaran Xendit.
+3. `docs/PAYMENTS_MAYAR.md` — alur & setup gateway pembayaran Mayar.
 4. `docs/DESIGN_SYSTEM.md` + `docs/ANIMATIONS.md` + `docs/SCREENS.md` — UI/UX.
 5. `supabase/migrations/*` — skema database nyata. Jangan menebak kolom; baca migrasi.
 

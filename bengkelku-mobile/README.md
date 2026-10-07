@@ -24,7 +24,7 @@ Marketplace bengkel motor: cari bengkel terdekat (GPS), booking + bayar online, 
 | Serverless | **Supabase Edge Functions** (Deno) | webhook pembayaran, cron pengingat oli, batch payout |
 | Peta | Google Maps SDK | gaya peta kustom (`docs/DESIGN_SYSTEM.md`) |
 | Push | Firebase Cloud Messaging + APNs | — |
-| Pembayaran | Midtrans / Xendit | QRIS, e-wallet, VA + disbursement payout |
+| Pembayaran | Mayar | QRIS, e-wallet, VA, retail + disbursement payout |
 | Error | Sentry | `sentry_flutter` |
 
 ## Dokumentasi (baca sebelum ngoding)

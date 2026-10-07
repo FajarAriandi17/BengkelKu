@@ -41,7 +41,7 @@ Server Component. Memuat profil bengkel + daftar `workshop_documents`, membuat *
 - `VerificationDecision`: checklist 4 item (KTP terbaca, selfie cocok, nama cocok, lokasi sesuai) + tombol Setujui (aktif saat semua tercentang) / Tolak (pilih kode alasan + catatan). POST `/api/verify`.
 
 ### Payout (`/payout`)
-Tabel payout: periode, bengkel, bruto, komisi (8%), neto, status (`scheduled/processing/paid/failed`), tanggal. Finance dapat menandai batch. Integrasi disbursement final (Midtrans/Xendit) = pertanyaan terbuka PRD §7.
+Tabel payout: periode, bengkel, bruto, komisi (8%), neto, status (`scheduled/processing/paid/failed`), tanggal. Finance dapat menandai batch. Integrasi disbursement final (Mayar) = pertanyaan terbuka PRD §7.
 
 ### Audit (`/audit`)
 Tabel `audit_logs` hanya-baca untuk super_admin: waktu, aktor, aksi (`VIEW_DOCUMENTS/APPROVE_WORKSHOP/REJECT_WORKSHOP/...`), target, meta. Filter tanggal & aksi. Tidak dapat diubah/dihapus dari UI.

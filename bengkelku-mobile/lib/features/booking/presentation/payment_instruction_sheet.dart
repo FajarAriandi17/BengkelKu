@@ -1,14 +1,13 @@
-// PaymentInstructionSheet — instruksi pembayaran Xendit (QRIS / e-wallet / VA).
+// PaymentInstructionSheet — instruksi pembayaran Mayar.
 //
-// QRIS dirender langsung dari `qr_string` (tidak perlu buka browser), sedangkan
-// e-wallet & virtual account diarahkan ke invoice_url (hosted checkout Xendit).
-// Selagi terbuka, sheet memantau status booking tiap 3 detik; begitu webhook
-// menandai lunas, sheet menutup dan mengembalikan `true` ke pemanggil.
+// Pengguna diarahkan ke invoice_url (hosted checkout Mayar) untuk memilih kanal
+// (QRIS, e-wallet, virtual account, retail) dan menyelesaikan pembayaran. Selagi
+// terbuka, sheet memantau status booking tiap 3 detik; begitu webhook menandai
+// lunas, sheet menutup dan mengembalikan `true` ke pemanggil.
 
 import "dart:async";
 
 import "package:flutter/material.dart";
-import "package:qr_flutter/qr_flutter.dart";
 import "package:url_launcher/url_launcher.dart";
 
 import "../../../core/theme/app_colors.dart";
@@ -149,56 +148,34 @@ class _PaymentInstructionSheetState extends State<PaymentInstructionSheet> {
             ),
             const SizedBox(height: 4),
             Text(
-              "Total ${Formatters.rupiah(intent.amountIdr)} · ${_methodLabel(intent.method)}",
+              "Total ${Formatters.rupiah(intent.amountIdr)}",
               style: AppTypography.caption.copyWith(color: c.ink2),
             ),
             const SizedBox(height: 16),
-            if (intent.showsQr)
-              Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: c.line),
-                ),
-                child: QrImageView(
-                  data: intent.qrString!,
-                  size: 232,
-                  semanticsLabel: "Kode QRIS pembayaran",
-                ),
-              )
-            else
-              Container(
-                padding: const EdgeInsets.all(20),
-                decoration: BoxDecoration(
-                  color: c.blueSoft,
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                child: Column(
-                  children: [
-                    Icon(Icons.open_in_browser, size: 40, color: c.blue),
-                    const SizedBox(height: 10),
-                    Text(
-                      "Buka halaman pembayaran untuk melihat nomor virtual account "
-                      "atau menyelesaikan pembayaran e-wallet.",
-                      style: AppTypography.caption.copyWith(color: c.blueText),
-                      textAlign: TextAlign.center,
-                    ),
-                  ],
-                ),
+            Container(
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: c.blueSoft,
+                borderRadius: BorderRadius.circular(16),
               ),
+              child: Column(
+                children: [
+                  Icon(Icons.open_in_browser, size: 40, color: c.blue),
+                  const SizedBox(height: 10),
+                  Text(
+                    "Buka halaman pembayaran untuk memilih metode (QRIS, e-wallet, "
+                    "virtual account, atau retail) dan menyelesaikan transaksi.",
+                    style: AppTypography.caption.copyWith(color: c.blueText),
+                    textAlign: TextAlign.center,
+                  ),
+                ],
+              ),
+            ),
             const SizedBox(height: 16),
-            if (intent.showsQr)
-              Text(
-                "Pindai kode QRIS dengan aplikasi bank atau e-wallet apa pun.",
-                style: AppTypography.caption.copyWith(color: c.ink2),
-                textAlign: TextAlign.center,
-              )
-            else
-              AppButton(
-                label: "Buka Halaman Pembayaran",
-                onPressed: _openInvoice,
-              ),
+            AppButton(
+              label: "Buka Halaman Pembayaran",
+              onPressed: _openInvoice,
+            ),
             const SizedBox(height: 12),
             AppButton(
               label: "Saya Sudah Membayar",
@@ -217,10 +194,4 @@ class _PaymentInstructionSheetState extends State<PaymentInstructionSheet> {
       ),
     );
   }
-
-  String _methodLabel(String method) => switch (method) {
-        "ewallet" => "E-Wallet",
-        "va" => "Virtual Account",
-        _ => "QRIS",
-      };
 }

@@ -75,4 +75,4 @@ Waktu verifikasi median ≤ 48 jam; backlog antrean terkelola; 0 insiden kebocor
 
 1. Retensi dokumen KTP/selfie setelah verifikasi (legal).
 2. Perlukah IP allowlist diwajibkan untuk produksi.
-3. Integrasi disbursement final (Midtrans/Xendit) untuk halaman Payout.
+3. Integrasi disbursement final (Mayar) untuk halaman Payout.

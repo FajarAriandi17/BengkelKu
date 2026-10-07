@@ -3,32 +3,30 @@ import "package:supabase_flutter/supabase_flutter.dart";
 import "../../../core/network/supabase_client.dart";
 import "booking_model.dart";
 
-/// Intent pembayaran Xendit yang aktif untuk sebuah booking.
+/// Intent pembayaran Mayar yang aktif untuk sebuah booking.
 class PaymentIntent {
   const PaymentIntent({
     required this.providerRef,
     required this.amountIdr,
     required this.method,
     this.invoiceUrl,
-    this.qrString,
+    this.gatewayTxnId,
     this.expiresAt,
   });
 
   final String providerRef;
   final int amountIdr;
-  final String method;
+  final String? method;
   final String? invoiceUrl;
-  final String? qrString;
+  final String? gatewayTxnId;
   final DateTime? expiresAt;
 
-  /// QRIS bisa dirender langsung di aplikasi dari qr_string.
-  bool get showsQr => method == "qris" && (qrString?.isNotEmpty ?? false);
   factory PaymentIntent.fromJson(Map<String, dynamic> j) => PaymentIntent(
         providerRef: j["provider_ref"] as String? ?? "",
         amountIdr: (j["amount_idr"] as num?)?.toInt() ?? 0,
-        method: j["method"] as String? ?? "qris",
+        method: j["method"] as String?,
         invoiceUrl: j["invoice_url"] as String?,
-        qrString: j["qr_string"] as String?,
+        gatewayTxnId: j["gateway_txn_id"] as String?,
         expiresAt: j["expires_at"] is String
             ? DateTime.tryParse(j["expires_at"] as String)?.toLocal()
             : null,
@@ -121,10 +119,10 @@ class BookingRepository {
     return Booking.fromDetail(Map<String, dynamic>.from(res as Map));
   }
 
-  Future<void> sandboxPay(String id, String method) async {
+  Future<void> sandboxPay(String id) async {
     await _client.rpc(
       "booking_sandbox_pay",
-      params: {"p_booking_id": id, "p_method": method},
+      params: {"p_booking_id": id},
     );
   }
 
@@ -141,14 +139,14 @@ class BookingRepository {
     }
   }
 
-  /// Apakah gateway produksi (Xendit) sudah diaktifkan admin. Klien memakai ini
-  /// untuk memilih antara alur sandbox dan alur Xendit yang sebenarnya.
-  Future<bool> isXenditEnabled() async {
+  /// Apakah gateway produksi (Mayar) sudah diaktifkan admin. Klien memakai ini
+  /// untuk memilih antara alur sandbox dan alur Mayar yang sebenarnya.
+  Future<bool> isMayarEnabled() async {
     try {
       final row = await _client
           .from("app_config")
           .select("value")
-          .eq("key", "xendit_enabled")
+          .eq("key", "mayar_enabled")
           .maybeSingle();
       return row?["value"] == true;
     } catch (_) {
@@ -156,13 +154,13 @@ class BookingRepository {
     }
   }
 
-  /// Membuat invoice Xendit lewat Edge Function `xendit-pay`. JWT pengendara
+  /// Membuat invoice Mayar lewat Edge Function `mayar-pay`. JWT pengendara
   /// dikirim otomatis oleh functions.invoke; nominal & validasi dihitung server.
   /// Idempoten: memanggil dua kali mengembalikan invoice yang sama.
-  Future<PaymentIntent> createPayment(String bookingId, String method) async {
+  Future<PaymentIntent> createPayment(String bookingId) async {
     final res = await _client.functions.invoke(
-      "xendit-pay",
-      body: {"booking_id": bookingId, "method": method},
+      "mayar-pay",
+      body: {"booking_id": bookingId},
     );
     final data = res.data;
     if (data is! Map) {

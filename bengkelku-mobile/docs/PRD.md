@@ -196,7 +196,7 @@ Prioritas: **P0** = wajib MVP, **P1** = segera setelah MVP.
 - **FR-B7 (P0)** Riwayat booking (aktif & lampau).
 
 ### 8.5 Pembayaran & Keuangan (FR-P)
-- **FR-P1 (P0)** Bayar penuh online via Midtrans/Xendit (QRIS, e-wallet, VA).
+- **FR-P1 (P0)** Bayar penuh online via Mayar (QRIS, e-wallet, VA, retail).
 - **FR-P2 (P0)** Dana ditahan platform (escrow) sampai SELESAI.
 - **FR-P3 (P0)** Webhook pembayaran diproses di Supabase Edge Function (idempoten).
 - **FR-P4 (P0)** Refund sesuai kebijakan (penuh/50%/0%).
@@ -327,7 +327,7 @@ Keputusan: **backend & database = Supabase**, dengan satu codebase Flutter untuk
 | Keamanan | **Row Level Security** di semua tabel; validasi 2 MB di bucket + klien. |
 | Peta | Google Maps SDK (gaya kustom). |
 | Push | FCM + APNs. |
-| Pembayaran | Midtrans/Xendit (QRIS, e-wallet, VA + disbursement). |
+| Pembayaran | Mayar (QRIS, e-wallet, VA, retail + disbursement). |
 | Error | Sentry. |
 
 Alur, kebijakan RLS, dan aturan 2 MB diuraikan di `docs/ARCHITECTURE.md` dan `docs/SUPABASE_BACKEND.md`.
@@ -348,7 +348,7 @@ Alur, kebijakan RLS, dan aturan 2 MB diuraikan di `docs/ARCHITECTURE.md` dan `do
 
 1. Retensi dokumen KTP/selfie setelah verifikasi — menunggu masukan legal.
 2. Ambang jarak foto GPS ke pin (`max_gps_distance_m`, default 300 m) — kalibrasi lapangan.
-3. Pemilihan final gateway (Midtrans vs Xendit) & biaya disbursement.
+3. Biaya disbursement & komisi gateway (Mayar).
 4. Besaran tenggat pembayaran (default 60 menit) — uji konversi.
 
 

@@ -25,23 +25,12 @@ class _PaymentScreenState extends State<PaymentScreen> {
   final _repo = BookingRepository();
   Booking? _booking;
   bool _sandbox = false;
-  bool _xendit = false;
+  bool _mayar = false;
   bool _loading = true;
   bool _paying = false;
   String? _error;
-  String _method = "qris";
   Timer? _timer;
   Duration _left = Duration.zero;
-
-  static const _methods = [
-    ("qris", "QRIS (semua bank & e-wallet)", Icons.qr_code_2),
-    ("ewallet", "E-Wallet (GoPay / OVO / DANA)", Icons.account_balance_wallet),
-    (
-      "va",
-      "Virtual Account (BCA / Mandiri / BRI / BNI)",
-      Icons.account_balance
-    ),
-  ];
 
   @override
   void initState() {
@@ -63,7 +52,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
     try {
       final b = await _repo.getBooking(widget.bookingId);
       final sb = await _repo.isSandboxPayments();
-      final xd = await _repo.isXenditEnabled();
+      final my = await _repo.isMayarEnabled();
       if (!mounted) return;
       if (b.status != "MENUNGGU_PEMBAYARAN") {
         context.go("/ticket?bookingId=${b.id}");
@@ -72,7 +61,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
       setState(() {
         _booking = b;
         _sandbox = sb;
-        _xendit = xd;
+        _mayar = my;
         _loading = false;
       });
       _startTimer();
@@ -107,15 +96,15 @@ class _PaymentScreenState extends State<PaymentScreen> {
     setState(() => _paying = true);
     try {
       if (_sandbox) {
-        await _repo.sandboxPay(widget.bookingId, _method);
+        await _repo.sandboxPay(widget.bookingId);
         if (!mounted) return;
         context.go("/payment-success?bookingId=${widget.bookingId}");
         return;
       }
 
-      // Alur produksi: buat invoice Xendit, lalu tampilkan instruksi pembayaran
+      // Alur produksi: buat invoice Mayar, lalu tampilkan instruksi pembayaran
       // sambil menunggu webhook menandai lunas.
-      final intent = await _repo.createPayment(widget.bookingId, _method);
+      final intent = await _repo.createPayment(widget.bookingId);
       if (!mounted) return;
       _timer?.cancel();
       final paid = await showModalBottomSheet<bool>(
@@ -150,9 +139,9 @@ class _PaymentScreenState extends State<PaymentScreen> {
     return _left.inHours > 0 ? "${_left.inHours}:$m:$s" : "$m:$s";
   }
 
-  /// true bila salah satu mode pembayaran aktif (sandbox untuk demo, Xendit
+  /// true bila salah satu mode pembayaran aktif (sandbox untuk demo, Mayar
   /// untuk produksi).
-  bool get _canPay => _sandbox || _xendit;
+  bool get _canPay => _sandbox || _mayar;
 
   @override
   Widget build(BuildContext context) {
@@ -271,45 +260,6 @@ class _PaymentScreenState extends State<PaymentScreen> {
                 ],
               ),
             ),
-            const SizedBox(height: 20),
-            Text(
-              "Metode Pembayaran",
-              style: AppTypography.h2.copyWith(color: c.ink, fontSize: 16),
-            ),
-            const SizedBox(height: 10),
-            for (final m in _methods)
-              Padding(
-                padding: const EdgeInsets.only(bottom: 8),
-                child: InkWell(
-                  borderRadius: BorderRadius.circular(12),
-                  onTap: () => setState(() => _method = m.$1),
-                  child: AnimatedContainer(
-                    duration: const Duration(milliseconds: 160),
-                    padding: const EdgeInsets.all(14),
-                    decoration: BoxDecoration(
-                      color: c.panel,
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(
-                        color: _method == m.$1 ? c.blue : c.line,
-                        width: _method == m.$1 ? 1.6 : 1,
-                      ),
-                    ),
-                    child: Row(
-                      children: [
-                        Icon(m.$3, color: c.blue),
-                        const SizedBox(width: 12),
-                        Expanded(child: Text(m.$2, style: AppTypography.body)),
-                        Icon(
-                          _method == m.$1
-                              ? Icons.radio_button_checked
-                              : Icons.radio_button_unchecked,
-                          color: _method == m.$1 ? c.blue : c.line,
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
             const SizedBox(height: 12),
             if (_sandbox)
               Container(
@@ -323,7 +273,20 @@ class _PaymentScreenState extends State<PaymentScreen> {
                   style: AppTypography.caption.copyWith(color: c.blueText),
                 ),
               ),
-            if (!_sandbox && !_xendit)
+            if (!_sandbox && _mayar)
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: c.blueSoft,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Text(
+                  "Kamu akan diarahkan ke halaman pembayaran untuk memilih metode "
+                  "(QRIS, e-wallet, virtual account, atau retail).",
+                  style: AppTypography.caption.copyWith(color: c.blueText),
+                ),
+              ),
+            if (!_sandbox && !_mayar)
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(

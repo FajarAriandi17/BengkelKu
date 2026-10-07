@@ -36,7 +36,7 @@ create index if not exists idx_items_booking on public.booking_items (booking_id
 create table if not exists public.payments (
   id uuid primary key default gen_random_uuid(),
   booking_id uuid not null references public.bookings (id) on delete cascade,
-  provider text not null default 'midtrans',    -- midtrans | xendit
+  provider text not null default 'midtrans',    -- midtrans | mayar | sandbox
   provider_ref text unique,                     -- idempotency key webhook
   method text,                                  -- qris | ewallet | va
   amount_idr int not null,

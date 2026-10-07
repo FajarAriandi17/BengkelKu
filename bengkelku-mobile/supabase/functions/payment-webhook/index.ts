@@ -1,21 +1,30 @@
 // payment-webhook — Supabase Edge Function (Deno)
 //
-// Menerima webhook Xendit (invoice.paid / invoice.expired / payment.*), memverifikasi
-// X-Callback-Token, lalu memperbarui payments + bookings via RPC payment_mark.
-// HARUS idempoten: Xendit mengirim ulang webhook, dan payment_mark menolak mengubah
-// transaksi yang sudah paid/refunded.
+// Menerima webhook Mayar (event payment.received), memverifikasi token, lalu
+// memperbarui payments + bookings via RPC payment_mark. HARUS idempoten: Mayar
+// mengirim ulang webhook, dan payment_mark menolak mengubah transaksi yang sudah
+// paid/refunded.
 //
-// Verifikasi: header `X-Callback-Token` dibandingkan dengan XENDIT_WEBHOOK_TOKEN
-// (Verification Token di dashboard Xendit → Settings → Callbacks).
+// Verifikasi (Mayar tidak mengirim signature header, jadi berlapis):
+//   1. Query param `token` pada URL webhook harus sama dengan MAYAR_WEBHOOK_SECRET.
+//      URL webhook didaftarkan di dashboard Mayar (Integration → Webhook) sebagai:
+//        https://<project-ref>.functions.supabase.co/payment-webhook?token=<secret>
+//   2. Bila MAYAR_MERCHANT_ID diset, data.merchantId harus cocok (lapisan kedua).
+//   3. RPC payment_mark memvalidasi kecocokan nominal (data.amount vs amount_idr).
+//
+// Payload webhook Mayar:
+//   { event: "payment.received",
+//     data: { id, transactionId, status (boolean: true=lunas), amount, paymentMethod,
+//             merchantId, customerName, ... } }
+//
+// Lookup transaksi via data.transactionId (disimpan sebagai payments.gateway_txn_id
+// oleh mayar-pay). Event lain (payment.reminder, membership.*) diabaikan.
 //
 // Secret (set via `supabase secrets set`):
-//   SUPABASE_URL, SERVICE_ROLE_KEY, XENDIT_WEBHOOK_TOKEN
+//   SUPABASE_URL, SERVICE_ROLE_KEY, MAYAR_WEBHOOK_SECRET, MAYAR_MERCHANT_ID (opsional)
 //
 // Deploy: supabase functions deploy payment-webhook --no-verify-jwt
-//
-// URL webhook daftarkan di dashboard Xendit:
-//   https://<project>.functions.supabase.co/payment-webhook
-// Centang: invoice.paid, invoice.expired (dan opsional payment.succeeded/failed).
+// --no-verify-jwt wajib: Mayar tidak membawa JWT Supabase; keamanan dijamin token di atas.
 
 import { createClient } from "jsr:@supabase/supabase-js@2";
 
@@ -24,20 +33,8 @@ const supabase = createClient(
   Deno.env.get("SERVICE_ROLE_KEY")!, // service role: bypass RLS
 );
 
-const WEBHOOK_TOKEN = Deno.env.get("XENDIT_WEBHOOK_TOKEN") ?? "";
-
-// Status invoice Xendit → status internal kita.
-// SETTLED & PAID keduanya berarti dana diterima; untuk escrow kita pakai PAID
-// (dana baru benar-benar dicairkan ke bengkel saat SELESAI via payout-batch).
-const STATUS_MAP: Record<string, "paid" | "expired" | "failed"> = {
-  PAID: "paid",
-  SETTLED: "paid",
-  SUCCEEDED: "paid",
-  EXPIRED: "expired",
-  VOIDED: "expired",
-  CANCELED: "expired",
-  FAILED: "failed",
-};
+const WEBHOOK_SECRET = Deno.env.get("MAYAR_WEBHOOK_SECRET") ?? "";
+const MERCHANT_ID = Deno.env.get("MAYAR_MERCHANT_ID") ?? "";
 
 function json(status: number, body: unknown) {
   return new Response(JSON.stringify(body), {
@@ -49,23 +46,22 @@ function json(status: number, body: unknown) {
 Deno.serve(async (req) => {
   if (req.method !== "POST") return json(405, { error: "Method Not Allowed" });
 
-  // Verifikasi token: Xendit merekomendasikan pengecekan X-Callback-Token.
-  const callbackToken = req.headers.get("x-callback-token") ?? "";
-  if (!WEBHOOK_TOKEN || callbackToken !== WEBHOOK_TOKEN) {
-    console.error("X-Callback-Token tidak valid");
-    return json(401, { error: "Invalid callback token" });
+  // Lapisan 1: token rahasia di query string (bagian dari URL webhook terdaftar).
+  const url = new URL(req.url);
+  const token = url.searchParams.get("token") ?? "";
+  if (!WEBHOOK_SECRET || token !== WEBHOOK_SECRET) {
+    console.error("token webhook tidak valid");
+    return json(401, { error: "Invalid webhook token" });
   }
 
   let payload: {
     event?: string;
     data?: {
-      // Schema invoice webhook (external_id).
-      external_id?: string;
-      status?: string;
-      payment_method?: string;
-      paid_at?: string;
-      // Schema Payments-API webhook (reference_id).
-      reference_id?: string;
+      transactionId?: string;
+      status?: boolean;
+      amount?: number;
+      paymentMethod?: string;
+      merchantId?: string;
     };
   };
   try {
@@ -76,39 +72,40 @@ Deno.serve(async (req) => {
 
   const event = payload.event ?? "";
   const data = payload.data ?? {};
-  // Cocokkan kedua schema webhook Xendit (invoice.* memakai external_id,
-  // payment.* memakai reference_id).
-  const providerRef = data.external_id ?? data.reference_id;
-  if (!providerRef) {
-    console.error("webhook tanpa reference transaksi", event);
-    return json(400, { error: "Reference transaksi tidak ditemukan" });
+
+  // Hanya payment.received yang memicu perubahan status. Event lain (pengingat,
+  // membership) tidak relevan untuk booking — balas 200 agar Mayar tidak mengulang.
+  if (event !== "payment.received") {
+    return json(200, { ok: true, ignored: true, reason: `event ${event} diabaikan` });
   }
 
-  // Status diambil dari payload; bila kosong, ambil dari nama event.
-  let status: "paid" | "expired" | "failed" | undefined =
-    STATUS_MAP[data.status?.toUpperCase() ?? ""];
-  if (!status) {
-    if (event.endsWith(".paid") || event === "payment.succeeded") status = "paid";
-    else if (event.endsWith(".expired") || event === "payment.failed") {
-      status = event === "payment.failed" ? "failed" : "expired";
-    }
+  const txnId = data.transactionId;
+  if (!txnId) {
+    console.error("webhook tanpa transactionId", event);
+    return json(400, { error: "Transaction tidak ditemukan" });
   }
-  if (!status) {
-    console.error("status webhook tidak dikenal", event, data.status);
-    return json(200, { ok: true, ignored: true, reason: "status tidak dikenal" });
+
+  // Lapisan 2: merchant ID harus cocok bila dikonfigurasi.
+  if (MERCHANT_ID && data.merchantId && data.merchantId !== MERCHANT_ID) {
+    console.error("merchantId tidak cocok", data.merchantId);
+    return json(401, { error: "Invalid merchant" });
   }
+
+  // data.status true → lunas; false/absen → gagal (pengendara bisa coba lagi).
+  const status: "paid" | "failed" = data.status === true ? "paid" : "failed";
 
   const { error } = await supabase.rpc("payment_mark", {
-    p_provider_ref: providerRef,
+    p_gateway_txn_id: txnId,
     p_status: status,
-    p_method: data.payment_method ?? null,
-    p_paid_at: data.paid_at ?? null,
+    p_method: data.paymentMethod ?? null,
+    p_amount: typeof data.amount === "number" ? data.amount : null,
+    p_paid_at: null, // Mayar tidak mengirim paid_at; RPC pakai now().
   });
 
   if (error) {
-    console.error("payment_mark gagal", providerRef, error.message);
-    // Kembalikan error agar Xendit mengirim ulang (providerRef mungkin belum ada
-    // bila webhook tiba sebelum payment_set_invoice selesai).
+    console.error("payment_mark gagal", txnId, error.message);
+    // Kembalikan error agar Mayar mengirim ulang — gateway_txn_id mungkin belum
+    // tersimpan bila webhook tiba sebelum payment_set_invoice selesai (race).
     return json(500, { error: error.message });
   }
 

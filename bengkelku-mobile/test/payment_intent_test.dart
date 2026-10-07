@@ -9,56 +9,37 @@ void main() {
         "payment_id": "p1",
         "provider_ref": "bk-abc123",
         "amount_idr": 120000,
-        "method": "qris",
+        "method": null,
         "expires_at": "2026-10-06T12:00:00.000Z",
-        "invoice_url": "https://xendit.co/i/1",
-        "qr_string": "00020101QRIS",
+        "invoice_url": "https://mayar.id/invoices/abc",
+        "gateway_txn_id": "maya-txn-001",
       });
 
       expect(intent.providerRef, "bk-abc123");
       expect(intent.amountIdr, 120000);
-      expect(intent.method, "qris");
-      expect(intent.invoiceUrl, "https://xendit.co/i/1");
-      expect(intent.qrString, "00020101QRIS");
+      expect(intent.method, isNull);
+      expect(intent.invoiceUrl, "https://mayar.id/invoices/abc");
+      expect(intent.gatewayTxnId, "maya-txn-001");
       expect(intent.expiresAt, isNotNull);
     });
 
-    test("showsQr hanya untuk QRIS yang punya qr_string", () {
-      expect(
-        const PaymentIntent(
-          providerRef: "r1",
-          amountIdr: 1000,
-          method: "qris",
-          qrString: "00020101",
-        ).showsQr,
-        isTrue,
-      );
-      expect(
-        const PaymentIntent(
-          providerRef: "r2",
-          amountIdr: 1000,
-          method: "va",
-          qrString: "00020101",
-        ).showsQr,
-        isFalse,
-      );
-      expect(
-        const PaymentIntent(
-          providerRef: "r3",
-          amountIdr: 1000,
-          method: "qris",
-        ).showsQr,
-        isFalse,
-      );
+    test("kanal dari webhook tersimpan sebagai method", () {
+      final intent = PaymentIntent.fromJson({
+        "provider_ref": "bk-abc123",
+        "amount_idr": 120000,
+        "method": "qris",
+      });
+      expect(intent.method, "qris");
     });
 
     test("null aman: nilai default dipakai", () {
       final intent = PaymentIntent.fromJson({});
       expect(intent.providerRef, "");
       expect(intent.amountIdr, 0);
-      expect(intent.method, "qris");
+      expect(intent.method, isNull);
+      expect(intent.invoiceUrl, isNull);
+      expect(intent.gatewayTxnId, isNull);
       expect(intent.expiresAt, isNull);
-      expect(intent.showsQr, isFalse);
     });
   });
 
