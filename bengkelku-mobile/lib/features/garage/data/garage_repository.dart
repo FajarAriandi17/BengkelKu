@@ -2,6 +2,7 @@ import "package:supabase_flutter/supabase_flutter.dart";
 
 import "../../../core/network/supabase_client.dart";
 import "vehicle_model.dart";
+import "../../../core/demo/demo_data.dart";
 
 /// Repository untuk kelola kendaraan di Garasi pengguna.
 class GarageRepository {
@@ -9,6 +10,7 @@ class GarageRepository {
 
   /// Ambil daftar kendaraan pengguna saat ini
   Future<List<Vehicle>> getUserVehicles() async {
+    if (kDemoPreview) return DemoData.vehicles;
     final uid = SupabaseService.currentUser?.id;
     if (uid == null) return [];
 

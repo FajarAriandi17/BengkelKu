@@ -2,6 +2,7 @@ import "package:flutter/material.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:go_router/go_router.dart";
 
+import "../core/demo/demo_data.dart";
 import "../core/network/supabase_client.dart";
 
 // Auth & Location
@@ -77,7 +78,7 @@ final routerProvider = Provider<GoRouter>((ref) {
   return GoRouter(
     initialLocation: "/home",
     redirect: (context, state) {
-      final loggedIn = SupabaseService.isLoggedIn;
+      final loggedIn = kDemoPreview || SupabaseService.isLoggedIn;
       final loggingIn = state.matchedLocation == "/login" ||
           state.matchedLocation == "/forgot-password";
 

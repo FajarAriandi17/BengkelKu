@@ -2,6 +2,7 @@
 
 import "package:supabase_flutter/supabase_flutter.dart";
 
+import "../../../core/demo/demo_data.dart";
 import "../../../core/network/supabase_client.dart";
 
 class DayHours {
@@ -154,29 +155,40 @@ class OwnerScheduleRepository {
   Map<String, dynamic> _map(Object? res) =>
       (res as Map).cast<String, dynamic>();
 
-  Future<OwnerSchedule> get() async =>
-      OwnerSchedule.fromJson(_map(await _client.rpc("owner_schedule_get")));
+  Future<OwnerSchedule> get() async {
+    if (kDemoPreview) return DemoData.schedule;
+    return OwnerSchedule.fromJson(
+      _map(await _client.rpc("owner_schedule_get")),
+    );
+  }
 
   Future<OwnerSchedule> saveHours(
     List<DayHours> hours, {
     required int slotMinutes,
     required int capacity,
   }) async =>
-      OwnerSchedule.fromJson(
-        _map(
-          await _client.rpc(
-            "owner_schedule_set_hours",
-            params: {
-              "p_hours": hours.map((h) => h.toJson()).toList(),
-              "p_slot_minutes": slotMinutes,
-              "p_capacity": capacity,
-            },
-          ),
-        ),
-      );
+      kDemoPreview
+          ? DemoData.update(
+              hours: hours,
+              slotMinutes: slotMinutes,
+              capacity: capacity,
+            )
+          : OwnerSchedule.fromJson(
+              _map(
+                await _client.rpc(
+                  "owner_schedule_set_hours",
+                  params: {
+                    "p_hours": hours.map((h) => h.toJson()).toList(),
+                    "p_slot_minutes": slotMinutes,
+                    "p_capacity": capacity,
+                  },
+                ),
+              ),
+            );
 
   /// Mengembalikan jumlah booking aktif di tanggal tsb. (perlu dihubungi).
   Future<int> addClosure(DateTime date, String? reason) async {
+    if (kDemoPreview) return 0;
     final res = _map(
       await _client.rpc(
         "owner_closure_add",
@@ -191,17 +203,23 @@ class OwnerScheduleRepository {
 
   Future<OwnerSchedule> setTempClosed(DateTime? until,
           {String? reason}) async =>
-      OwnerSchedule.fromJson(
-        _map(
-          await _client.rpc(
-            "owner_set_temp_closed",
-            params: {
-              "p_until": until?.toUtc().toIso8601String(),
-              "p_reason": reason,
-            },
-          ),
-        ),
-      );
+      kDemoPreview
+          ? DemoData.update(
+              tempClosedUntil: until,
+              tempClosedReason: reason,
+              clearTemp: until == null,
+            )
+          : OwnerSchedule.fromJson(
+              _map(
+                await _client.rpc(
+                  "owner_set_temp_closed",
+                  params: {
+                    "p_until": until?.toUtc().toIso8601String(),
+                    "p_reason": reason,
+                  },
+                ),
+              ),
+            );
 
   static String _date(DateTime d) =>
       "${d.year.toString().padLeft(4, "0")}-${d.month.toString().padLeft(2, "0")}-${d.day.toString().padLeft(2, "0")}";

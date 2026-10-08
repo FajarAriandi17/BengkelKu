@@ -3,6 +3,7 @@ import "package:supabase_flutter/supabase_flutter.dart";
 
 import "../../../core/network/supabase_client.dart";
 import "../../../core/utils/media_guard.dart";
+import "../../../core/demo/demo_data.dart";
 
 /// Repository untuk operasional Pemilik Bengkel (Owner).
 class OwnerRepository {
@@ -130,6 +131,7 @@ class OwnerRepository {
   /// Ringkasan dasbor bengkel (pendapatan hari ini, antrean). null bila
   /// belum punya bengkel.
   Future<Map<String, dynamic>?> getDashboard() async {
+    if (kDemoPreview) return DemoData.dashboard;
     final res = await _client.rpc("owner_dashboard");
     if (res == null) return null;
     return (res as Map).cast<String, dynamic>();

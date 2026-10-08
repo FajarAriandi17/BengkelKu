@@ -2,6 +2,7 @@ import "package:supabase_flutter/supabase_flutter.dart";
 
 import "../../../core/network/supabase_client.dart";
 import "workshop_model.dart";
+import "../../../core/demo/demo_data.dart";
 
 /// Repository untuk penarikan data bengkel & layanan.
 class WorkshopRepository {
@@ -14,6 +15,7 @@ class WorkshopRepository {
     double radiusMeters = 10000,
     int limit = 50,
   }) async {
+    if (kDemoPreview) return DemoData.workshops;
     try {
       final response = await _client.rpc(
         "nearby_workshops",
@@ -43,6 +45,12 @@ class WorkshopRepository {
 
   /// Ambil detail bengkel berdasarkan ID
   Future<Workshop?> getWorkshopDetail(String workshopId) async {
+    if (kDemoPreview) {
+      return DemoData.workshops.firstWhere(
+        (w) => w.id == workshopId,
+        orElse: () => DemoData.workshops.first,
+      );
+    }
     final response = await _client
         .from("workshops")
         .select()
@@ -57,6 +65,7 @@ class WorkshopRepository {
   Future<List<WorkshopServiceItem>> getWorkshopServices(
     String workshopId,
   ) async {
+    if (kDemoPreview) return DemoData.services;
     final response = await _client
         .from("services")
         .select()
@@ -71,6 +80,7 @@ class WorkshopRepository {
   }
 
   Future<List<WorkshopHour>> getWorkshopHours(String workshopId) async {
+    if (kDemoPreview) return DemoData.hours;
     final res = await _client
         .from("workshop_hours")
         .select()
@@ -83,6 +93,7 @@ class WorkshopRepository {
 
   /// Status buka publik (0026): is_open, tutup sementara, libur 30 hari ke depan.
   Future<WorkshopOpenStatus?> getOpenStatus(String workshopId) async {
+    if (kDemoPreview) return null;
     final res = await _client
         .rpc("workshop_open_status", params: {"p_workshop_id": workshopId});
     if (res == null) return null;
@@ -90,6 +101,7 @@ class WorkshopRepository {
   }
 
   Future<Set<String>> favoriteIds() async {
+    if (kDemoPreview) return {"d1"};
     final uid = SupabaseService.currentUser?.id;
     if (uid == null) return {};
     final res = await _client
