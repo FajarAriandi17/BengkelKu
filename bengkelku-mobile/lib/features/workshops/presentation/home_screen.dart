@@ -8,7 +8,6 @@ import "../../../core/utils/formatters.dart";
 import "../../../design/components/app_shell.dart";
 import "../../../design/components/state_views.dart";
 import "../../auth/presentation/auth_provider.dart";
-import "../../chat/presentation/chat_provider.dart";
 import "../../garage/data/garage_repository.dart";
 import "../../garage/data/vehicle_model.dart";
 import "../data/workshop_model.dart";
@@ -291,10 +290,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           ),
         ),
       ),
-      bottomNavigationBar: AppBottomNav(
-        current: AppTab.home,
-        badges: {AppTab.profile: ref.watch(chatUnreadCountProvider)},
-      ),
+      bottomNavigationBar: const AppBottomNav(current: AppTab.home),
     );
   }
 }

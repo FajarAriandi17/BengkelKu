@@ -4,16 +4,18 @@
 import "dart:math" as math;
 
 import "package:flutter/material.dart";
+import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:go_router/go_router.dart";
 
 import "../../core/motion/motion.dart";
 import "../../core/theme/app_colors.dart";
 import "../../core/theme/app_typography.dart";
+import "../../features/chat/presentation/chat_provider.dart";
 
-/// Tab utama pengendara (prototype: Beranda, Peta, Garasi, Booking, Profil).
-enum AppTab { home, map, garage, bookings, profile }
+/// Tab utama pengendara: Beranda, Peta, Garasi, Chat, Booking, Profil.
+enum AppTab { home, map, garage, chat, bookings, profile }
 
-class AppBottomNav extends StatelessWidget {
+class AppBottomNav extends ConsumerWidget {
   const AppBottomNav(
       {super.key, required this.current, this.badges = const {}});
 
@@ -29,6 +31,13 @@ class AppBottomNav extends StatelessWidget {
       Icons.two_wheeler_outlined,
       Icons.two_wheeler,
       "/garage",
+    ),
+    (
+      AppTab.chat,
+      "Chat",
+      Icons.chat_bubble_outline_rounded,
+      Icons.chat_bubble_rounded,
+      "/chat",
     ),
     (
       AppTab.bookings,
@@ -47,15 +56,17 @@ class AppBottomNav extends StatelessWidget {
   ];
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final c = context.colors;
     final idx = _items.indexWhere((e) => e.$1 == current);
+    final unread = ref.watch(chatUnreadCountProvider);
+    final allBadges = {...badges, AppTab.chat: unread};
     return SafeArea(
       top: false,
       minimum: const EdgeInsets.fromLTRB(12, 0, 12, 10),
       child: Container(
-        height: 66,
-        padding: const EdgeInsets.all(5),
+        height: 64,
+        padding: const EdgeInsets.all(4),
         decoration: BoxDecoration(
           color: c.panel,
           borderRadius: BorderRadius.circular(AppRadius.xl),
@@ -98,7 +109,7 @@ class AppBottomNav extends StatelessWidget {
                           label: it.$2,
                           icon: it.$1 == current ? it.$4 : it.$3,
                           selected: it.$1 == current,
-                          badge: badges[it.$1] ?? 0,
+                          badge: allBadges[it.$1] ?? 0,
                           onTap: () {
                             if (it.$1 != current) context.go(it.$5);
                           },
@@ -155,7 +166,7 @@ class _NavButton extends StatelessWidget {
               label,
               style: AppTypography.caption.copyWith(
                 color: fg,
-                fontSize: 11,
+                fontSize: 10.5,
                 fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
               ),
             ),

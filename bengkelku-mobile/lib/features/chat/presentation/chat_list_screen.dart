@@ -8,6 +8,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../core/theme/app_colors.dart';
 import '../../../design/components/chat_components.dart';
+import '../../../design/components/app_shell.dart';
 import '../../../design/components/state_views.dart';
 import 'chat_provider.dart';
 
@@ -44,11 +45,13 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> {
     final asyncThreads = ref.watch(chatThreadsProvider);
 
     return Scaffold(
-      backgroundColor: c.stage,
+      backgroundColor: c.panel2,
+      bottomNavigationBar: const AppBottomNav(current: AppTab.chat),
       appBar: AppBar(
         title: const Text('Chat'),
+        automaticallyImplyLeading: false,
         elevation: 0,
-        backgroundColor: c.panel,
+        backgroundColor: c.panel2,
       ),
       body: asyncThreads.when(
         loading: () => const Padding(

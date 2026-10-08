@@ -7,7 +7,6 @@ import "../../../core/theme/app_colors.dart";
 import "../../../core/theme/app_typography.dart";
 import "../../../design/components/app_shell.dart";
 import "../../auth/presentation/auth_provider.dart";
-import "../../chat/presentation/chat_provider.dart";
 
 /// Profil — mengikuti prototype: avatar & nama, kartu biru "Punya bengkel
 /// motor?", baris mode bengkel, dan daftar menu akun.
@@ -18,7 +17,6 @@ class ProfileScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final c = context.colors;
     final profile = ref.watch(currentUserProfileProvider).valueOrNull;
-    final unread = ref.watch(chatUnreadCountProvider);
     final name = (profile?["full_name"] as String?)?.trim();
     final email = SupabaseService.isLoggedIn
         ? (SupabaseService.currentUser?.email ?? "")
@@ -29,7 +27,6 @@ class ProfileScreen extends ConsumerWidget {
     final menu = <(IconData, String, String, int)>[
       (Icons.two_wheeler_outlined, "Garasi saya", "/garage", 0),
       (Icons.favorite_border_rounded, "Bengkel favorit", "/favorites", 0),
-      (Icons.chat_bubble_outline_rounded, "Chat", "/chat", unread),
       (
         Icons.notifications_none_rounded,
         "Notifikasi",
@@ -203,10 +200,7 @@ class ProfileScreen extends ConsumerWidget {
           ],
         ),
       ),
-      bottomNavigationBar: AppBottomNav(
-        current: AppTab.profile,
-        badges: {AppTab.profile: unread},
-      ),
+      bottomNavigationBar: const AppBottomNav(current: AppTab.profile),
     );
   }
 }
