@@ -5,6 +5,7 @@
 import "dart:async";
 
 import "package:flutter/material.dart";
+import "package:intl/intl.dart";
 import "package:go_router/go_router.dart";
 import "package:supabase_flutter/supabase_flutter.dart";
 
@@ -12,11 +13,13 @@ import "../../../core/theme/app_colors.dart";
 import "../../../core/theme/app_typography.dart";
 import "../../../core/utils/formatters.dart";
 import "../../../design/components/app_button.dart";
+import "../../../design/components/app_shell.dart";
 import "../../../design/components/booking_status_badge.dart";
 import "../../../design/components/state_views.dart";
 import "../../sos/presentation/owner_standby_screen.dart";
 import "../data/owner_repository.dart";
 import "../data/owner_schedule.dart";
+import "owner_schedule_screen.dart";
 import "reject_sheet.dart";
 
 class OwnerDashboardScreen extends StatefulWidget {
@@ -33,6 +36,9 @@ class _OwnerDashboardScreenState extends State<OwnerDashboardScreen> {
   String? _error;
   String? _busyId;
   bool? _isOpen;
+  OwnerSchedule? _schedule;
+  bool _toggling = false;
+  final _schedRepo = OwnerScheduleRepository();
 
   @override
   void initState() {
@@ -44,9 +50,10 @@ class _OwnerDashboardScreenState extends State<OwnerDashboardScreen> {
     try {
       final d = await _repo.getDashboard();
       bool? open;
+      OwnerSchedule? sch;
       if (d != null) {
         try {
-          final sch = await OwnerScheduleRepository().get();
+          sch = await _schedRepo.get();
           open = sch.isOpen && !sch.isTempClosed;
         } catch (_) {
           open = null; // migrasi 0026 belum dijalankan — tile tetap tampil
@@ -54,6 +61,7 @@ class _OwnerDashboardScreenState extends State<OwnerDashboardScreen> {
       }
       if (!mounted) return;
       _isOpen = open;
+      _schedule = sch;
       setState(() {
         _d = d;
         _loading = false;
@@ -103,6 +111,46 @@ class _OwnerDashboardScreenState extends State<OwnerDashboardScreen> {
     if (ok == true) await _load();
   }
 
+  /// Sakelar "Menerima booking": mati = tutup sementara, nyala = buka lagi.
+  Future<void> _toggleAccepting(bool accept) async {
+    final sch = _schedule;
+    if (sch == null) {
+      await context.push("/owner/schedule");
+      await _load();
+      return;
+    }
+    final sheet = accept
+        ? null
+        : showTempCloseFlow(context, repo: _schedRepo, hours: sch.hours);
+    final messenger = ScaffoldMessenger.of(context);
+    final bad = context.colors.bad;
+    setState(() => _toggling = true);
+    try {
+      final next = accept ? await _schedRepo.setTempClosed(null) : await sheet;
+      if (next != null && mounted) {
+        setState(() {
+          _schedule = next;
+          _isOpen = next.isOpen && !next.isTempClosed;
+        });
+        messenger.showSnackBar(
+          SnackBar(
+            content: Text(
+              accept
+                  ? "bengkel kembali menerima booking sesuai jadwal"
+                  : "bengkel ditutup sementara",
+            ),
+          ),
+        );
+      }
+    } catch (e) {
+      messenger.showSnackBar(
+        SnackBar(content: Text(scheduleErrorMessage(e)), backgroundColor: bad),
+      );
+    } finally {
+      if (mounted) setState(() => _toggling = false);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final c = context.colors;
@@ -149,38 +197,62 @@ class _OwnerDashboardScreenState extends State<OwnerDashboardScreen> {
         child: ListView(
           padding: const EdgeInsets.all(16),
           children: [
-            _SummaryCard(
-              revenue: (_d!["today_revenue"] as num?)?.toInt() ?? 0,
-              todayCount: (_d!["today_count"] as num?)?.toInt() ?? 0,
-              waiting: (_d!["waiting_confirmation"] as num?)?.toInt() ?? 0,
+            _ShopHeader(
+              name: ws?["name"] as String? ?? "Bengkel",
+              onSwitch: () => context.go("/home"),
             ),
-            const SizedBox(height: 16),
-            _ScheduleTile(
+            const SizedBox(height: 14),
+            _AcceptingCard(
+              schedule: _schedule,
               isOpen: _isOpen,
-              onTap: () => context.push("/owner/schedule").then((_) => _load()),
+              busy: _toggling,
+              onToggle: _toggleAccepting,
+              onSchedule: () =>
+                  context.push("/owner/schedule").then((_) => _load()),
             ),
             const SizedBox(height: 12),
-            const OwnerStandbyTile(),
-            const SizedBox(height: 16),
             Row(
               children: [
                 Expanded(
-                  child: OutlinedButton.icon(
-                    icon: const Icon(Icons.star_outline),
-                    label: Text("Ulasan (${ws?["rating_count"] ?? 0})"),
-                    onPressed: () => context.push("/owner/reviews"),
+                  child: StatTile(
+                    value: "${(_d!["today_count"] as num?)?.toInt() ?? 0}",
+                    label: "Booking hari ini",
                   ),
                 ),
                 const SizedBox(width: 8),
                 Expanded(
-                  child: OutlinedButton.icon(
-                    icon: const Icon(Icons.account_balance_outlined),
-                    label: const Text("Dompet"),
-                    onPressed: () => context.push("/owner/wallet"),
+                  child: StatTile(
+                    value: Formatters.rupiah(
+                      (_d!["today_revenue"] as num?)?.toInt() ?? 0,
+                    ),
+                    label: "Pendapatan",
+                    onTap: () => context.push("/owner/wallet"),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: StatTile(
+                    value: ((ws?["rating_avg"] as num?) ?? 0) == 0
+                        ? "—"
+                        : (ws!["rating_avg"] as num).toStringAsFixed(1),
+                    label: "Ulasan ›",
+                    onTap: () => context.push("/owner/reviews"),
                   ),
                 ),
               ],
             ),
+            if (((_d!["waiting_confirmation"] as num?)?.toInt() ?? 0) > 0) ...[
+              const SizedBox(height: 12),
+              StatusPill(
+                label:
+                    "${_d!["waiting_confirmation"]} booking menunggu konfirmasi",
+                icon: Icons.notifications_active_outlined,
+                color: c.warnText,
+                background: c.warnSoft,
+              ),
+            ],
+            const SizedBox(height: 12),
+            const OwnerStandbyTile(),
             const SizedBox(height: 24),
             Text(
               "Antrean Booking",
@@ -217,9 +289,26 @@ class _OwnerDashboardScreenState extends State<OwnerDashboardScreen> {
     }
 
     return Scaffold(
-      backgroundColor: c.stage,
+      backgroundColor: c.panel2,
+      bottomNavigationBar: status == "verified"
+          ? Container(
+              decoration: BoxDecoration(
+                color: c.panel,
+                border: Border(top: BorderSide(color: c.line)),
+              ),
+              child: SafeArea(
+                minimum: const EdgeInsets.fromLTRB(20, 12, 20, 12),
+                child: AppButton(
+                  label: "Scan QR check-in",
+                  icon: Icons.qr_code_scanner,
+                  onPressed: () => context.push("/owner/scan"),
+                ),
+              ),
+            )
+          : null,
       appBar: AppBar(
-        title: Text(ws?["name"] as String? ?? "Dashboard Bengkel"),
+        title: const Text("Mode bengkel"),
+        backgroundColor: c.panel2,
         actions: [
           IconButton(
             tooltip: "Scan check-in",
@@ -236,79 +325,6 @@ class _OwnerDashboardScreenState extends State<OwnerDashboardScreen> {
         elevation: 0,
       ),
       body: SafeArea(child: body),
-    );
-  }
-}
-
-class _SummaryCard extends StatelessWidget {
-  const _SummaryCard({
-    required this.revenue,
-    required this.todayCount,
-    required this.waiting,
-  });
-
-  final int revenue;
-  final int todayCount;
-  final int waiting;
-
-  @override
-  Widget build(BuildContext context) {
-    final c = context.colors;
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: c.blue,
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            "Pendapatan bersih hari ini",
-            style: AppTypography.caption.copyWith(color: Colors.white70),
-          ),
-          const SizedBox(height: 4),
-          TweenAnimationBuilder<double>(
-            tween: Tween(end: revenue.toDouble()),
-            duration: MediaQuery.of(context).disableAnimations
-                ? Duration.zero
-                : const Duration(milliseconds: 600),
-            builder: (_, v, __) => Text(
-              Formatters.rupiah(v.round()),
-              style:
-                  AppTypography.h1.copyWith(color: Colors.white, fontSize: 24),
-            ),
-          ),
-          const SizedBox(height: 12),
-          Row(
-            children: [
-              _Stat(label: "booking hari ini", value: "$todayCount"),
-              const SizedBox(width: 24),
-              _Stat(label: "menunggu konfirmasi", value: "$waiting"),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _Stat extends StatelessWidget {
-  const _Stat({required this.label, required this.value});
-  final String label;
-  final String value;
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(value, style: AppTypography.h2.copyWith(color: Colors.white)),
-        Text(
-          label,
-          style: AppTypography.caption.copyWith(color: Colors.white70),
-        ),
-      ],
     );
   }
 }
@@ -440,62 +456,160 @@ class _BookingCard extends StatelessWidget {
   }
 }
 
-class _ScheduleTile extends StatelessWidget {
-  const _ScheduleTile({required this.isOpen, required this.onTap});
-  final bool? isOpen;
-  final VoidCallback onTap;
+class _ShopHeader extends StatelessWidget {
+  const _ShopHeader({required this.name, required this.onSwitch});
+  final String name;
+  final VoidCallback onSwitch;
 
   @override
   Widget build(BuildContext context) {
     final c = context.colors;
-    final open = isOpen ?? true;
-    return Material(
-      color: c.panel,
-      borderRadius: BorderRadius.circular(16),
-      child: InkWell(
-        borderRadius: BorderRadius.circular(16),
-        onTap: onTap,
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Row(
+    return Row(
+      children: [
+        IconTile(
+          icon: Icons.storefront_outlined,
+          color: Colors.white,
+          background: c.blue,
+          size: 52,
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Container(
-                width: 44,
-                height: 44,
-                decoration: BoxDecoration(
-                  color: open ? c.okSoft : c.badSoft,
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Icon(
-                  Icons.schedule,
-                  color: open ? c.ok : c.bad,
-                ),
+              Text(
+                name,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: AppTypography.h2.copyWith(color: c.ink),
               ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      "Jadwal buka",
-                      style: AppTypography.label.copyWith(color: c.ink),
-                    ),
-                    Text(
-                      isOpen == null
-                          ? "atur jam buka, libur, & tutup sementara"
-                          : open
-                              ? "sedang buka · atur jam, libur, tutup sementara"
-                              : "sedang tutup · ketuk untuk mengatur",
-                      style: AppTypography.caption.copyWith(color: c.ink2),
-                    ),
-                  ],
-                ),
+              Text(
+                "Mode bengkel",
+                style: AppTypography.caption.copyWith(color: c.ink2),
               ),
-              Icon(Icons.chevron_right, color: c.ink2),
             ],
           ),
         ),
+        SquareIconButton(
+          icon: Icons.swap_horiz_rounded,
+          tooltip: "Beralih ke mode pengendara",
+          onTap: onSwitch,
+        ),
+      ],
+    );
+  }
+}
+
+/// Kartu status buka + sakelar "Menerima booking" (prototype ownerDash),
+/// terhubung ke jadwal buka/tutup (0026).
+class _AcceptingCard extends StatelessWidget {
+  const _AcceptingCard({
+    required this.schedule,
+    required this.isOpen,
+    required this.busy,
+    required this.onToggle,
+    required this.onSchedule,
+  });
+
+  final OwnerSchedule? schedule;
+  final bool? isOpen;
+  final bool busy;
+  final ValueChanged<bool> onToggle;
+  final VoidCallback onSchedule;
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.colors;
+    final temp = schedule?.isTempClosed ?? false;
+    final open = isOpen ?? true;
+    final fmt = DateFormat("EEE d MMM, HH:mm", "id_ID");
+
+    return AppCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              StatusPill(
+                label: temp ? "Tutup sementara" : (open ? "Buka" : "Tutup"),
+                color: temp ? c.warnText : (open ? c.okText : c.badText),
+                background: temp ? c.warnSoft : (open ? c.okSoft : c.badSoft),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Text(
+                  "Menerima booking",
+                  style: AppTypography.body.copyWith(color: c.ink2),
+                ),
+              ),
+              if (busy)
+                const SizedBox(
+                  width: 24,
+                  height: 24,
+                  child: CircularProgressIndicator(strokeWidth: 2.4),
+                )
+              else
+                Switch(
+                  value: !temp,
+                  activeTrackColor: c.okC,
+                  onChanged: onToggle,
+                ),
+            ],
+          ),
+          const SizedBox(height: 6),
+          Text(
+            temp
+                ? "buka lagi ${fmt.format(schedule!.tempClosedUntil!)}"
+                    "${schedule!.tempClosedReason != null ? " · ${schedule!.tempClosedReason}" : ""}"
+                : open
+                    ? "bengkelmu tampil buka dan bisa dibooking pengendara sekitar."
+                    : "di luar jam buka atau sedang libur — slot dibuka sesuai jadwal.",
+            style: AppTypography.caption.copyWith(color: c.ink2),
+          ),
+          Divider(height: 24, color: c.line),
+          InkWell(
+            borderRadius: BorderRadius.circular(12),
+            onTap: onSchedule,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 4),
+              child: Row(
+                children: [
+                  const IconTile(icon: Icons.schedule_rounded, size: 40),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          "Jadwal buka",
+                          style: AppTypography.label.copyWith(color: c.ink),
+                        ),
+                        Text(
+                          _summary(schedule),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: AppTypography.caption.copyWith(color: c.ink2),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Icon(Icons.chevron_right, color: c.ink2),
+                ],
+              ),
+            ),
+          ),
+        ],
       ),
     );
+  }
+
+  static String _summary(OwnerSchedule? s) {
+    if (s == null) return "atur jam buka, libur, & tutup sementara";
+    final today = s.hours[DateTime.now().weekday % 7];
+    final t = today.isClosed
+        ? "hari ini libur"
+        : "hari ini ${today.open}–${today.close}";
+    final libur = s.closures.isEmpty ? "" : " · ${s.closures.length} libur";
+    return "$t$libur";
   }
 }

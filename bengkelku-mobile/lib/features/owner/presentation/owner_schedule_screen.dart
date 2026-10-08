@@ -189,13 +189,13 @@ class _OwnerScheduleScreenState extends State<OwnerScheduleScreen> {
   }
 
   Future<void> _tempClose() async {
-    final r = await showModalBottomSheet<_TempCloseResult>(
+    final r = await showModalBottomSheet<TempCloseResult>(
       context: context,
       isScrollControlled: true,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
-      builder: (_) => _TempCloseSheet(hours: _hours),
+      builder: (_) => TempCloseSheet(hours: _hours),
     );
     if (r == null) return;
     setState(() => _busyStatus = true);
@@ -1043,8 +1043,27 @@ class _Hint extends StatelessWidget {
 // ---------------------------------------------------------------------------
 // Sheet tutup sementara
 
-class _TempCloseResult {
-  const _TempCloseResult(this.until, this.reason);
+/// Buka sheet tutup sementara lalu simpan. Mengembalikan jadwal terbaru
+/// (null bila dibatalkan). Dipakai layar jadwal & sakelar di dasbor.
+Future<OwnerSchedule?> showTempCloseFlow(
+  BuildContext context, {
+  required OwnerScheduleRepository repo,
+  required List<DayHours> hours,
+}) async {
+  final r = await showModalBottomSheet<TempCloseResult>(
+    context: context,
+    isScrollControlled: true,
+    shape: const RoundedRectangleBorder(
+      borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+    ),
+    builder: (_) => TempCloseSheet(hours: hours),
+  );
+  if (r == null) return null;
+  return repo.setTempClosed(r.until, reason: r.reason);
+}
+
+class TempCloseResult {
+  const TempCloseResult(this.until, this.reason);
   final DateTime until;
   final String? reason;
 }
@@ -1063,15 +1082,15 @@ DateTime nextOpening(List<DayHours> hours, DateTime from) {
   return DateTime(from.year, from.month, from.day + 1, 8);
 }
 
-class _TempCloseSheet extends StatefulWidget {
-  const _TempCloseSheet({required this.hours});
+class TempCloseSheet extends StatefulWidget {
+  const TempCloseSheet({super.key, required this.hours});
   final List<DayHours> hours;
 
   @override
-  State<_TempCloseSheet> createState() => _TempCloseSheetState();
+  State<TempCloseSheet> createState() => TempCloseSheetState();
 }
 
-class _TempCloseSheetState extends State<_TempCloseSheet> {
+class TempCloseSheetState extends State<TempCloseSheet> {
   final _reason = TextEditingController();
   int _option = 1;
   DateTime? _custom;
@@ -1239,7 +1258,7 @@ class _TempCloseSheetState extends State<_TempCloseSheet> {
                     ? null
                     : () => Navigator.pop(
                           context,
-                          _TempCloseResult(
+                          TempCloseResult(
                             _until!,
                             _reason.text.trim().isEmpty
                                 ? null
