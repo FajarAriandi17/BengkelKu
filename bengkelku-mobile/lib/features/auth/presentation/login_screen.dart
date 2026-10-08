@@ -1,4 +1,4 @@
-import "dart:io";
+import "package:flutter/foundation.dart";
 import "package:flutter/material.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:go_router/go_router.dart";
@@ -230,7 +230,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                 label: const Text("Masuk dengan Google"),
                 onPressed: _loginGoogle,
               ),
-              if (Platform.isIOS || Platform.isMacOS) ...[
+              if (defaultTargetPlatform == TargetPlatform.iOS ||
+                  defaultTargetPlatform == TargetPlatform.macOS) ...[
                 const SizedBox(height: 10),
                 OutlinedButton.icon(
                   style: OutlinedButton.styleFrom(
