@@ -1,6 +1,7 @@
 // Chat Repository - sesuai PRD v1.3 Section 2
 
 import 'package:flutter/foundation.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:uuid/uuid.dart';
 import '../../../core/network/supabase_client.dart';
@@ -204,7 +205,12 @@ class ChatRepository {
       final fileName = '${_uuid.v4()}.jpg';
       final path = 'chat/$threadId/$fileName';
 
-      await _supabase.storage.from('chat-media').upload(path, filePath);
+      final bytes = await XFile(filePath).readAsBytes();
+      await _supabase.storage.from('chat-media').uploadBinary(
+            path,
+            bytes,
+            fileOptions: const FileOptions(contentType: 'image/jpeg'),
+          );
 
       final url = _supabase.storage.from('chat-media').getPublicUrl(path);
       return url;

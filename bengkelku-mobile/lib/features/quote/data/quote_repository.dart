@@ -1,5 +1,6 @@
 // Quote Repository - sesuai PRD v1.3 Section 4
 
+import 'package:image_picker/image_picker.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../../core/network/supabase_client.dart';
 import 'quote_models.dart';
@@ -162,7 +163,12 @@ class QuoteRepository {
       final fileName = '${DateTime.now().millisecondsSinceEpoch}.jpg';
       final path = 'quotes/$quoteId/$fileName';
 
-      await _supabase.storage.from('quote-photos').upload(path, filePath);
+      final bytes = await XFile(filePath).readAsBytes();
+      await _supabase.storage.from('quote-photos').uploadBinary(
+            path,
+            bytes,
+            fileOptions: const FileOptions(contentType: 'image/jpeg'),
+          );
 
       final url = _supabase.storage.from('quote-photos').getPublicUrl(path);
       return url;

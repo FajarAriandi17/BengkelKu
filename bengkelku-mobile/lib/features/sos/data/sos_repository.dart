@@ -1,6 +1,7 @@
 // SOS Repository - sesuai PRD v1.3 Section 3
 
 import 'package:flutter/foundation.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../../core/network/supabase_client.dart';
 import 'sos_models.dart';
@@ -169,7 +170,12 @@ class SosRepository {
       final fileName = '${DateTime.now().millisecondsSinceEpoch}.jpg';
       final path = 'sos/$requestId/$fileName';
 
-      await _supabase.storage.from('sos-photos').upload(path, filePath);
+      final bytes = await XFile(filePath).readAsBytes();
+      await _supabase.storage.from('sos-photos').uploadBinary(
+            path,
+            bytes,
+            fileOptions: const FileOptions(contentType: 'image/jpeg'),
+          );
 
       final url = _supabase.storage.from('sos-photos').getPublicUrl(path);
       return url;
