@@ -28,11 +28,11 @@
 
 import { createClient } from "jsr:@supabase/supabase-js@2";
 
-const supabase = createClient(
-  Deno.env.get("SUPABASE_URL")!,
-  Deno.env.get("SERVICE_ROLE_KEY")!, // service role: bypass RLS
-);
-
+// Env dibaca di top-level, tapi client hanya dibuat di dalam handler. Memanggil
+// createClient di top-level dengan `!` crash saat cold start (env belum terbaca),
+// sehingga semua request membalas WORKER_ERROR sebelum handler sempat jalan.
+const SUPABASE_URL = Deno.env.get("SUPABASE_URL") ?? "";
+const SERVICE_ROLE_KEY = Deno.env.get("SERVICE_ROLE_KEY") ?? "";
 const WEBHOOK_SECRET = Deno.env.get("MAYAR_WEBHOOK_SECRET") ?? "";
 const MERCHANT_ID = Deno.env.get("MAYAR_MERCHANT_ID") ?? "";
 
@@ -94,7 +94,8 @@ Deno.serve(async (req) => {
   // data.status true → lunas; false/absen → gagal (pengendara bisa coba lagi).
   const status: "paid" | "failed" = data.status === true ? "paid" : "failed";
 
-  const { error } = await supabase.rpc("payment_mark", {
+  const { error } = await createClient(SUPABASE_URL, SERVICE_ROLE_KEY).rpc(
+    "payment_mark", {
     p_gateway_txn_id: txnId,
     p_status: status,
     p_method: data.paymentMethod ?? null,
