@@ -34,3 +34,9 @@ out/
 *.pem
 *.jks
 *.keystore
+
+# Artefak rilis Android — JANGAN commit
+*.apk
+*.aab
+*.apks
+key.properties
