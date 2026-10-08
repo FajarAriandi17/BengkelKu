@@ -2,6 +2,7 @@ import "package:flutter/material.dart";
 import "package:google_maps_flutter/google_maps_flutter.dart";
 import "package:go_router/go_router.dart";
 
+import "../../../design/components/app_shell.dart";
 import "../../../design/components/workshop_card.dart";
 
 /// Peta interaktif Google Maps dengan pin bengkel.
@@ -23,10 +24,13 @@ class _MapScreenState extends State<MapScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      extendBody: true,
       appBar: AppBar(
-        title: const Text("Peta Bengkel Terdekat"),
+        title: const Text("Peta bengkel"),
+        automaticallyImplyLeading: false,
         elevation: 0,
       ),
+      bottomNavigationBar: const AppBottomNav(current: AppTab.map),
       body: Stack(
         children: [
           GoogleMap(
@@ -49,7 +53,7 @@ class _MapScreenState extends State<MapScreen> {
           ),
           if (_selectedWorkshopId != null)
             Positioned(
-              bottom: 24,
+              bottom: 100,
               left: 16,
               right: 16,
               child: WorkshopCard(

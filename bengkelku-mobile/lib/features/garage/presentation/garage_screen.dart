@@ -5,7 +5,9 @@ import "../../../core/theme/app_colors.dart";
 import "../../../core/theme/app_typography.dart";
 import "../../../core/utils/formatters.dart";
 import "../../../design/components/app_button.dart";
+import "../../../design/components/app_shell.dart";
 import "../../../design/components/app_text_field.dart";
+import "../../../design/components/state_views.dart";
 import "../data/garage_repository.dart";
 import "../data/vehicle_model.dart";
 
@@ -121,109 +123,203 @@ class _GarageScreenState extends State<GarageScreen> {
     final c = context.colors;
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text("Garasi Motor Saya"),
-        elevation: 0,
-      ),
-      body: _loading
-          ? const Center(child: CircularProgressIndicator())
-          : _vehicles.isEmpty
-              ? Padding(
-                  padding: const EdgeInsets.all(24),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(Icons.two_wheeler, size: 80, color: c.blueSoft),
-                      const SizedBox(height: 16),
-                      Text(
-                        "Garasi Masih Kosong",
-                        style: AppTypography.h1.copyWith(color: c.ink),
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        "Tambahkan motor kamu ke Garasi untuk memantau jadwal ganti oli & riwayat servis.",
-                        style: AppTypography.body
-                            .copyWith(color: c.ink.withValues(alpha: 0.7)),
-                        textAlign: TextAlign.center,
-                      ),
-                      const SizedBox(height: 24),
-                      AppButton(
-                        label: "Tambah Motor Pertama",
-                        onPressed: _showAddVehicleSheet,
-                        icon: Icons.add,
-                      ),
-                    ],
+      backgroundColor: c.panel2,
+      extendBody: true,
+      body: SafeArea(
+        bottom: false,
+        child: RefreshIndicator(
+          onRefresh: _fetch,
+          child: ListView(
+            padding: const EdgeInsets.fromLTRB(20, 12, 20, 110),
+            children: [
+              Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      "Garasi",
+                      style: AppTypography.display.copyWith(color: c.ink),
+                    ),
+                  ),
+                  SquareIconButton(
+                    icon: Icons.add,
+                    tooltip: "Tambah motor",
+                    onTap: _showAddVehicleSheet,
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+              if (_loading)
+                const SizedBox(height: 300, child: SkeletonList(itemCount: 2))
+              else if (_vehicles.isEmpty)
+                Padding(
+                  padding: const EdgeInsets.only(top: 40),
+                  child: EmptyState(
+                    icon: Icons.two_wheeler,
+                    title: "garasi masih kosong",
+                    message:
+                        "tambahkan motor untuk memantau jadwal ganti oli & riwayat servis.",
+                    actionLabel: "Tambah motor pertama",
+                    onAction: _showAddVehicleSheet,
                   ),
                 )
-              : ListView.builder(
-                  padding: const EdgeInsets.all(16),
-                  itemCount: _vehicles.length,
-                  itemBuilder: (context, index) {
-                    final v = _vehicles[index];
-                    return Container(
-                      margin: const EdgeInsets.only(bottom: 12),
-                      padding: const EdgeInsets.all(16),
-                      decoration: BoxDecoration(
-                        color: c.panel,
-                        borderRadius: BorderRadius.circular(16),
+              else ...[
+                for (final v in _vehicles) ...[
+                  _VehicleCard(
+                    vehicle: v,
+                    onTap: () => context.push("/oil-detail?vehicleId=${v.id}"),
+                  ),
+                  const SizedBox(height: 12),
+                ],
+                AppCard(
+                  onTap: () => context.push("/notifications/settings"),
+                  child: Row(
+                    children: [
+                      const IconTile(icon: Icons.notifications_none_rounded),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              "Pengingat saya",
+                              style: AppTypography.label
+                                  .copyWith(color: c.ink, fontSize: 15),
+                            ),
+                            Text(
+                              "atur kapan kami mengingatkan ganti oli",
+                              style:
+                                  AppTypography.caption.copyWith(color: c.ink2),
+                            ),
+                          ],
+                        ),
                       ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            children: [
-                              Icon(Icons.two_wheeler, size: 32, color: c.blue),
-                              const SizedBox(width: 12),
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      "${v.brand} ${v.model}",
-                                      style: AppTypography.h2
-                                          .copyWith(color: c.ink),
-                                    ),
-                                    Text(
-                                      "${v.plate ?? '-'} • Odometer: ${Formatters.odometer(v.odometer)}",
-                                      style: AppTypography.caption.copyWith(
-                                        color: c.ink.withValues(alpha: 0.6),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
-                          const Divider(height: 20),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(
-                                "Status Oli:",
-                                style: AppTypography.body.copyWith(
-                                  color: c.ink.withValues(alpha: 0.7),
-                                ),
-                              ),
-                              TextButton.icon(
-                                icon: const Icon(Icons.opacity, size: 16),
-                                label: const Text("Detail Oli"),
-                                onPressed: () => context
-                                    .push("/oil-detail?vehicleId=${v.id}"),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                    );
-                  },
+                      Icon(Icons.chevron_right, color: c.ink),
+                    ],
+                  ),
                 ),
-      floatingActionButton: _vehicles.isNotEmpty
-          ? FloatingActionButton(
-              backgroundColor: c.blue,
-              onPressed: _showAddVehicleSheet,
-              child: const Icon(Icons.add, color: Colors.white),
-            )
-          : null,
+                const SizedBox(height: 12),
+                _DashedButton(
+                  label: "Tambah motor",
+                  onTap: _showAddVehicleSheet,
+                ),
+              ],
+            ],
+          ),
+        ),
+      ),
+      bottomNavigationBar: const AppBottomNav(current: AppTab.garage),
     );
   }
+}
+
+class _VehicleCard extends StatelessWidget {
+  const _VehicleCard({required this.vehicle, required this.onTap});
+  final Vehicle vehicle;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.colors;
+    final v = vehicle;
+    return AppCard(
+      onTap: onTap,
+      padding: const EdgeInsets.all(14),
+      child: Row(
+        children: [
+          const IconTile(icon: Icons.two_wheeler, size: 66),
+          const SizedBox(width: 14),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  "${v.brand} ${v.model}".trim(),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style:
+                      AppTypography.label.copyWith(color: c.ink, fontSize: 16),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  "${v.plate ?? "-"} · ${Formatters.odometer(v.odometer)}",
+                  style: AppTypography.caption.copyWith(color: c.ink2),
+                ),
+                const SizedBox(height: 8),
+                StatusPill(
+                  label: "Ganti tiap ${Formatters.odometer(v.oilIntervalKm)}",
+                  color: c.okText,
+                  background: c.okSoft,
+                ),
+              ],
+            ),
+          ),
+          MiniOilGauge(progress: 0.8, color: c.okC, size: 72),
+        ],
+      ),
+    );
+  }
+}
+
+class _DashedButton extends StatelessWidget {
+  const _DashedButton({required this.label, required this.onTap});
+  final String label;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.colors;
+    return InkWell(
+      borderRadius: BorderRadius.circular(AppRadius.lg),
+      onTap: onTap,
+      child: CustomPaint(
+        painter: _DashPainter(c.line),
+        child: SizedBox(
+          height: 60,
+          child: Center(
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(Icons.add, color: c.blueText, size: 20),
+                const SizedBox(width: 6),
+                Text(
+                  label,
+                  style: AppTypography.label.copyWith(color: c.blueText),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _DashPainter extends CustomPainter {
+  _DashPainter(this.color);
+  final Color color;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final path = Path()
+      ..addRRect(
+        RRect.fromRectAndRadius(
+          Offset.zero & size,
+          const Radius.circular(AppRadius.lg),
+        ),
+      );
+    final paint = Paint()
+      ..color = color
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 1.6;
+    for (final m in path.computeMetrics()) {
+      var d = 0.0;
+      while (d < m.length) {
+        canvas.drawPath(m.extractPath(d, d + 7), paint);
+        d += 12;
+      }
+    }
+  }
+
+  @override
+  bool shouldRepaint(_DashPainter old) => old.color != color;
 }

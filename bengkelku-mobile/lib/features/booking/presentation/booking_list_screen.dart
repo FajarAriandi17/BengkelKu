@@ -4,6 +4,7 @@ import "package:go_router/go_router.dart";
 import "../../../core/theme/app_colors.dart";
 import "../../../core/theme/app_typography.dart";
 import "../../../core/utils/formatters.dart";
+import "../../../design/components/app_shell.dart";
 import "../../../design/components/booking_status_badge.dart";
 import "../../../design/components/state_views.dart";
 import "../data/booking_model.dart";
@@ -104,8 +105,12 @@ class _BookingListScreenState extends State<BookingListScreen>
     final history = _items.where((b) => !b.isActive).toList();
 
     return Scaffold(
+      backgroundColor: c.panel2,
+      bottomNavigationBar: const AppBottomNav(current: AppTab.bookings),
       appBar: AppBar(
-        title: const Text("Booking Saya"),
+        title: const Text("Booking"),
+        automaticallyImplyLeading: false,
+        backgroundColor: c.panel2,
         elevation: 0,
         bottom: TabBar(
           controller: _tabController,

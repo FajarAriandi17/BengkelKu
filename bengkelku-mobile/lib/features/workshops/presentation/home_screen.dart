@@ -540,8 +540,8 @@ class _NearbyCard extends StatelessWidget {
                     w.name,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style:
-                        AppTypography.label.copyWith(color: c.ink, fontSize: 15),
+                    style: AppTypography.label
+                        .copyWith(color: c.ink, fontSize: 15),
                   ),
                   Text(
                     w.address,

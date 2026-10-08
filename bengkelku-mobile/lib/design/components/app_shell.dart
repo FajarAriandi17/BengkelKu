@@ -14,7 +14,8 @@ import "../../core/theme/app_typography.dart";
 enum AppTab { home, map, garage, bookings, profile }
 
 class AppBottomNav extends StatelessWidget {
-  const AppBottomNav({super.key, required this.current, this.badges = const {}});
+  const AppBottomNav(
+      {super.key, required this.current, this.badges = const {}});
 
   final AppTab current;
   final Map<AppTab, int> badges;
