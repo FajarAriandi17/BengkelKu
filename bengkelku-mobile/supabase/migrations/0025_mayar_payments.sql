@@ -16,7 +16,11 @@
 -- tidak pernah di aplikasi (ARCHITECTURE.md §3).
 
 -- Kolom hasil invoice gateway. gateway_txn_id = transactionId Mayar — kunci lookup webhook.
+-- 0024 (Xendit) sudah dihapus, jadi kolom invoice dibuat di sini (idempoten untuk proyek
+-- yang sempat menjalankan 0024).
 alter table public.payments
+  add column if not exists invoice_url text,
+  add column if not exists expires_at timestamptz,
   add column if not exists gateway_txn_id text;
 
 -- qr_string tidak dipakai lagi: invoice Mayar tidak mengembalikan QR string (checkout di-hosted
@@ -68,11 +72,11 @@ begin
     raise exception 'Booking tidak ditemukan';
   end if;
 
-  -- Batas bayar lewat → kedaluwarsakan dulu sebelum menolak.
+  -- Batas bayar lewat → tolak. (UPDATE status di sini akan ikut di-rollback oleh RAISE,
+  -- jadi status KEDALUWARSA ditulis cron booking_expire_unpaid; slotnya sudah dibebaskan
+  -- booking_available_slots sejak deadline lewat — lihat 0026.)
   if v_b.status = 'MENUNGGU_PEMBAYARAN' and v_b.payment_deadline is not null
      and v_b.payment_deadline < now() then
-    update public.bookings set status = 'KEDALUWARSA', updated_at = now()
-    where id = p_booking_id;
     raise exception 'Batas waktu pembayaran sudah lewat, silakan pesan ulang jadwal';
   end if;
   if v_b.status <> 'MENUNGGU_PEMBAYARAN' then
@@ -88,7 +92,11 @@ begin
 
   if v_pay.id is null then
     insert into public.payments (booking_id, provider, provider_ref, amount_idr, status, expires_at)
-    values (p_booking_id, 'mayar', 'bk-' || replace(v_b.id::text, '-', ''),
+        -- Ref unik per percobaan: setelah pembayaran gagal, intent baru tidak bentrok dengan
+    -- provider_ref lama (unique). Percobaan pertama tetap 'bk-<booking>' (idempoten).
+    values (p_booking_id, 'mayar', 'bk-' || replace(v_b.id::text, '-', '')
+              || coalesce('-' || nullif((select count(*) from public.payments p
+                   where p.booking_id = p_booking_id and p.provider = 'mayar'), 0)::text, ''),
             v_b.total_idr, 'pending',
             coalesce(v_b.payment_deadline, now() + make_interval(mins => v_pay_min)))
     returning * into v_pay;
@@ -243,3 +251,6 @@ revoke execute on function public.payment_set_invoice(text, text, text, timestam
   from public, anon, authenticated;
 revoke execute on function public.payment_mark(text, text, text, int, timestamptz)
   from public, anon, authenticated;
+-- Hanya Edge Functions (service role) yang boleh mencatat invoice & status bayar.
+grant execute on function public.payment_set_invoice(text, text, text, timestamptz) to service_role;
+grant execute on function public.payment_mark(text, text, text, int, timestamptz) to service_role;

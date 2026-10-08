@@ -20,6 +20,10 @@ end $$;
 
 grant usage on schema public, extensions, auth to authenticated;
 grant select, insert, update, delete on all tables in schema public to authenticated;
+-- Di Supabase asli service_role sudah punya hak penuh; stub lokal perlu diberi eksplisit.
+grant usage on schema public, extensions, auth to service_role;
+grant all on all tables in schema public to service_role;
+grant all on all sequences in schema public to service_role;
 
 insert into auth.users(id,email) values
   ('00000000-0000-0000-0000-0000000000b1','owner@x'),
@@ -126,7 +130,10 @@ select (public.booking_create('50000000-0000-0000-0000-000000000001',null,
 update public.bookings set payment_deadline = now() - interval '5 minutes' where id = :'bid2';
 select pg_temp.assert(pg_temp.fails(format('select public.booking_create_payment(%L)', :'bid2'), '%sudah lewat%'),
   'intent setelah batas bayar ditolak');
-select pg_temp.assert((select status from public.bookings where id = :'bid2') = 'KEDALUWARSA', 'booking kedaluwarsa otomatis');
+select pg_temp.assert((select remaining from public.booking_available_slots('50000000-0000-0000-0000-000000000001', :'d')
+  where label = '10:00') >= 1, 'slot booking lewat batas bayar langsung bebas');
+select public.booking_expire_unpaid();
+select pg_temp.assert((select status from public.bookings where id = :'bid2') = 'KEDALUWARSA', 'cron mengkedaluwarsakan booking');
 
 -- Alur gagal: pembayaran gagal → booking tetap menunggu, bisa coba lagi.
 select slot_at as s3 from public.booking_available_slots('50000000-0000-0000-0000-000000000001', :'d') where label = '11:00' \gset

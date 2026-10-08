@@ -16,6 +16,7 @@ import "../../../design/components/booking_status_badge.dart";
 import "../../../design/components/state_views.dart";
 import "../../sos/presentation/owner_standby_screen.dart";
 import "../data/owner_repository.dart";
+import "../data/owner_schedule.dart";
 import "reject_sheet.dart";
 
 class OwnerDashboardScreen extends StatefulWidget {
@@ -31,6 +32,7 @@ class _OwnerDashboardScreenState extends State<OwnerDashboardScreen> {
   bool _loading = true;
   String? _error;
   String? _busyId;
+  bool? _isOpen;
 
   @override
   void initState() {
@@ -41,7 +43,17 @@ class _OwnerDashboardScreenState extends State<OwnerDashboardScreen> {
   Future<void> _load() async {
     try {
       final d = await _repo.getDashboard();
+      bool? open;
+      if (d != null) {
+        try {
+          final sch = await OwnerScheduleRepository().get();
+          open = sch.isOpen && !sch.isTempClosed;
+        } catch (_) {
+          open = null; // migrasi 0026 belum dijalankan — tile tetap tampil
+        }
+      }
       if (!mounted) return;
+      _isOpen = open;
       setState(() {
         _d = d;
         _loading = false;
@@ -143,6 +155,11 @@ class _OwnerDashboardScreenState extends State<OwnerDashboardScreen> {
               waiting: (_d!["waiting_confirmation"] as num?)?.toInt() ?? 0,
             ),
             const SizedBox(height: 16),
+            _ScheduleTile(
+              isOpen: _isOpen,
+              onTap: () => context.push("/owner/schedule").then((_) => _load()),
+            ),
+            const SizedBox(height: 12),
             const OwnerStandbyTile(),
             const SizedBox(height: 16),
             Row(
@@ -418,6 +435,66 @@ class _BookingCard extends StatelessWidget {
               onPressed: onRecord,
             ),
         ],
+      ),
+    );
+  }
+}
+
+class _ScheduleTile extends StatelessWidget {
+  const _ScheduleTile({required this.isOpen, required this.onTap});
+  final bool? isOpen;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final c = context.colors;
+    final open = isOpen ?? true;
+    return Material(
+      color: c.panel,
+      borderRadius: BorderRadius.circular(16),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(16),
+        onTap: onTap,
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Row(
+            children: [
+              Container(
+                width: 44,
+                height: 44,
+                decoration: BoxDecoration(
+                  color: open ? c.okSoft : c.badSoft,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Icon(
+                  Icons.schedule,
+                  color: open ? c.ok : c.bad,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      "Jadwal buka",
+                      style: AppTypography.label.copyWith(color: c.ink),
+                    ),
+                    Text(
+                      isOpen == null
+                          ? "atur jam buka, libur, & tutup sementara"
+                          : open
+                              ? "sedang buka · atur jam, libur, tutup sementara"
+                              : "sedang tutup · ketuk untuk mengatur",
+                      style: AppTypography.caption.copyWith(color: c.ink2),
+                    ),
+                  ],
+                ),
+              ),
+              Icon(Icons.chevron_right, color: c.ink2),
+            ],
+          ),
+        ),
       ),
     );
   }

@@ -41,6 +41,7 @@ import "../features/owner/presentation/owner_dashboard_screen.dart";
 import "../features/owner/presentation/owner_record_screen.dart";
 import "../features/owner/presentation/owner_reviews_screen.dart";
 import "../features/owner/presentation/owner_scan_screen.dart";
+import "../features/owner/presentation/owner_schedule_screen.dart";
 import "../features/owner/presentation/owner_wallet_screen.dart";
 import "../features/owner/presentation/payout_detail_screen.dart";
 import "../features/owner/presentation/reg_status_screen.dart";
@@ -216,6 +217,10 @@ final routerProvider = Provider<GoRouter>((ref) {
           GoRoute(
             path: "scan",
             builder: (c, s) => const OwnerScanScreen(),
+          ),
+          GoRoute(
+            path: "schedule",
+            builder: (c, s) => const OwnerScheduleScreen(),
           ),
           GoRoute(
             path: "record",

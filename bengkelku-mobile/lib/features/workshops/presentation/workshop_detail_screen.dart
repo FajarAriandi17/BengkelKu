@@ -1,4 +1,5 @@
 import "package:flutter/material.dart";
+import "package:intl/intl.dart";
 import "package:go_router/go_router.dart";
 import "package:url_launcher/url_launcher.dart";
 
@@ -28,6 +29,7 @@ class _WorkshopDetailScreenState extends State<WorkshopDetailScreen> {
   Workshop? _workshop;
   List<WorkshopServiceItem> _services = [];
   List<WorkshopHour> _hours = [];
+  WorkshopOpenStatus? _status;
   final Set<String> _selected = {};
   bool _loading = true;
   String? _error;
@@ -49,6 +51,10 @@ class _WorkshopDetailScreenState extends State<WorkshopDetailScreen> {
       final sv = await _repo.getWorkshopServices(widget.workshopId);
       List<WorkshopHour> hours = [];
       Set<String> favs = {};
+      WorkshopOpenStatus? status;
+      try {
+        status = await _repo.getOpenStatus(widget.workshopId);
+      } catch (_) {}
       try {
         hours = await _repo.getWorkshopHours(widget.workshopId);
         favs = await _repo.favoriteIds();
@@ -58,6 +64,7 @@ class _WorkshopDetailScreenState extends State<WorkshopDetailScreen> {
         _workshop = ws;
         _services = sv;
         _hours = hours;
+        _status = status;
         _isFavorite = favs.contains(widget.workshopId);
         _loading = false;
         if (ws == null)
@@ -122,6 +129,7 @@ class _WorkshopDetailScreenState extends State<WorkshopDetailScreen> {
       );
     }
 
+    final isOpen = _status?.isOpen ?? w.isOpen;
     final todayIdx = DateTime.now().weekday % 7; // Minggu = 0
     WorkshopHour? today;
     for (final h in _hours) {
@@ -164,12 +172,33 @@ class _WorkshopDetailScreenState extends State<WorkshopDetailScreen> {
                     child: Text(w.name,
                         style: AppTypography.h1.copyWith(color: c.ink))),
                 AppStatusBadge(
-                  label: w.isOpen ? "Buka" : "Tutup",
-                  color: w.isOpen ? c.ok : c.bad,
-                  backgroundColor: w.isOpen ? c.okSoft : c.badSoft,
+                  label: isOpen ? "Buka" : "Tutup",
+                  color: isOpen ? c.ok : c.bad,
+                  backgroundColor: isOpen ? c.okSoft : c.badSoft,
                 ),
               ],
             ),
+            if (_status?.tempClosedUntil != null) ...[
+              const SizedBox(height: 10),
+              _Banner(
+                icon: Icons.pause_circle_outline,
+                color: c.warn,
+                background: c.warnSoft,
+                text: "Tutup sementara sampai "
+                    "${DateFormat("EEE d MMM, HH:mm", "id_ID").format(_status!.tempClosedUntil!)}"
+                    "${_status!.tempClosedReason != null ? " · ${_status!.tempClosedReason}" : ""}",
+              ),
+            ],
+            if ((_status?.closures ?? const []).isNotEmpty) ...[
+              const SizedBox(height: 10),
+              _Banner(
+                icon: Icons.event_busy_outlined,
+                color: c.blueText,
+                background: c.blueSoft,
+                text:
+                    "Libur: ${_status!.closures.take(3).map((e) => "${DateFormat("d MMM", "id_ID").format(e.date)}${e.reason != null ? " (${e.reason})" : ""}").join(", ")}",
+              ),
+            ],
             const SizedBox(height: 6),
             Text(w.address, style: AppTypography.body.copyWith(color: c.ink2)),
             const SizedBox(height: 8),
@@ -298,6 +327,42 @@ class _WorkshopDetailScreenState extends State<WorkshopDetailScreen> {
                     "/schedule?workshopId=${widget.workshopId}&services=${_selected.join(",")}",
                   ),
         ),
+      ),
+    );
+  }
+}
+
+class _Banner extends StatelessWidget {
+  const _Banner({
+    required this.icon,
+    required this.color,
+    required this.background,
+    required this.text,
+  });
+  final IconData icon;
+  final Color color;
+  final Color background;
+  final String text;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+      decoration: BoxDecoration(
+        color: background,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Row(
+        children: [
+          Icon(icon, size: 18, color: color),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              text,
+              style: AppTypography.caption.copyWith(color: color),
+            ),
+          ),
+        ],
       ),
     );
   }

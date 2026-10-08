@@ -81,6 +81,14 @@ class WorkshopRepository {
         .toList();
   }
 
+  /// Status buka publik (0026): is_open, tutup sementara, libur 30 hari ke depan.
+  Future<WorkshopOpenStatus?> getOpenStatus(String workshopId) async {
+    final res = await _client
+        .rpc("workshop_open_status", params: {"p_workshop_id": workshopId});
+    if (res == null) return null;
+    return WorkshopOpenStatus.fromJson((res as Map).cast<String, dynamic>());
+  }
+
   Future<Set<String>> favoriteIds() async {
     final uid = SupabaseService.currentUser?.id;
     if (uid == null) return {};

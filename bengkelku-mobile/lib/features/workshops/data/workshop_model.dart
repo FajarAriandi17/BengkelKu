@@ -112,3 +112,35 @@ class WorkshopHour {
         isClosed: j["is_closed"] as bool? ?? false,
       );
 }
+
+class WorkshopOpenStatus {
+  const WorkshopOpenStatus({
+    required this.isOpen,
+    this.tempClosedUntil,
+    this.tempClosedReason,
+    this.closures = const [],
+  });
+
+  final bool isOpen;
+  final DateTime? tempClosedUntil;
+  final String? tempClosedReason;
+  final List<({DateTime date, String? reason})> closures;
+
+  factory WorkshopOpenStatus.fromJson(Map<String, dynamic> j) {
+    final until = j["temp_closed_until"] as String?;
+    return WorkshopOpenStatus(
+      isOpen: j["is_open"] as bool? ?? true,
+      tempClosedUntil: until == null ? null : DateTime.parse(until).toLocal(),
+      tempClosedReason: j["temp_closed_reason"] as String?,
+      closures: ((j["closures"] as List?) ?? const [])
+          .whereType<Map>()
+          .map(
+            (e) => (
+              date: DateTime.parse(e["date"] as String),
+              reason: e["reason"] as String?,
+            ),
+          )
+          .toList(),
+    );
+  }
+}
