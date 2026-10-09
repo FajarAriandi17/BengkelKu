@@ -97,7 +97,9 @@ class _BookingTicketScreenState extends State<BookingTicketScreen> {
       body = const SkeletonList();
     } else if (_error != null || _b == null) {
       body = ErrorState(
-          message: _error ?? "Booking tidak ditemukan", onRetry: _load);
+        message: _error ?? "Booking tidak ditemukan",
+        onRetry: _load,
+      );
     } else {
       final b = _b!;
       body = RefreshIndicator(
@@ -155,8 +157,11 @@ class _BookingTicketScreenState extends State<BookingTicketScreen> {
                       style: AppTypography.caption.copyWith(color: c.ink2),
                     ),
                   const SizedBox(height: 12),
-                  _info(context, Icons.event,
-                      Formatters.dateTimeLocal(b.scheduledAt)),
+                  _info(
+                    context,
+                    Icons.event,
+                    Formatters.dateTimeLocal(b.scheduledAt),
+                  ),
                   if (b.vehicleInfo != null)
                     _info(context, Icons.two_wheeler, b.vehicleInfo!),
                 ],
@@ -191,8 +196,10 @@ class _BookingTicketScreenState extends State<BookingTicketScreen> {
                               style: AppTypography.body,
                             ),
                           ),
-                          Text(Formatters.rupiah(i.priceIdr),
-                              style: AppTypography.body),
+                          Text(
+                            Formatters.rupiah(i.priceIdr),
+                            style: AppTypography.body,
+                          ),
                         ],
                       ),
                     ),
@@ -283,8 +290,8 @@ class _BookingTicketScreenState extends State<BookingTicketScreen> {
           Icon(icon, size: 18, color: c.blue),
           const SizedBox(width: 8),
           Expanded(
-              child:
-                  Text(text, style: AppTypography.body.copyWith(color: c.ink))),
+            child: Text(text, style: AppTypography.body.copyWith(color: c.ink)),
+          ),
         ],
       ),
     );

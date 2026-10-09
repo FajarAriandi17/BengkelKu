@@ -1,18 +1,78 @@
+import "dart:async";
+
+import "package:flutter/foundation.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:supabase_flutter/supabase_flutter.dart";
 
+import "../../../core/network/supabase_client.dart";
 import "../data/auth_repository.dart";
+import "../domain/auth_error_mapper.dart";
 
 final authRepositoryProvider = Provider<AuthRepository>((ref) {
   return AuthRepository();
 });
 
+/// Stream perubahan sesi. Aman bila Supabase gagal diinisialisasi.
 final authStateProvider = StreamProvider<AuthState>((ref) {
-  return Supabase.instance.client.auth.onAuthStateChange;
+  if (!SupabaseService.isReady) return const Stream.empty();
+  return SupabaseService.auth.onAuthStateChange;
 });
 
+/// ID pengguna yang sedang masuk. Provider lain yang menyimpan data per
+/// akun (chat, SOS, profil) wajib `ref.watch` provider ini agar otomatis
+/// di-reset saat logout / ganti akun — mencegah data akun lama tampil.
+final currentUserIdProvider = Provider<String?>((ref) {
+  ref.watch(authStateProvider);
+  return SupabaseService.currentUser?.id;
+});
+
+/// Notifier untuk `GoRouter.refreshListenable`: router mengevaluasi ulang
+/// redirect setiap kali sesi berubah (login, logout, token kedaluwarsa,
+/// kembali dari OAuth Google, atau tautan reset kata sandi).
+class AuthRefreshNotifier extends ChangeNotifier {
+  AuthRefreshNotifier() {
+    if (!SupabaseService.isReady) return;
+    _sub = SupabaseService.auth.onAuthStateChange.listen(
+      (data) {
+        if (data.event == AuthChangeEvent.passwordRecovery) {
+          passwordRecovery = true;
+        } else if (data.event == AuthChangeEvent.signedOut) {
+          passwordRecovery = false;
+        }
+        notifyListeners();
+      },
+      // Tautan deep link rusak/kedaluwarsa tidak boleh membuat app crash.
+      onError: (Object _) => notifyListeners(),
+    );
+  }
+
+  StreamSubscription<AuthState>? _sub;
+
+  /// True setelah pengguna membuka tautan reset kata sandi dari email.
+  bool passwordRecovery = false;
+
+  void clearRecovery() {
+    passwordRecovery = false;
+    notifyListeners();
+  }
+
+  @override
+  void dispose() {
+    _sub?.cancel();
+    super.dispose();
+  }
+}
+
+final authRefreshProvider = Provider<AuthRefreshNotifier>((ref) {
+  final n = AuthRefreshNotifier();
+  ref.onDispose(n.dispose);
+  return n;
+});
+
+/// Profil pengguna; otomatis dimuat ulang saat akun berganti.
 final currentUserProfileProvider =
     FutureProvider<Map<String, dynamic>?>((ref) async {
+  ref.watch(currentUserIdProvider);
   final repo = ref.watch(authRepositoryProvider);
   return await repo.getProfile();
 });
@@ -21,6 +81,14 @@ class AuthController extends StateNotifier<AsyncValue<void>> {
   AuthController(this._repo) : super(const AsyncValue.data(null));
 
   final AuthRepository _repo;
+
+  /// Pesan error ramah dari state terakhir (null bila tidak ada).
+  String? get errorMessage =>
+      state.hasError ? authErrorMessage(state.error!) : null;
+
+  void clearError() {
+    if (state.hasError) state = const AsyncValue.data(null);
+  }
 
   Future<bool> login(String email, String password) async {
     state = const AsyncValue.loading();
@@ -34,28 +102,35 @@ class AuthController extends StateNotifier<AsyncValue<void>> {
     }
   }
 
-  Future<bool> register(String email, String password, String fullName) async {
+  /// Mengembalikan null bila gagal (lihat [errorMessage]).
+  Future<SignUpResult?> register(
+    String email,
+    String password,
+    String fullName,
+  ) async {
     state = const AsyncValue.loading();
     try {
-      await _repo.signUpWithEmail(
+      final r = await _repo.signUpWithEmail(
         email: email,
         password: password,
         fullName: fullName,
       );
       state = const AsyncValue.data(null);
-      return true;
+      return r;
     } catch (e, st) {
       state = AsyncValue.error(e, st);
-      return false;
+      return null;
     }
   }
 
   Future<bool> loginWithGoogle() async {
     state = const AsyncValue.loading();
     try {
-      final success = await _repo.signInWithGoogle();
+      final launched = await _repo.signInWithGoogle();
+      // Sesi aktif saat aplikasi dibuka lagi lewat deep link;
+      // router berpindah otomatis lewat AuthRefreshNotifier.
       state = const AsyncValue.data(null);
-      return success;
+      return launched;
     } catch (e, st) {
       state = AsyncValue.error(e, st);
       return false;
@@ -65,9 +140,9 @@ class AuthController extends StateNotifier<AsyncValue<void>> {
   Future<bool> loginWithApple() async {
     state = const AsyncValue.loading();
     try {
-      final success = await _repo.signInWithApple();
+      final launched = await _repo.signInWithApple();
       state = const AsyncValue.data(null);
-      return success;
+      return launched;
     } catch (e, st) {
       state = AsyncValue.error(e, st);
       return false;
@@ -80,6 +155,6 @@ class AuthController extends StateNotifier<AsyncValue<void>> {
 }
 
 final authControllerProvider =
-    StateNotifierProvider<AuthController, AsyncValue<void>>((ref) {
+    StateNotifierProvider.autoDispose<AuthController, AsyncValue<void>>((ref) {
   return AuthController(ref.watch(authRepositoryProvider));
 });

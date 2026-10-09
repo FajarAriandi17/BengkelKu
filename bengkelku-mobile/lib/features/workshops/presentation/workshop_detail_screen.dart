@@ -66,8 +66,9 @@ class _WorkshopDetailScreenState extends State<WorkshopDetailScreen> {
         _status = status;
         _isFavorite = favs.contains(widget.workshopId);
         _loading = false;
-        if (ws == null)
+        if (ws == null) {
           _error = "Bengkel tidak ditemukan atau belum terverifikasi.";
+        }
       });
     } catch (e) {
       if (!mounted) return;
@@ -124,7 +125,9 @@ class _WorkshopDetailScreenState extends State<WorkshopDetailScreen> {
       return Scaffold(
         appBar: AppBar(),
         body: ErrorState(
-            message: _error ?? "Bengkel tidak ditemukan", onRetry: _load),
+          message: _error ?? "Bengkel tidak ditemukan",
+          onRetry: _load,
+        ),
       );
     }
 

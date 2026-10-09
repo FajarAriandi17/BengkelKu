@@ -170,8 +170,10 @@ class _BookingSummaryScreenState extends State<BookingSummaryScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(_workshop!.name,
-                      style: AppTypography.h2.copyWith(color: c.ink)),
+                  Text(
+                    _workshop!.name,
+                    style: AppTypography.h2.copyWith(color: c.ink),
+                  ),
                   const SizedBox(height: 4),
                   Text(
                     _workshop!.address,

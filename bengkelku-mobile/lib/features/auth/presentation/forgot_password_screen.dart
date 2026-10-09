@@ -1,10 +1,12 @@
 import "package:flutter/material.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
+import "package:go_router/go_router.dart";
 
 import "../../../core/theme/app_colors.dart";
 import "../../../core/theme/app_typography.dart";
 import "../../../design/components/app_button.dart";
 import "../../../design/components/app_text_field.dart";
+import "../domain/auth_error_mapper.dart";
 import "auth_provider.dart";
 
 class ForgotPasswordScreen extends ConsumerStatefulWidget {
@@ -20,10 +22,12 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
   bool _loading = false;
 
   Future<void> _send() async {
-    final email = _emailController.text.trim();
-    if (email.isEmpty) {
+    if (_loading) return;
+    final email = _emailController.text.trim().toLowerCase();
+    final invalid = validateEmail(email);
+    if (invalid != null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Email wajib diisi")),
+        SnackBar(content: Text(invalid)),
       );
       return;
     }
@@ -39,12 +43,16 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
             ),
           ),
         );
-        Navigator.pop(context);
+        if (context.canPop()) {
+          context.pop();
+        } else {
+          context.go("/login");
+        }
       }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Gagal: $e")),
+          SnackBar(content: Text(authErrorMessage(e))),
         );
       }
     } finally {

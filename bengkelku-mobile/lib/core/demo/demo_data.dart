@@ -35,10 +35,24 @@ class DemoData {
 
   static final workshops = <Workshop>[
     _w("d1", "Maju Jaya Motor", "Jl. Melati Raya No. 12", 4.8, 214, 800, true),
-    _w("d2", "Sinar Abadi Speed Shop", "Jl. Kenanga No. 7", 4.6, 132, 1400,
-        true),
-    _w("d3", "Bengkel Pak Haji Umar", "Jl. Anggrek Raya No. 3", 4.7, 98, 2100,
-        true),
+    _w(
+      "d2",
+      "Sinar Abadi Speed Shop",
+      "Jl. Kenanga No. 7",
+      4.6,
+      132,
+      1400,
+      true,
+    ),
+    _w(
+      "d3",
+      "Bengkel Pak Haji Umar",
+      "Jl. Anggrek Raya No. 3",
+      4.7,
+      98,
+      2100,
+      true,
+    ),
     _w("d4", "Rizky Motor Service", "Jl. Mawar No. 21", 4.4, 61, 3200, false),
   ];
 

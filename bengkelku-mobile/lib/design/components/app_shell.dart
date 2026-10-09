@@ -16,8 +16,11 @@ import "../../features/chat/presentation/chat_provider.dart";
 enum AppTab { home, map, garage, chat, bookings, profile }
 
 class AppBottomNav extends ConsumerWidget {
-  const AppBottomNav(
-      {super.key, required this.current, this.badges = const {}});
+  const AppBottomNav({
+    super.key,
+    required this.current,
+    this.badges = const {},
+  });
 
   final AppTab current;
   final Map<AppTab, int> badges;

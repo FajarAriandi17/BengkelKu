@@ -6,6 +6,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/network/supabase_client.dart';
+import '../../auth/presentation/auth_provider.dart';
 import '../data/sos_models.dart';
 import '../data/sos_repository.dart';
 
@@ -16,6 +17,7 @@ final sosRepositoryProvider = Provider<SosRepository>((ref) {
 /// Permintaan darurat aktif pengendara saat ini (atau null bila tak ada).
 final activeSosProvider =
     StateNotifierProvider<ActiveSosNotifier, AsyncValue<SosRequest?>>((ref) {
+  ref.watch(currentUserIdProvider);
   return ActiveSosNotifier(ref.watch(sosRepositoryProvider));
 });
 
@@ -111,6 +113,7 @@ class ActiveSosNotifier extends StateNotifier<AsyncValue<SosRequest?>> {
 /// Status siaga darurat bengkel saat ini (sisi owner).
 final workshopStandbyProvider = StateNotifierProvider<WorkshopStandbyNotifier,
     AsyncValue<WorkshopStandby?>>((ref) {
+  ref.watch(currentUserIdProvider);
   return WorkshopStandbyNotifier(ref.watch(sosRepositoryProvider));
 });
 

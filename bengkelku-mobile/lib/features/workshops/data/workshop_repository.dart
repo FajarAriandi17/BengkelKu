@@ -123,8 +123,10 @@ class WorkshopRepository {
         .order("created_at", ascending: false);
     return (res as List<dynamic>)
         .where((e) => e["workshops"] != null)
-        .map((e) =>
-            Workshop.fromJson(Map<String, dynamic>.from(e["workshops"] as Map)))
+        .map(
+          (e) => Workshop.fromJson(
+              Map<String, dynamic>.from(e["workshops"] as Map)),
+        )
         .toList();
   }
 

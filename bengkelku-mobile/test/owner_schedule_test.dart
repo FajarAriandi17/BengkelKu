@@ -37,7 +37,7 @@ void main() {
           "weekday": 3,
           "open_time": "10:00",
           "close_time": "15:00",
-          "is_closed": false
+          "is_closed": false,
         },
       ],
       "slot_minutes": 30,

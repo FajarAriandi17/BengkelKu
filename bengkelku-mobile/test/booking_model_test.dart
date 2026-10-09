@@ -43,7 +43,8 @@ void main() {
 
   test("BookingSlot.fromJson", () {
     final s = BookingSlot.fromJson(
-        {"slot_at": "2030-01-02T01:00:00Z", "label": "08:00", "remaining": 0});
+      {"slot_at": "2030-01-02T01:00:00Z", "label": "08:00", "remaining": 0},
+    );
     expect(s.available, isFalse);
     expect(s.label, "08:00");
   });

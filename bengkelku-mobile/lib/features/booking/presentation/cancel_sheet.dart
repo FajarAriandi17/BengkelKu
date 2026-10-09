@@ -97,8 +97,10 @@ class _CancelSheetState extends State<CancelSheet> {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text("Batalkan Booking",
-              style: AppTypography.h1.copyWith(color: c.ink)),
+          Text(
+            "Batalkan Booking",
+            style: AppTypography.h1.copyWith(color: c.ink),
+          ),
           const SizedBox(height: 12),
           Container(
             padding: const EdgeInsets.all(14),

@@ -11,8 +11,11 @@ import "../../garage/data/vehicle_model.dart";
 import "../data/booking_repository.dart";
 
 class ScheduleScreen extends StatefulWidget {
-  const ScheduleScreen(
-      {super.key, required this.workshopId, this.serviceIds = const []});
+  const ScheduleScreen({
+    super.key,
+    required this.workshopId,
+    this.serviceIds = const [],
+  });
 
   final String workshopId;
   final List<String> serviceIds;
@@ -41,7 +44,9 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
     super.initState();
     final today = DateTime.now();
     _dates = List.generate(
-        14, (i) => DateTime(today.year, today.month, today.day + i));
+      14,
+      (i) => DateTime(today.year, today.month, today.day + i),
+    );
     _selectedDate = _dates.first;
     _loadVehicles();
     _loadSlots();

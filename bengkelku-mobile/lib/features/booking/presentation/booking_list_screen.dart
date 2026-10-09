@@ -175,8 +175,10 @@ class _BookingCard extends StatelessWidget {
               style: AppTypography.caption.copyWith(color: c.ink2),
             ),
             if (b.vehicleInfo != null && b.vehicleInfo!.isNotEmpty)
-              Text(b.vehicleInfo!,
-                  style: AppTypography.caption.copyWith(color: c.ink2)),
+              Text(
+                b.vehicleInfo!,
+                style: AppTypography.caption.copyWith(color: c.ink2),
+              ),
             const SizedBox(height: 8),
             Text(
               Formatters.rupiah(b.totalIdr),

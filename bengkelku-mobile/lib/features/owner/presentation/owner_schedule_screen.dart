@@ -152,7 +152,9 @@ class _OwnerScheduleScreenState extends State<OwnerScheduleScreen> {
     final v =
         "${t.hour.toString().padLeft(2, "0")}:${t.minute.toString().padLeft(2, "0")}";
     _update(
-        d.weekday, (h) => open ? h.copyWith(open: v) : h.copyWith(close: v));
+      d.weekday,
+      (h) => open ? h.copyWith(open: v) : h.copyWith(close: v),
+    );
   }
 
   Future<void> _save() async {
@@ -339,7 +341,7 @@ class _OwnerScheduleScreenState extends State<OwnerScheduleScreen> {
             ),
             if (!s.hasHours) ...[
               const SizedBox(height: 12),
-              _Hint(
+              const _Hint(
                 icon: Icons.info_outline,
                 text:
                     "kamu belum menyimpan jam buka. sementara pelanggan melihat jam bawaan 08:00–17:00 setiap hari.",
@@ -1099,7 +1101,7 @@ class TempCloseSheetState extends State<TempCloseSheet> {
     "Hujan deras",
     "Mekanik sakit",
     "Istirahat",
-    "Stok habis"
+    "Stok habis",
   ];
 
   @override
@@ -1178,8 +1180,10 @@ class TempCloseSheetState extends State<TempCloseSheet> {
                 ),
               ),
               const SizedBox(height: 16),
-              Text("Tutup sementara",
-                  style: AppTypography.h1.copyWith(color: c.ink)),
+              Text(
+                "Tutup sementara",
+                style: AppTypography.h1.copyWith(color: c.ink),
+              ),
               const SizedBox(height: 4),
               Text(
                 "slot booking ditutup & bengkel tampil \"Tutup\" sampai waktu yang dipilih. booking yang sudah ada tetap berlaku.",
@@ -1199,7 +1203,9 @@ class TempCloseSheetState extends State<TempCloseSheet> {
                           : () => setState(() => _option = i),
                       child: Padding(
                         padding: const EdgeInsets.symmetric(
-                            horizontal: 14, vertical: 12),
+                          horizontal: 14,
+                          vertical: 12,
+                        ),
                         child: Row(
                           children: [
                             Icon(
@@ -1213,9 +1219,11 @@ class TempCloseSheetState extends State<TempCloseSheet> {
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Text(o.$1,
-                                      style: AppTypography.label
-                                          .copyWith(color: c.ink)),
+                                  Text(
+                                    o.$1,
+                                    style: AppTypography.label
+                                        .copyWith(color: c.ink),
+                                  ),
                                   Text(
                                     "buka lagi ${o.$2}",
                                     style: AppTypography.caption

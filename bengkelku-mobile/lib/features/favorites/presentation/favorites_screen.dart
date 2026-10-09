@@ -55,7 +55,8 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
       if (!mounted) return;
       setState(() => _items.insert(idx, w));
       ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Gagal menghapus favorit.")));
+        const SnackBar(content: Text("Gagal menghapus favorit.")),
+      );
     }
   }
 

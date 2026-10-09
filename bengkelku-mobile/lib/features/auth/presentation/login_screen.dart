@@ -6,7 +6,10 @@ import "package:go_router/go_router.dart";
 import "../../../core/theme/app_colors.dart";
 import "../../../core/theme/app_typography.dart";
 import "../../../design/components/app_button.dart";
+import "../../../core/network/supabase_client.dart";
 import "../../../design/components/app_text_field.dart";
+import "../data/auth_repository.dart";
+import "../domain/auth_error_mapper.dart";
 import "auth_provider.dart";
 
 class LoginScreen extends ConsumerStatefulWidget {
@@ -23,10 +26,25 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
   final _passwordController = TextEditingController();
   final _nameController = TextEditingController();
 
+  /// Pesan validasi lokal (sebelum request ke server).
+  String? _localError;
+
+  /// Pesan sukses (mis. "cek email untuk konfirmasi").
+  String? _info;
+  String? _pendingConfirmEmail;
+
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
+    _tabController.addListener(() {
+      if (_tabController.indexIsChanging) return;
+      ref.read(authControllerProvider.notifier).clearError();
+      setState(() {
+        _localError = null;
+        if (_pendingConfirmEmail == null) _info = null;
+      });
+    });
   }
 
   @override
@@ -38,53 +56,105 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
     super.dispose();
   }
 
-  Future<void> _submit() async {
-    final email = _emailController.text.trim();
-    final password = _passwordController.text.trim();
-    final name = _nameController.text.trim();
+  void _show(String msg) {
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(SnackBar(content: Text(msg)));
+  }
 
-    if (email.isEmpty || password.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Email dan kata sandi wajib diisi")),
-      );
+  static const _notConnected =
+      "aplikasi belum terhubung ke server. hubungi pengembang";
+
+  Future<void> _submit() async {
+    if (ref.read(authControllerProvider).isLoading) return;
+    FocusScope.of(context).unfocus();
+
+    final email = _emailController.text.trim().toLowerCase();
+    // Kata sandi TIDAK di-trim: spasi adalah karakter yang sah.
+    final password = _passwordController.text;
+    final name = _nameController.text.trim();
+    final isRegister = _tabController.index == 1;
+
+    final err =
+        (isRegister && name.isEmpty ? "nama lengkap wajib diisi" : null) ??
+            validateEmail(email) ??
+            validatePassword(password);
+    setState(() {
+      _localError = err;
+      _info = null;
+      _pendingConfirmEmail = null;
+    });
+    if (err != null) return;
+
+    if (!SupabaseService.isReady) {
+      setState(() => _localError = _notConnected);
       return;
     }
 
-    final isRegister = _tabController.index == 1;
     final controller = ref.read(authControllerProvider.notifier);
 
-    bool success = false;
     if (isRegister) {
-      if (name.isEmpty) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Nama lengkap wajib diisi")),
-        );
+      final result = await controller.register(email, password, name);
+      if (!mounted || result == null) return;
+      if (result == SignUpResult.needsEmailConfirmation) {
+        setState(() {
+          _pendingConfirmEmail = email;
+          _info = "akun berhasil dibuat. kami mengirim tautan konfirmasi ke "
+              "$email — buka tautan itu, lalu masuk";
+          _passwordController.clear();
+        });
+        _tabController.animateTo(0);
         return;
       }
-      success = await controller.register(email, password, name);
-    } else {
-      success = await controller.login(email, password);
-    }
-
-    if (success && mounted) {
       context.go("/home");
+    } else {
+      final ok = await controller.login(email, password);
+      if (ok && mounted) context.go("/home");
+    }
+  }
+
+  Future<void> _resendConfirmation() async {
+    final email =
+        _pendingConfirmEmail ?? _emailController.text.trim().toLowerCase();
+    if (validateEmail(email) != null) {
+      _show("isi email kamu terlebih dahulu");
+      return;
+    }
+    try {
+      await ref.read(authRepositoryProvider).resendConfirmation(email);
+      if (mounted) _show("email konfirmasi dikirim ulang ke $email");
+    } catch (e) {
+      if (mounted) _show(authErrorMessage(e));
     }
   }
 
   Future<void> _loginGoogle() async {
+    if (!SupabaseService.isReady) {
+      _show(_notConnected);
+      return;
+    }
     final controller = ref.read(authControllerProvider.notifier);
-    await controller.loginWithGoogle();
+    final launched = await controller.loginWithGoogle();
+    if (!launched && mounted && controller.errorMessage == null) {
+      _show("tidak dapat membuka halaman masuk Google");
+    }
   }
 
   Future<void> _loginApple() async {
-    final controller = ref.read(authControllerProvider.notifier);
-    await controller.loginWithApple();
+    if (!SupabaseService.isReady) {
+      _show(_notConnected);
+      return;
+    }
+    await ref.read(authControllerProvider.notifier).loginWithApple();
   }
 
   @override
   Widget build(BuildContext context) {
     final c = context.colors;
     final authState = ref.watch(authControllerProvider);
+    final errorText = _localError ??
+        (authState.hasError ? authErrorMessage(authState.error!) : null) ??
+        (SupabaseService.isReady ? null : _notConnected);
 
     return Scaffold(
       body: SafeArea(
@@ -181,13 +251,44 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
               ),
               const SizedBox(height: 12),
 
-              if (authState.hasError)
+              if (_info != null)
+                Container(
+                  margin: const EdgeInsets.only(bottom: 12),
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: c.okSoft,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Column(
+                    children: [
+                      Text(
+                        _info!,
+                        style: AppTypography.caption.copyWith(color: c.okText),
+                        textAlign: TextAlign.center,
+                      ),
+                      TextButton(
+                        onPressed: _resendConfirmation,
+                        child: const Text("kirim ulang email konfirmasi"),
+                      ),
+                    ],
+                  ),
+                ),
+              if (errorText != null)
                 Padding(
                   padding: const EdgeInsets.only(bottom: 12),
-                  child: Text(
-                    "Gagal: ${authState.error}",
-                    style: AppTypography.caption.copyWith(color: c.bad),
-                    textAlign: TextAlign.center,
+                  child: Column(
+                    children: [
+                      Text(
+                        errorText,
+                        style: AppTypography.caption.copyWith(color: c.bad),
+                        textAlign: TextAlign.center,
+                      ),
+                      if (errorText.startsWith("email belum dikonfirmasi"))
+                        TextButton(
+                          onPressed: _resendConfirmation,
+                          child: const Text("kirim ulang email konfirmasi"),
+                        ),
+                    ],
                   ),
                 ),
 
@@ -228,7 +329,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                 icon:
                     const Icon(Icons.g_mobiledata, size: 28, color: Colors.red),
                 label: const Text("Masuk dengan Google"),
-                onPressed: _loginGoogle,
+                onPressed: authState.isLoading ? null : _loginGoogle,
               ),
               if (defaultTargetPlatform == TargetPlatform.iOS ||
                   defaultTargetPlatform == TargetPlatform.macOS) ...[
@@ -244,7 +345,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                   ),
                   icon: const Icon(Icons.apple, size: 22),
                   label: const Text("Sign in with Apple"),
-                  onPressed: _loginApple,
+                  onPressed: authState.isLoading ? null : _loginApple,
                 ),
               ],
             ],

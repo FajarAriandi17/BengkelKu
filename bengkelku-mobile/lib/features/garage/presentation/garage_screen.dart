@@ -253,7 +253,7 @@ class _VehicleCard extends StatelessWidget {
               ],
             ),
           ),
-          MiniOilGauge(progress: 0.8, color: c.okC, size: 72),
+          MiniOilGauge(progress: 0.8, color: c.okC),
         ],
       ),
     );

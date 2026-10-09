@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../../core/network/supabase_client.dart';
+import '../../auth/presentation/auth_provider.dart';
 import '../data/chat_models.dart';
 import '../data/chat_repository.dart';
 
@@ -17,6 +18,7 @@ final chatRepositoryProvider = Provider<ChatRepository>((ref) {
 final chatThreadsProvider =
     StateNotifierProvider<ChatThreadsNotifier, AsyncValue<List<ChatThread>>>(
         (ref) {
+  ref.watch(currentUserIdProvider);
   return ChatThreadsNotifier(ref.watch(chatRepositoryProvider));
 });
 

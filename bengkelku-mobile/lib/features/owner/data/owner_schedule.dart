@@ -201,8 +201,10 @@ class OwnerScheduleRepository {
   Future<void> removeClosure(DateTime date) =>
       _client.rpc("owner_closure_remove", params: {"p_date": _date(date)});
 
-  Future<OwnerSchedule> setTempClosed(DateTime? until,
-          {String? reason}) async =>
+  Future<OwnerSchedule> setTempClosed(
+    DateTime? until, {
+    String? reason,
+  }) async =>
       kDemoPreview
           ? DemoData.update(
               tempClosedUntil: until,

@@ -6,8 +6,10 @@ import "../core/demo/demo_data.dart";
 import "../core/network/supabase_client.dart";
 
 // Auth & Location
+import "../features/auth/presentation/auth_provider.dart";
 import "../features/auth/presentation/forgot_password_screen.dart";
 import "../features/auth/presentation/login_screen.dart";
+import "../features/auth/presentation/reset_password_screen.dart";
 import "../features/location/presentation/location_screen.dart";
 
 // Discovery & Detail
@@ -75,21 +77,54 @@ import "../features/support/presentation/support_tickets_screen.dart";
 
 /// Router lengkap go_router untuk seluruh layar BengkelKu Mobile (Rider & Owner).
 final routerProvider = Provider<GoRouter>((ref) {
+  final auth = ref.watch(authRefreshProvider);
+
   return GoRouter(
     initialLocation: "/home",
+    // Evaluasi ulang redirect setiap kali sesi berubah (login, logout,
+    // token kedaluwarsa, kembali dari OAuth, tautan reset kata sandi).
+    refreshListenable: auth,
     redirect: (context, state) {
-      final loggedIn = kDemoPreview || SupabaseService.isLoggedIn;
-      final loggingIn = state.matchedLocation == "/login" ||
-          state.matchedLocation == "/forgot-password";
+      final loc = state.matchedLocation;
 
-      if (!loggedIn && !loggingIn) return "/login";
-      if (loggedIn && loggingIn) return "/home";
+      // Deep link OAuth / konfirmasi / reset sandi
+      // (bengkelku://login-callback?code=...) ditangani Supabase;
+      // jangan sampai menjadi halaman "tidak ditemukan".
+      if (loc == "/login-callback" || state.uri.host == "login-callback") {
+        return SupabaseService.isLoggedIn ? "/home" : "/login";
+      }
+
+      if (kDemoPreview) {
+        return loc == "/login" || loc == "/forgot-password" ? "/home" : null;
+      }
+
+      final loggedIn = SupabaseService.isLoggedIn;
+
+      // Tautan reset kata sandi dibuka → paksa ke layar sandi baru.
+      if (loggedIn && auth.passwordRecovery) {
+        return loc == "/reset-password" ? null : "/reset-password";
+      }
+
+      final onAuthPage = loc == "/login" || loc == "/forgot-password";
+      if (!loggedIn && !onAuthPage) return "/login";
+      if (loggedIn && (onAuthPage || loc == "/reset-password")) {
+        return "/home";
+      }
       return null;
     },
+    errorBuilder: (c, s) => const LoginScreen(),
     routes: [
       GoRoute(
         path: "/login",
         builder: (c, s) => const LoginScreen(),
+      ),
+      GoRoute(
+        path: "/login-callback",
+        builder: (c, s) => const LoginScreen(),
+      ),
+      GoRoute(
+        path: "/reset-password",
+        builder: (c, s) => const ResetPasswordScreen(),
       ),
       GoRoute(
         path: "/forgot-password",
